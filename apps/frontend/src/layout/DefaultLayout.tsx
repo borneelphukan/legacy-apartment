@@ -5,32 +5,30 @@ import Loader from "@/components/layoutComponents/Loader";
 import Head from "next/head";
 import React, { useState, useEffect } from "react";
 
-const DefaultLayout = ({ children }) => {
+const DefaultLayout = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    // Simulate a loading delay
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
+    // Rely immediately on Loader completing to hide it
   }, []);
+
   return (
     <div>
       <Head>
-        <title>BDesign | Corporate Theme Template</title>
+        <title>Welcome | Borneel Bikash Phukan</title>
       </Head>
       {isLoading ? (
-        <Loader />
+        <Loader onComplete={() => setIsLoading(false)} />
       ) : (
-        <div className="bg-gray-100 min-h-screen">
+        <div className="min-h-screen relative">
           <Navbar />
-          {/* Main content */}
-          <main>
+
+          <main className="">
             {children}
             <CircularProgressBar />
           </main>
 
           <footer>
-            {/* Footer will go here */}
             <Footer />
           </footer>
         </div>

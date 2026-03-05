@@ -1,6 +1,9 @@
 {
   "name": "corporate-theme-monorepo",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
