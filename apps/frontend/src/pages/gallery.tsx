@@ -61,6 +61,16 @@ const Gallery = () => {
           
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 mt-10">
 
+          {/* Header Section */}
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-5xl font-extrabold text-black mb-4 tracking-tight">
+              Our <span className="text-orange-500">Gallery</span>
+            </h2>
+            <p className="text-gray-600 md:text-lg max-w-2xl mx-auto">
+              A visual journey through the vibrant celebrations, tranquil spaces, and cherished moments that define the unique spirit and architectural elegance of our community.
+            </p>
+          </div>
+
           {/* Masonry/Bento Grid for Photos */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 auto-rows-[200px] md:auto-rows-[250px]">
             {photos.map((photo, index) => (

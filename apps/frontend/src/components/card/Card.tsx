@@ -1,12 +1,16 @@
 import React from "react";
 import Link from "next/link";
-import "font-awesome/css/font-awesome.min.css";
+import StorageIcon from "@mui/icons-material/Storage";
+import CodeIcon from "@mui/icons-material/Code";
+import EditIcon from "@mui/icons-material/Edit";
 
 const Card = ({ icon, title, content }) => {
+  const IconComponent = icon === "Storage" ? StorageIcon : icon === "Code" ? CodeIcon : EditIcon;
+
   return (
     <div className="max-w-xl rounded overflow-hidden shadow-lg bg-white py-10 px-5">
       <div className="text-4xl text-gray-600 px-5">
-        <i className={`text-4xl text-gray-500 fa ${icon} mb-4`}></i>
+        <IconComponent className="mb-4 text-gray-500" fontSize="inherit" />
       </div>
 
       <div className="px-6 py-4">

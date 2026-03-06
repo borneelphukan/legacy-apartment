@@ -1,11 +1,15 @@
 import React from "react";
-import "font-awesome/css/font-awesome.min.css";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import PhoneIcon from "@mui/icons-material/Phone";
 
 const ContactCard = ({ icon, title, address }) => {
+  const IconComponent = icon === "LocationOn" ? LocationOnIcon : icon === "AccessTime" ? AccessTimeIcon : PhoneIcon;
+
   return (
     <div className="max-w-xl rounded overflow-hidden shadow-lg py-10 px-5">
-      <div className="text-4xl px-5">
-        <i className={`text-4xl fa ${icon} mb-4`}></i>
+      <div className="text-4xl px-5 text-gray-600">
+        <IconComponent className="mb-4" fontSize="inherit" />
       </div>
 
       <div className="px-6 py-4">

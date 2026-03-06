@@ -109,3 +109,10 @@ body {
   background-position: center;
   height: 55vh;
 }
+
+.committee-cover {
+  background-image: url("/images/banners/ourteam-banner.jpg"); 
+  background-size: cover;
+  background-position: center;
+  height: 55vh;
+}

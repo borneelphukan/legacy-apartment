@@ -1,16 +1,16 @@
 [
   {
-    "icon": "fa-light fa-database",
+    "icon": "Storage",
     "title": "Database System",
     "content": "This was released more than 6 years ago and it is still one of the top selling themes, based on stable framework."
   },
   {
-    "icon": "fa-light fa-code",
+    "icon": "Code",
     "title": "Graphic Portfolio",
     "content": "This is a consistent and reliable theme, we're improving it all the time adding new features, staying on top."
   },
   {
-    "icon": "fa-light fa-pencil",
+    "icon": "Edit",
     "title": "Growth Trends 2023",
     "content": "We have many returning customers that got to trust us as a solid partner. Join the 50,000+ happy BDesign users."
   }

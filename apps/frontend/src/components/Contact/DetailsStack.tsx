@@ -8,19 +8,19 @@ const DetailsStack = () => {
         <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-8 p-5">
           {/* First Card */}
           <ContactCard
-            icon="fa-light fa-database"
+            icon="LocationOn"
             title="BDesign Address"
             address="Vettersstrasse 70, Stadt Chemnitz 09126 Deutschland"
           />
           {/* Second Card */}
           <ContactCard
-            icon="fa-light fa-database"
+            icon="AccessTime"
             title="Business Hours"
             address="We are open 6 days a week from 7am to 9pm, Sunday closed."
           />
           {/* Third Card */}
           <ContactCard
-            icon="fa-light fa-database"
+            icon="Phone"
             title="Let's Talk"
             address="Phone Number: +49 176 7125 9396 Whatsapp: +91 943500 5619"
           />

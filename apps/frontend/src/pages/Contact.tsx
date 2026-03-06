@@ -18,6 +18,16 @@ const Contact = () => {
         <div className="relative z-10 pb-20">
           <ContactBanner />
           <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Contact Us" }]} />
+          
+          <div className="max-w-4xl mx-auto px-6 md:px-12 mt-12 text-center">
+            <h2 className="text-3xl md:text-5xl font-extrabold text-black mb-4 tracking-tight">
+              Get in <span className="text-orange-500">Touch</span>
+            </h2>
+            <p className="text-gray-600 md:text-lg max-w-2xl mx-auto">
+              We&apos;re always here to listen. Whether you have an inquiry, constructive feedback, or simply want to connect with the society office, our dedicated team is just a message away.
+            </p>
+          </div>
+
           <DetailsStack />
           <ContactForm/>
         </div>

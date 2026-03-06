@@ -109,7 +109,7 @@ const Rules = () => {
                 Society <span className="text-orange-500">Guidelines</span>
               </h2>
               <p className="text-gray-600 md:text-lg">
-                Please review our comprehensive rules designed to ensure a safe, clean, and happy community for all residents.
+                The foundation of our harmonious lifestyle. We invite you to explore the guidelines designed to foster mutual respect, ensure unparalleled safety, and nurture a vibrant quality of life for all residents.
               </p>
             </div>
 
