@@ -5,14 +5,19 @@ import Head from "next/head";
 import Banner from "@/components/banner";
 import Breadcrumb from "@/components/breadcrumb";
 import Button from "@/components/button";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
+import DomainOutlinedIcon from "@mui/icons-material/DomainOutlined";
+import LocalParkingOutlinedIcon from "@mui/icons-material/LocalParkingOutlined";
+import PetsOutlinedIcon from "@mui/icons-material/PetsOutlined";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 
 const rulesData = [
   {
     category: "General Rules",
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
+      <InfoOutlinedIcon className="w-6 h-6" />
     ),
     rules: [
       "Maintain peace and harmony within the society premises.",
@@ -24,9 +29,7 @@ const rulesData = [
   {
     category: "Security & Visitors",
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-      </svg>
+      <SecurityOutlinedIcon className="w-6 h-6" />
     ),
     rules: [
       "All guests must register at the reception via the society app before entering.",
@@ -37,9 +40,7 @@ const rulesData = [
   {
     category: "Facilities & Amenities",
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-      </svg>
+      <DomainOutlinedIcon className="w-6 h-6" />
     ),
     rules: [
       "The clubhouse and gym are restricted to residents only. Guests must be accompanied.",
@@ -50,9 +51,7 @@ const rulesData = [
   {
     category: "Parking Guidelines",
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-      </svg>
+      <LocalParkingOutlinedIcon className="w-6 h-6" />
     ),
     rules: [
       "Vehicles must be parked only in the designated allotted slots.",
@@ -63,9 +62,7 @@ const rulesData = [
   {
     category: "Pet Policies",
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
-      </svg>
+      <PetsOutlinedIcon className="w-6 h-6" />
     ),
     rules: [
       "Pets must be kept on a leash at all times in common areas.",
@@ -139,9 +136,7 @@ const Rules = () => {
                         </h3>
                       </div>
                       <div className={`transform transition-transform duration-300 ${isOpen ? "rotate-180 text-orange-500" : "text-gray-400"}`}>
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                        </svg>
+                        <KeyboardArrowDownIcon className="w-6 h-6" />
                       </div>
                     </button>
 
@@ -171,7 +166,7 @@ const Rules = () => {
             <div className="mt-12 flex justify-center">
               <Button 
                 variant="primary" 
-                icon={{ left: <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg> }}
+                icon={{ left: <FileDownloadOutlinedIcon className="w-5 h-5 mr-2" /> }}
               >
                 Download Rulebook PDF
               </Button>

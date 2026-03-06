@@ -4,6 +4,10 @@ import DefaultLayout from "@/layout/DefaultLayout";
 import Head from "next/head";
 import Banner from "@/components/banner";
 import Breadcrumb from "@/components/breadcrumb";
+import EmailIcon from "@mui/icons-material/Email";
+import PhoneIcon from "@mui/icons-material/Phone";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
 const meetingDecisions = {
   "2023": [
@@ -92,10 +96,10 @@ const Committee = () => {
                   {/* Social/Contact quick links placeholder */}
                   <div className="flex space-x-4 mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <button className="text-gray-400 hover:text-orange-500 transition-colors">
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" /></svg>
+                      <EmailIcon className="w-5 h-5" />
                     </button>
                     <button className="text-gray-400 hover:text-orange-500 transition-colors">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                      <PhoneIcon className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
@@ -132,7 +136,7 @@ const Committee = () => {
                     }`}
                     disabled={Object.keys(meetingDecisions).sort().indexOf(selectedYear) === 0}
                   >
-                    <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"/></svg>
+                    <KeyboardArrowLeftIcon className="w-5 h-5 md:w-6 md:h-6" />
                   </button>
                   <div className="text-xl md:text-2xl font-extrabold text-orange-500 min-w-[80px] text-center">{selectedYear}</div>
                   <button 
@@ -148,7 +152,7 @@ const Committee = () => {
                     }`}
                     disabled={Object.keys(meetingDecisions).sort().indexOf(selectedYear) === Object.keys(meetingDecisions).length - 1}
                   >
-                    <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/></svg>
+                    <KeyboardArrowRightIcon className="w-5 h-5 md:w-6 md:h-6" />
                   </button>
                 </div>
               </div>

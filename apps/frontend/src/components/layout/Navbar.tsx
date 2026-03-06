@@ -3,6 +3,9 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
 
 
 const Navbar = () => {
@@ -245,7 +248,7 @@ const Navbar = () => {
              }}
           >
             <span>Our Society</span>
-            <svg className={`w-4 h-4 transition-transform ${showMobileSocietySubNav ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+            <KeyboardArrowDownIcon className={`w-6 h-6 transition-transform ${showMobileSocietySubNav ? "rotate-180" : ""}`} />
           </button>
           
           <div className={`overflow-hidden transition-all duration-300 bg-gray-50 ${showMobileSocietySubNav ? "max-h-[500px]" : "max-h-0"}`}>
@@ -282,7 +285,7 @@ const Navbar = () => {
             }}
           >
             <span>Services</span>
-            <svg className={`w-4 h-4 transition-transform ${showMobileServicesSubNav ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+            <KeyboardArrowDownIcon className={`w-6 h-6 transition-transform ${showMobileServicesSubNav ? "rotate-180" : ""}`} />
           </button>
           
           <div className={`overflow-hidden transition-all duration-300 bg-gray-50 ${showMobileServicesSubNav ? "max-h-[500px]" : "max-h-0"}`}>
@@ -319,7 +322,7 @@ const Navbar = () => {
             }}
           >
             <span>Events</span>
-            <svg className={`w-4 h-4 transition-transform ${showMobileEventsSubNav ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+            <KeyboardArrowDownIcon className={`w-6 h-6 transition-transform ${showMobileEventsSubNav ? "rotate-180" : ""}`} />
           </button>
           <div className={`overflow-hidden transition-all duration-300 bg-gray-50 ${showMobileEventsSubNav ? "max-h-[500px]" : "max-h-0"}`}>
             <ul className="w-full flex flex-col">
@@ -362,17 +365,9 @@ const Navbar = () => {
           aria-label="Open Mobile Menu"
         >
           {showMobileMenu ? (
-            <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <CloseIcon className="h-8 w-8" />
           ) : (
-            <svg className="h-8 w-8 fill-current" viewBox="0 0 24 24">
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M1 5h22v2H1V5zm0 7h22v2H1v-2zm0 7h22v2H1v-2z"
-              />
-            </svg>
+            <MenuIcon className="h-8 w-8" />
           )}
         </button>
       </div>

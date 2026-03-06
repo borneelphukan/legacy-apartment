@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import DefaultLayout from "@/layout/DefaultLayout";
 import Link from "next/link";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import Button from "@/components/button";
+import residentsData from "@/data/residents.json";
 
 const bannerImages = [
   "url('/cover.webp')",
@@ -15,14 +18,37 @@ const latestDecisions = [
   { date: "10 Nov 2022", title: "Clubhouse Renovation", description: "Approved the interior redesign." }
 ];
 
-const baseNames = ["Arjun", "Priya", "Rahul", "Neha", "Suresh", "Anjali", "Vikram", "Deepa", "Amit", "Kavita", "Ravi", "Sneha", "Karan", "Pooja", "Vikash", "Ritu", "Harsh", "Divya", "Gaurav", "Anita"];
-const baseSurnames = ["Mehta", "Desai", "Singh", "Verma", "Rao", "Gupta", "Malhotra", "Shah", "Kumar", "Sharma", "Nair", "Patel", "Reddy", "Chauhan", "Bose"];
+const residents = residentsData;
 
-const residents = Array.from({ length: 38 }).map((_, i) => ({
-  name: `${baseNames[i % baseNames.length]} ${baseSurnames[i % baseSurnames.length]}`,
-  flat: `${String.fromCharCode(65 + (i % 3))}-${101 + (i % 20)}`,
-  image: `https://i.pravatar.cc/150?img=${((i + 10) % 70) + 1}`
-}));
+const AnimatedCounter = ({ end, duration = 2000, suffix = "" }: { end: number, duration?: number, suffix?: string }) => {
+  const [count, setCount] = useState(0);
+  const counterRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          let startTimestamp: number | null = null;
+          const step = (timestamp: number) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            setCount(Math.floor(progress * end));
+            if (progress < 1) {
+              window.requestAnimationFrame(step);
+            }
+          };
+          window.requestAnimationFrame(step);
+          observer.disconnect(); // Only animate once
+        }
+      },
+      { threshold: 0.5 }
+    );
+    if (counterRef.current) observer.observe(counterRef.current);
+    return () => observer.disconnect();
+  }, [end, duration]);
+
+  return <span ref={counterRef}>{count}{suffix}</span>;
+};
 
 const Home = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -138,19 +164,27 @@ const Home = () => {
                 <div className="grid grid-cols-2 gap-y-5 gap-x-6">
                   <div className="flex flex-col">
                     <span className="text-gray-500 text-sm md:text-base mb-1 tracking-wide">Founded</span>
-                    <span className="text-4xl md:text-5xl font-bold text-gray-800">2010</span>
+                    <span className="text-4xl md:text-5xl font-bold text-gray-800">
+                      <AnimatedCounter end={2010} />
+                    </span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-gray-500 text-sm md:text-base mb-1 tracking-wide">Families</span>
-                    <span className="text-4xl md:text-5xl font-bold text-gray-800">38</span>
+                    <span className="text-4xl md:text-5xl font-bold text-gray-800">
+                      <AnimatedCounter end={residents.length} />
+                    </span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-gray-500 text-sm md:text-base mb-1 tracking-wide">Events Hosted</span>
-                    <span className="text-4xl md:text-5xl font-bold text-gray-800">150+</span>
+                    <span className="text-4xl md:text-5xl font-bold text-gray-800">
+                      <AnimatedCounter end={150} suffix="+" />
+                    </span>
                   </div>
                   <div className="flex flex-col">
                     <span className="text-gray-500 text-sm md:text-base mb-1 tracking-wide">Amenities</span>
-                    <span className="text-4xl md:text-5xl font-bold text-gray-800">20+</span>
+                    <span className="text-4xl md:text-5xl font-bold text-gray-800">
+                      <AnimatedCounter end={20} suffix="+" />
+                    </span>
                   </div>
                 </div>
               </div>
@@ -169,7 +203,7 @@ const Home = () => {
                     <span className="text-xs font-bold text-orange-500 mb-1 block uppercase tracking-wider">
                       {decision.date}
                     </span>
-                    <h3 className="text-sm font-bold text-gray-800 group-hover:text-blue-500 transition-colors mb-1 line-clamp-1">
+                    <h3 className="text-sm font-bold text-gray-800 group-hover:text-orange-500 transition-colors mb-1 line-clamp-1">
                       {decision.title}
                     </h3>
                     <p className="text-xs text-gray-500 line-clamp-2">
@@ -179,7 +213,7 @@ const Home = () => {
                 ))}
               </div>
               <div className="mt-6 pt-4 border-t border-gray-100 text-center flex justify-center">
-                <Link href="/committee" className="text-sm text-blue-500 hover:text-blue-600 font-semibold flex items-center justify-center group">
+                <Link href="/committee" className="text-sm text-orange-500 hover:text-orange-600 font-semibold flex items-center justify-center group">
                   View All Decisions <ArrowForwardIcon className="ml-1 w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
@@ -240,7 +274,7 @@ const Home = () => {
       {/* Re-open the high z-index native scrolling layer so the content below gracefully overlaps the sticky banner behind it */}
       <div className="z-10 w-full relative bg-white shadow-[0_-20px_50px_rgba(0,0,0,0.15)] flex flex-col items-center py-20 px-4 md:px-8">
         <h2 className="text-3xl md:text-4xl font-extrabold text-center text-gray-800 mb-4 tracking-tight">
-          Meet Our <span className="text-blue-500">Residents</span>
+          Meet Our <span className="text-orange-500">Residents</span>
         </h2>
         <p className="text-gray-500 text-lg max-w-2xl text-center mb-12">
           Say hello to some of the wonderful families and individuals who make up our vibrant community.
@@ -276,20 +310,20 @@ const Home = () => {
            
           {/* Controls for mobile / Dots */}
           <div className="flex justify-center items-center mt-8 space-x-6 md:space-x-4">
-            <button onClick={handlePrevResident} className="lg:hidden p-2 text-gray-400 hover:text-blue-500 bg-white shadow-sm rounded-full border border-gray-100 transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+            <button onClick={handlePrevResident} className="lg:hidden p-2 text-gray-400 hover:text-orange-500 bg-white shadow-sm rounded-full border border-gray-100 transition-colors">
+              <KeyboardArrowLeftIcon className="w-5 h-5" />
             </button>
             <div className="flex space-x-3">
               {residentChunks.map((_, idx) => (
                 <button 
                   key={idx} 
                   onClick={() => setCurrentResidentIndex(idx)} 
-                  className={`h-2.5 md:h-3 rounded-full transition-all duration-300 ${currentResidentIndex === idx ? 'bg-blue-500 w-6 md:w-8' : 'w-2.5 md:w-3 bg-gray-300 hover:bg-gray-400'}`}
+                  className={`h-2.5 md:h-3 rounded-full transition-all duration-300 ${currentResidentIndex === idx ? 'bg-orange-500 w-6 md:w-8' : 'w-2.5 md:w-3 bg-gray-300 hover:bg-gray-400'}`}
                 ></button>
               ))}
             </div>
-            <button onClick={handleNextResident} className="md:hidden p-2 text-gray-400 hover:text-blue-500 bg-white shadow-sm rounded-full border border-gray-100 transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+            <button onClick={handleNextResident} className="md:hidden p-2 text-gray-400 hover:text-orange-500 bg-white shadow-sm rounded-full border border-gray-100 transition-colors">
+              <KeyboardArrowRightIcon className="w-5 h-5" />
             </button>
           </div>
         </div>

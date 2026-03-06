@@ -37,7 +37,7 @@ const Button = ({
       break;
     case 'secondary':
       baseStyles =
-        'flex items-center justify-center gap-2 rounded-full font-medium transition-all text-sm md:text-base !px-8 !py-4 !bg-white !text-blue-600 !border-0 hover:scale-105 hover:shadow-[0_0_40px_rgba(255,255,255,0.4)] active:scale-95';
+        'flex items-center justify-center gap-2 rounded-full font-medium transition-all text-sm md:text-base !px-4 !py-2 !bg-white !text-blue-600 !border-0 hover:scale-105 active:scale-95';
       break;
     case 'transparent':
       baseStyles =

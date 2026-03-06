@@ -4,6 +4,9 @@ import DefaultLayout from "@/layout/DefaultLayout";
 import Head from "next/head";
 import Banner from "@/components/banner";
 import Breadcrumb from "@/components/breadcrumb";
+import CloseIcon from "@mui/icons-material/Close";
+import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
 const photos = [
   { id: 0, src: "https://picsum.photos/1200/1200?random=1", alt: "Society Event 1", className: "col-span-1 md:col-span-2 md:row-span-2" },
@@ -108,9 +111,7 @@ const Gallery = () => {
             className="absolute top-6 right-6 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-all z-50 backdrop-blur-md"
             onClick={handleCloseModal}
           >
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <CloseIcon className="w-8 h-8" />
           </button>
 
           {/* Previous Button */}
@@ -118,9 +119,7 @@ const Gallery = () => {
             className="absolute left-4 md:left-10 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-3 md:p-4 rounded-full transition-all z-50 backdrop-blur-md transform hover:-translate-x-1"
             onClick={handlePrevPhoto}
           >
-            <svg className="w-8 h-8 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
+            <KeyboardArrowLeftIcon className="w-8 h-8 md:w-10 md:h-10" />
           </button>
 
           {/* Current Image */}
@@ -143,9 +142,7 @@ const Gallery = () => {
             className="absolute right-4 md:right-10 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-3 md:p-4 rounded-full transition-all z-50 backdrop-blur-md transform hover:translate-x-1"
             onClick={handleNextPhoto}
           >
-            <svg className="w-8 h-8 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+            <KeyboardArrowRightIcon className="w-8 h-8 md:w-10 md:h-10" />
           </button>
         </div>
       )}
