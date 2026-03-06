@@ -1,7 +1,6 @@
 import React from "react";
 import contactData from "@/data/contact-data.json";
 import Link from "next/link";
-import Image from "next/image";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";

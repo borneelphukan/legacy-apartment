@@ -29,8 +29,8 @@
   },
   "devDependencies": {
     "@types/node": "20.10.0",
-    "@types/react": "18.2.38",
-    "@types/react-dom": "^18.3.7",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "typescript": "^5.9.3"
   },
   "packageManager": "pnpm@8.15.3+sha512.dd85cd6eca6417c6f73db32ba1eb4767ffb4cba4f5bf0727846722c92b6b9e56a2cc218b11385bbc2b21f18a16a67da77aceae9b61a0f56a1643b25e1fb6a605"
