@@ -15,7 +15,7 @@ const Card = ({ icon, title, content }) => {
       </div>
       <div className="px-6 py-4">
         <Link
-          href="/AboutUs"
+          href="#"
           className="font-bold text-black hover:text-orange-500 transition-colors duration-300 underline underline-offset-8"
         >
           Read More
