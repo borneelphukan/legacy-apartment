@@ -6,7 +6,8 @@
   },
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev",
+    "dev": "rm -rf apps/frontend/.next apps/admin/.next && turbo dev",
+    "fix-dev": "rm -rf apps/frontend/.next apps/admin/.next && turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "clean": "rm -rf node_modules"

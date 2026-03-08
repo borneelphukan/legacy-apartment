@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DefaultLayout from "@/layout/DefaultLayout";
 import Head from "next/head";
 import { Banner, Breadcrumb } from "@legacy-apartment/ui";
@@ -8,22 +8,7 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
-const meetingDecisions = {
-  "2023": [
-    { date: "12 Dec 2023", title: "Annual General Meeting", description: "Discussed budget for the next year and approved the new maintenance vendor.", status: "Approved" },
-    { date: "05 Oct 2023", title: "Security Upgrade", description: "Decided to install 20 new CCTV cameras across all building lobbies and basement parking.", status: "Implemented" },
-    { date: "15 Jul 2023", title: "Monsoon Preparedness", description: "Completed waterproofing of terraces and cleared all storm water drains.", status: "Completed" }
-  ],
-  "2022": [
-    { date: "10 Nov 2022", title: "Clubhouse Renovation", description: "Approved the interior redesign and procurement of new gym equipment.", status: "Completed" },
-    { date: "22 Aug 2022", title: "Solar Panel Installation", description: "Approved the proposal to install solar panels for common area lighting.", status: "Implemented" },
-    { date: "05 Mar 2022", title: "Waste Management Strategy", description: "Introduced a mandatory twin-bin system for wet and dry waste segregation.", status: "Implemented" }
-  ],
-  "2021": [
-    { date: "15 Dec 2021", title: "Parking Re-allotment", description: "Successfully re-allotted visitor parking slots to alleviate congestion.", status: "Completed" },
-    { date: "10 Apr 2021", title: "Fire Safety Audit", description: "Conducted a comprehensive fire safety audit and replaced all expired extinguishers.", status: "Completed" },
-  ]
-};
+
 
 const committeeMembers = [
   {
@@ -47,7 +32,36 @@ const committeeMembers = [
 ];
 
 const Committee = () => {
-  const [selectedYear, setSelectedYear] = useState<string>("2023");
+  const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
+  const [announcements, setAnnouncements] = useState<Record<string, any[]>>({});
+
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const response = await fetch('http://localhost:4000/announcements');
+        if (response.ok) {
+          const data = await response.json();
+          // Group by year
+          const grouped: Record<string, any[]> = {};
+          data.forEach((ann: any) => {
+            const year = new Date(ann.date).getFullYear().toString();
+            if (!grouped[year]) grouped[year] = [];
+            grouped[year].push({
+                ...ann,
+                date: new Date(ann.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+            });
+          });
+          setAnnouncements(grouped);
+          
+          const years = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
+          if (years.length > 0) setSelectedYear(years[0]);
+        }
+      } catch (error) {
+        console.error('Error fetching announcements:', error);
+      }
+    };
+    fetchAnnouncements();
+  }, []);
 
   return (
     <DefaultLayout>
@@ -124,32 +138,32 @@ const Committee = () => {
                 <div className="flex items-center justify-center md:justify-end space-x-3 mb-6 md:mb-8 text-gray-800">
                   <button 
                     onClick={() => {
-                      const sortedYears = Object.keys(meetingDecisions).sort();
+                      const sortedYears = Object.keys(announcements).sort();
                       const idx = sortedYears.indexOf(selectedYear);
                       if (idx > 0) setSelectedYear(sortedYears[idx - 1]);
                     }}
                     className={`p-1.5 rounded-full transition-colors ${
-                      Object.keys(meetingDecisions).sort().indexOf(selectedYear) > 0 
+                      Object.keys(announcements).sort().indexOf(selectedYear) > 0 
                         ? "hover:bg-orange-50 hover:text-orange-500 text-gray-600 cursor-pointer" 
                         : "text-gray-300 cursor-not-allowed"
                     }`}
-                    disabled={Object.keys(meetingDecisions).sort().indexOf(selectedYear) === 0}
+                    disabled={Object.keys(announcements).sort().indexOf(selectedYear) <= 0}
                   >
                     <KeyboardArrowLeftIcon className="w-5 h-5 md:w-6 md:h-6" />
                   </button>
                   <div className="text-xl md:text-2xl font-extrabold text-orange-500 min-w-[80px] text-center">{selectedYear}</div>
                   <button 
                     onClick={() => {
-                      const sortedYears = Object.keys(meetingDecisions).sort();
+                      const sortedYears = Object.keys(announcements).sort();
                       const idx = sortedYears.indexOf(selectedYear);
                       if (idx < sortedYears.length - 1) setSelectedYear(sortedYears[idx + 1]);
                     }}
                     className={`p-1.5 rounded-full transition-colors ${
-                      Object.keys(meetingDecisions).sort().indexOf(selectedYear) < Object.keys(meetingDecisions).length - 1 
+                      Object.keys(announcements).sort().indexOf(selectedYear) < Object.keys(announcements).length - 1 
                         ? "hover:bg-orange-50 hover:text-orange-500 text-gray-600 cursor-pointer" 
                         : "text-gray-300 cursor-not-allowed"
                     }`}
-                    disabled={Object.keys(meetingDecisions).sort().indexOf(selectedYear) === Object.keys(meetingDecisions).length - 1}
+                    disabled={Object.keys(announcements).sort().indexOf(selectedYear) >= Object.keys(announcements).length - 1}
                   >
                     <KeyboardArrowRightIcon className="w-5 h-5 md:w-6 md:h-6" />
                   </button>
@@ -159,7 +173,7 @@ const Committee = () => {
               {/* Stepper / Timeline */}
               <div className="max-w-4xl mx-auto px-4 md:px-0">
                 <div className="relative border-l-4 border-orange-100 ml-4 md:ml-8">
-                  {meetingDecisions[selectedYear as keyof typeof meetingDecisions]?.map(
+                  {announcements[selectedYear]?.map(
                     (decision, idx) => {
                       return (
                         <div

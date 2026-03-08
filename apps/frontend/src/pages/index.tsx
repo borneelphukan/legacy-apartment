@@ -11,13 +11,6 @@ const bannerImages = [
   "url('/cover.webp')",
 ];
 
-const latestDecisions = [
-  { date: "12 Dec 2023", title: "Annual General Meeting", description: "Discussed budget for the next year." },
-  { date: "05 Oct 2023", title: "Security Upgrade", description: "Decided to install 20 new CCTV cameras." },
-  { date: "15 Jul 2023", title: "Monsoon Preparedness", description: "Completed waterproofing of terraces." },
-  { date: "10 Nov 2022", title: "Clubhouse Renovation", description: "Approved the interior redesign." }
-];
-
 const residents = residentsData;
 
 const AnimatedCounter = ({ end, duration = 2000, suffix = "" }: { end: number, duration?: number, suffix?: string }) => {
@@ -54,6 +47,22 @@ const Home = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentResidentIndex, setCurrentResidentIndex] = useState(0);
   const [itemsPerSlide, setItemsPerSlide] = useState(16);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const response = await fetch('http://localhost:4000/announcements');
+        if (response.ok) {
+          const data = await response.json();
+          setAnnouncements(data);
+        }
+      } catch (error) {
+        console.error('Error fetching announcements:', error);
+      }
+    };
+    fetchAnnouncements();
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -198,19 +207,22 @@ const Home = () => {
                 <span className="bg-orange-100 text-orange-600 text-xs py-1 px-2 rounded-full">New</span>
               </h2>
               <div className="space-y-5 overflow-y-auto flex-grow pr-2">
-                {latestDecisions.map((decision, idx) => (
-                  <div key={idx} className="group cursor-pointer">
+                {announcements.map((ann, idx) => (
+                  <div key={idx} className="group cursor-pointer border-b border-gray-50 pb-4 last:border-none">
                     <span className="text-xs font-bold text-orange-500 mb-1 block uppercase tracking-wider">
-                      {decision.date}
+                      {new Date(ann.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </span>
                     <h3 className="text-sm font-bold text-gray-800 group-hover:text-orange-500 transition-colors mb-1 line-clamp-1">
-                      {decision.title}
+                      {ann.title}
                     </h3>
                     <p className="text-xs text-gray-500 line-clamp-2">
-                      {decision.description}
+                      {ann.description}
                     </p>
                   </div>
                 ))}
+                {announcements.length === 0 && (
+                  <p className="text-xs text-gray-400 text-center py-4 italic">No recent announcements</p>
+                )}
               </div>
               <div className="mt-6 pt-4 border-t border-gray-100 text-center flex justify-center">
                 <Link href="/committee" className="text-sm text-orange-500 hover:text-orange-600 font-semibold flex items-center justify-center group">

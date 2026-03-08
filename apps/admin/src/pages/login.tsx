@@ -15,7 +15,7 @@ export default function Login() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch('/api/login', {
+      const res = await fetch('http://localhost:4000/user/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -65,25 +65,17 @@ export default function Login() {
         <title>Login | Legacy Apartment Admin</title>
       </Head>
       
-      <div className="relative min-h-[calc(100vh-80px)] w-full flex items-center justify-center overflow-hidden py-12 px-4 sm:px-6 lg:px-8">
-        {/* Background elements to match indexed design */}
-        <div className="absolute inset-0 bg-gray-950 -z-10">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px)] bg-[size:10vw_100%]"></div>
-          <div className="absolute inset-0 bg-[radial-gradient(#ffffff10_1px,transparent_1px)] bg-[size:32px_32px]"></div>
-          {/* Subtle orange glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-orange-500/10 blur-[120px] rounded-full opacity-50"></div>
-        </div>
-
+      <div className="relative min-h-[calc(100vh-80px)] w-full flex items-center justify-center overflow-hidden py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-md w-full z-10">
-          <div className="bg-white/5 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/10 p-8 md:p-10">
+          <div className="bg-white rounded-[2.5rem] shadow-xl border border-gray-400 p-8 md:p-10">
             <div className="text-center mb-10">
-              <span className="inline-block px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 text-xs font-bold uppercase tracking-[0.2em] mb-4">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-600 text-xs font-bold uppercase tracking-[0.2em] mb-4">
                 Admin Portal
               </span>
-              <h1 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter mb-2">
+              <h1 className="text-2xl md:text-3xl font-black text-gray-900 uppercase tracking-tighter mb-2">
                 Login
               </h1>
-              <p className="text-gray-400 font-light">
+              <p className="font-light">
                 Sign in to manage your community
               </p>
             </div>
@@ -91,7 +83,7 @@ export default function Login() {
             <form className="space-y-6" onSubmit={handleLogin}>
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="email-address" className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+                  <label htmlFor="email-address" className="block text-xs font-bold text-gray-100 uppercase tracking-widest mb-2 ml-1">
                     Email Address
                   </label>
                   <input
@@ -99,14 +91,14 @@ export default function Login() {
                     name="email"
                     type="email"
                     required
-                    className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all duration-300"
+                    className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300"
                     placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
                 <div>
-                  <label htmlFor="password" className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+                  <label htmlFor="password" className="block text-xs font-bold text-gray-100 uppercase tracking-widest mb-2 ml-1">
                     Password
                   </label>
                   <input
@@ -114,7 +106,7 @@ export default function Login() {
                     name="password"
                     type="password"
                     required
-                    className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all duration-300"
+                    className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-300"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
