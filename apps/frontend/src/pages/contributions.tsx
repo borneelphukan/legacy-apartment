@@ -148,6 +148,7 @@ const MaintenancePay = () => {
               theme="blue"
               minWidthClass="min-w-[1000px]"
               className="mb-16"
+              enableLock
             />
 
             {/* Annual security fee section */}
@@ -204,6 +205,7 @@ const MaintenancePay = () => {
               theme="orange"
               minWidthClass="min-w-[800px]"
               className="mb-20"
+              enableLock
             />
 
             {/* Payment Call To Action Section */}

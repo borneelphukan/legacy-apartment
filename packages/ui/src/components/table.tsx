@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Input } from "./input";
+import Button from "./button";
 
 export interface Resident {
   name: string;
@@ -15,6 +17,7 @@ export interface Props {
   theme: "blue" | "orange";
   minWidthClass?: string;
   className?: string;
+  enableLock?: boolean;
 }
 
 const Table = ({
@@ -24,8 +27,9 @@ const Table = ({
   theme,
   minWidthClass = "min-w-[1000px]",
   className = "",
+  enableLock = false,
 }: Props) => {
-  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(!enableLock);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
@@ -54,21 +58,23 @@ const Table = ({
           </div>
           <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-2 tracking-tight">Restricted Access</h3>
           <p className="text-gray-500 mb-8 text-center max-w-sm">Please enter the password to view the contributions data.</p>
-          <form onSubmit={handleUnlock} className="flex flex-col items-center w-full max-w-sm">
-            <input 
+          <form onSubmit={handleUnlock} className="flex flex-col items-center w-full max-w-sm gap-4">
+            <Input 
+              id="unlock-password"
+              label="Password"
+              hideLabel
               type="password" 
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               placeholder="Enter password"
-              className="w-full px-5 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-center bg-white shadow-sm mb-3 font-medium placeholder-gray-400"
+              error={error}
             />
-            {error && <p className="text-red-500 text-sm mb-4 font-medium">{error}</p>}
-            <button 
+            <Button 
               type="submit"
-              className="w-full py-3.5 bg-gray-900 hover:bg-black text-white rounded-xl font-bold shadow-md transition-all active:scale-[0.98] mt-2"
+              variant="primary"
             >
               Unlock Table
-            </button>
+            </Button>
           </form>
         </div>
       ) : (
