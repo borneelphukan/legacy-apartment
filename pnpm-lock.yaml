@@ -32,9 +32,21 @@ importers:
       '@emailjs/browser':
         specifier: ^4.4.1
         version: 4.4.1
+      '@emotion/react':
+        specifier: ^11.14.0
+        version: 11.14.0(@types/react@19.2.14)(react@19.2.4)
+      '@emotion/styled':
+        specifier: ^11.14.1
+        version: 11.14.1(@emotion/react@11.14.0)(@types/react@19.2.14)(react@19.2.4)
       '@legacy-apartment/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@mui/icons-material':
+        specifier: ^7.3.9
+        version: 7.3.9(@mui/material@7.3.9)(@types/react@19.2.14)(react@19.2.4)
+      '@mui/material':
+        specifier: ^7.3.9
+        version: 7.3.9(@emotion/react@11.14.0)(@emotion/styled@11.14.1)(@types/react@19.2.14)(react-dom@19.2.4)(react@19.2.4)
       '@next-auth/prisma-adapter':
         specifier: ^1.0.7
         version: 1.0.7(@prisma/client@7.4.2)(next-auth@4.24.13)

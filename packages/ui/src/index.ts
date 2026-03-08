@@ -7,4 +7,6 @@ export { default as Loader } from "./layout/Loader";
 export { default as Banner } from "./components/banner";
 export { default as Breadcrumb } from "./components/breadcrumb";
 export { default as Button } from "./components/button";
+export { TextArea } from "./components/textarea";
+export { Input } from "./components/input";
 export { default as Table } from "./components/table";
