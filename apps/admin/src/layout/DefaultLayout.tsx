@@ -21,7 +21,6 @@ const DefaultLayout = ({ children }: { children: React.ReactNode }) => {
 
           <main className="">
             {children}
-            <CircularProgressBar />
           </main>
         </div>
       )}

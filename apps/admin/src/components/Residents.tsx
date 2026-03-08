@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input } from '@legacy-apartment/ui';
+import { Button, Input, Upload } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
 import EditIcon from '@mui/icons-material/Edit';
@@ -28,6 +28,7 @@ const Residents = () => {
     avatar: '',
   });
   const [loading, setLoading] = useState(true);
+  const [avatarFiles, setAvatarFiles] = useState<File[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -45,6 +46,20 @@ const Residents = () => {
       console.error('Error fetching residents:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAvatarChange = (files: File[]) => {
+    setAvatarFiles(files);
+    if (files.length > 0) {
+      const file = files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, avatar: reader.result as string });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setFormData({ ...formData, avatar: '' });
     }
   };
 
@@ -77,6 +92,7 @@ const Residents = () => {
         Swal.fire('Success', `Resident ${editingId ? 'updated' : 'created'} successfully!`, 'success');
         setIsFormOpen(false);
         setEditingId(null);
+        setAvatarFiles([]);
         setFormData({ name: '', residence: '', phone_no: '', avatar: '' });
         fetchResidents();
       } else {
@@ -96,6 +112,7 @@ const Residents = () => {
       phone_no: res.phone_no,
       avatar: res.avatar || '',
     });
+    setAvatarFiles([]); // Reset file input when editing (keeps existing URL if not changed)
     setIsFormOpen(true);
   };
 
@@ -146,6 +163,7 @@ const Residents = () => {
             onClick={() => {
                 setEditingId(null);
                 setFormData({ name: '', residence: '', phone_no: '', avatar: '' });
+                setAvatarFiles([]);
                 setIsFormOpen(true);
             }}
         >
@@ -185,14 +203,17 @@ const Residents = () => {
                 onChange={(e) => setFormData({...formData, phone_no: e.target.value})}
                 placeholder="Enter phone number"
               />
-              <Input 
-                id="avatar"
-                label="Avatar URL (Optional)"
-                type="text" 
-                value={formData.avatar}
-                onChange={(e) => setFormData({...formData, avatar: e.target.value})}
-                placeholder="Enter image URL"
-              />
+              <div className="md:col-span-2">
+                <Upload 
+                  label="Profile Image"
+                  value={avatarFiles}
+                  onValueChange={handleAvatarChange}
+                  maxSizeInMB={2}
+                  accept={{ 'image/*': ['.png', '.jpg', '.jpeg'] }}
+                  multiple={false}
+                  hint="PNG, JPG, or JPEG up to 2MB. This image will represent the resident across the dashboard."
+                />
+              </div>
             </div>
             <div className="flex gap-4">
               <Button variant="primary" type="submit">
@@ -221,8 +242,7 @@ const Residents = () => {
             residents.map((res) => (
                 <div 
                     key={res.id} 
-                    onClick={() => router.push(`/finance/${res.id}`)}
-                    className="bg-white p-6 rounded-md border border-gray-500 shadow-md flex justify-between items-center gap-4 hover:shadow-lg transition-all cursor-pointer hover:border-orange-500 group/card"
+                    className="bg-white p-6 rounded-md border border-gray-500 flex justify-between items-center gap-4 transition-all hover:border-orange-500 group/card"
                 >
                     <div className="flex items-center gap-4 text-gray-900 overflow-hidden">
                         <div className="size-16 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border border-gray-200 shrink-0 group-hover/card:border-orange-200">
@@ -237,7 +257,7 @@ const Residents = () => {
                             <p className="text-orange-500 text-sm font-bold">{res.residence} <span className='text-gray-100 text-xs font-medium'> | {res.phone_no}</span></p>
                         </div>
                     </div>
-                    <div className="flex gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex gap-2 shrink-0">
                         <Button 
                             variant="outline"
                             size="icon"

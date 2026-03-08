@@ -9,12 +9,39 @@ import Sidebar from '@/components/Sidebar';
 const AdminDashboard = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'announcements' | 'residents'>('dashboard');
+  const [stats, setStats] = useState({
+    residents: 0,
+    announcements: 0,
+  });
 
   useEffect(() => {
-    if (router.query.tab) {
+    if (router.query.tab) 
       setActiveTab(router.query.tab as any);
-    }
   }, [router.query.tab]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [resResponse, annResponse] = await Promise.all([
+          fetch('http://localhost:4000/residents'),
+          fetch('http://localhost:4000/announcements')
+        ]);
+        
+        if (resResponse.ok && annResponse.ok) {
+          const residents = await resResponse.json();
+          const announcements = await annResponse.json();
+          setStats({
+            residents: residents.length,
+            announcements: announcements.length,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   return (
     <DefaultLayout>
@@ -42,8 +69,8 @@ const AdminDashboard = () => {
               {/* Quick Stats Grid Placeholder */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 {[
-                  { label: 'Total Residents', value: '38'},
-                  { label: 'Active Announcements', value: '8' },
+                  { label: 'Total Residents', value: stats.residents.toString() },
+                  { label: 'Active Announcements', value: stats.announcements.toString() },
                   { label: 'Pending Requests', value: '12' },
                 ].map((stat, i) => (
                   <div key={i} className="bg-white p-8 rounded-xl border border-gray-500">
@@ -53,23 +80,7 @@ const AdminDashboard = () => {
                 ))}
               </div>
 
-              {/* Action Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div 
-                  onClick={() => setActiveTab('announcements')}
-                  className="bg-white p-8 rounded-xl border border-gray-500 hover:border-orange-500 transition-all cursor-pointer group"
-                >
-                  <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mb-6 text-orange-600 group-hover:scale-110 transition-transform">
-                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-                    </svg>
-                  </div>
-                  <h2 className="text-2xl font-bold mb-2">Manage Announcements</h2>
-                  <p className="text-gray-300 text-sm">
-                    Broadcast new updates, news, or alerts to the entire community.
-                  </p>
-                </div>
-              </div>
+
             </div>
           ) : activeTab === 'announcements' ? (
             <div className="max-w-5xl mx-auto">

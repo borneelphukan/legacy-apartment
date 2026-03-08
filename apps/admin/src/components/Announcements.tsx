@@ -149,7 +149,7 @@ const Announcements = () => {
       </div>
 
       {isFormOpen && (
-        <div className="mb-12 bg-white p-8 rounded-md border border-gray-500 shadow-xl overflow-hidden relative">
+        <div className="mb-12 bg-white p-8 rounded-md border border-gray-500 overflow-hidden relative">
           <h2 className="text-2xl font-bold mb-6">{editingId ? 'Edit' : 'Create'} Announcement</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             <Input 
@@ -183,10 +183,9 @@ const Announcements = () => {
                 {editingId ? 'Update' : 'Publish'}
               </Button>
               <Button 
-                variant="secondary"
+                variant="outline"
                 type="button" 
                 onClick={() => setIsFormOpen(false)}
-                className="!bg-gray-500 !text-gray-600 hover:!bg-gray-400 rounded-xl px-8 py-3 border-none"
               >
                 Cancel
               </Button>
@@ -204,8 +203,8 @@ const Announcements = () => {
             </p>
         ) : (
             announcements.map((ann) => (
-                <div key={ann.id} className="bg-white p-6 md:p-8 rounded-md border border-gray-500 shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:shadow-lg transition-shadow">
-                    <div className="flex-1 text-gray-900">
+                <div key={ann.id} className="bg-white p-6 md:p-8 rounded-md border border-gray-500 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                    <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                             <span className="text-xs font-bold text-orange-500 bg-orange-50 px-3 py-1 rounded-full uppercase tracking-tighter">
                                 {new Date(ann.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
@@ -216,17 +215,15 @@ const Announcements = () => {
                     </div>
                     <div className="flex gap-3 shrink-0">
                         <Button 
-                            variant="secondary"
+                            variant="outline"
                             size="icon"
                             onClick={() => handleEdit(ann)}
-                            className="!bg-blue-50 !text-blue-600 hover:!bg-blue-100 !rounded-xl !border-0 !shadow-none !px-0 !py-0"
                             icon={{ left: <EditIcon className="size-5" /> }}
                         />
                         <Button 
                             variant="destructive"
                             size="icon"
                             onClick={() => handleDelete(ann.id)}
-                            className="!bg-red-50 !text-red-600 hover:!bg-red-100 !rounded-xl !border-0 !shadow-none !px-0 !py-0"
                             icon={{ left: <DeleteIcon className="size-5" /> }}
                         />
                     </div>

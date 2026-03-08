@@ -68,10 +68,3 @@ model SecurityPayment {
 
   @@unique([residentId, year])
 }
-
-model Setting {
-  id         Int      @id @default(1)
-  monthlyFee Float    @default(0)
-  annualFee  Float    @default(0)
-  updatedAt  DateTime @updatedAt
-}
