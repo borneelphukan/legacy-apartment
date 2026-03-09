@@ -7,6 +7,8 @@ import { AnnouncementModule } from './announcement/announcement.module';
 import { ResidentModule } from './resident/resident.module';
 import { FinanceModule } from './finance/finance.module';
 import { SettingModule } from './setting/setting.module';
+import { RuleModule } from './rules/rule.module';
+import { ComplaintModule } from './complaint/complaint.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { SettingModule } from './setting/setting.module';
     ResidentModule,
     FinanceModule,
     SettingModule,
+    RuleModule,
+    ComplaintModule,
   ],
 })
 export class AppModule {}

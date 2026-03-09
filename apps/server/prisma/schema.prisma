@@ -38,6 +38,7 @@ model Resident {
   name            String
   residence       String
   phone_no        String
+  designation     String?           // Secretary, President, Treasurer
   monthlyPayments MonthlyPayment[]
   securityPayments SecurityPayment[]
   createdAt       DateTime @default(now())
@@ -76,4 +77,23 @@ model Setting {
   monthlyFee Float    @default(1000)
   yearlyFee  Float    @default(5000)
   updatedAt  DateTime @updatedAt
+}
+
+model Rule {
+  id        Int      @id @default(autoincrement())
+  category  String
+  icon      String?
+  rule      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Complaint {
+  id        Int      @id @default(autoincrement())
+  name      String
+  apartment String
+  phone_no  String
+  complaint String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

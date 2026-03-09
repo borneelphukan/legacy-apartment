@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DefaultLayout from "@/layout/DefaultLayout";
 import Head from "next/head";
 import { Banner, Breadcrumb, Button } from "@legacy-apartment/ui";
@@ -11,67 +11,37 @@ import PetsOutlinedIcon from "@mui/icons-material/PetsOutlined";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 
-const rulesData = [
-  {
-    category: "General Rules",
-    icon: (
-      <InfoOutlinedIcon className="w-6 h-6" />
-    ),
-    rules: [
-      "Maintain peace and harmony within the society premises.",
-      "Loud music or noise is strictly prohibited after 10:00 PM.",
-      "Garbage must be segregated into wet and dry waste before disposal.",
-      "Modification to the exterior facade of the apartments is not permitted.",
-    ]
-  },
-  {
-    category: "Security & Visitors",
-    icon: (
-      <SecurityOutlinedIcon className="w-6 h-6" />
-    ),
-    rules: [
-      "All guests must register at the reception via the society app before entering.",
-      "Delivery personnel are allowed only up to the lobby drops unless approved.",
-      "Security guards are authorized to question unknown persons on the premises.",
-    ]
-  },
-  {
-    category: "Facilities & Amenities",
-    icon: (
-      <DomainOutlinedIcon className="w-6 h-6" />
-    ),
-    rules: [
-      "The clubhouse and gym are restricted to residents only. Guests must be accompanied.",
-      "Gym hours are from 5:30 AM to 10:30 PM. Proper attire is mandatory.",
-      "Swimming pool is accessible only during designated operational hours.",
-    ]
-  },
-  {
-    category: "Parking Guidelines",
-    icon: (
-      <LocalParkingOutlinedIcon className="w-6 h-6" />
-    ),
-    rules: [
-      "Vehicles must be parked only in the designated allotted slots.",
-      "Visitor parking is strictly for guests and restricted to 4 hours maximum.",
-      "Washing of vehicles in the basement parking is prohibited.",
-    ]
-  },
-  {
-    category: "Pet Policies",
-    icon: (
-      <PetsOutlinedIcon className="w-6 h-6" />
-    ),
-    rules: [
-      "Pets must be kept on a leash at all times in common areas.",
-      "Pet owners are strictly responsible for cleaning up after their pets.",
-      "Pets are not allowed in the pool area or the main clubhouse.",
-    ]
-  }
-];
+const categoryMetadata: Record<string, { icon: React.ReactNode }> = {
+  "General Rules": { icon: <InfoOutlinedIcon className="w-6 h-6" /> },
+  "Security & Visitors": { icon: <SecurityOutlinedIcon className="w-6 h-6" /> },
+  "Facilities & Amenities": { icon: <DomainOutlinedIcon className="w-6 h-6" /> },
+  "Parking Guidelines": { icon: <LocalParkingOutlinedIcon className="w-6 h-6" /> },
+  "Pet Policies": { icon: <PetsOutlinedIcon className="w-6 h-6" /> }
+};
+
+const API_BASE_URL = 'http://localhost:4000';
 
 const Rules = () => {
   const [openCategoryIndex, setOpenCategoryIndex] = useState<number | null>(0); // First one open by default
+  const [rules, setRules] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRules = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/rules`);
+        if (response.ok) {
+          const data = await response.json();
+          setRules(data);
+        }
+      } catch (error) {
+        console.error("Error fetching rules:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRules();
+  }, []);
 
   const toggleCategory = (index: number) => {
     if (openCategoryIndex === index) {
@@ -80,6 +50,19 @@ const Rules = () => {
       setOpenCategoryIndex(index);
     }
   };
+
+  // Group rules by category
+  const groupedRules = Object.keys(categoryMetadata).map((category) => {
+    return {
+      category,
+      icon: categoryMetadata[category].icon,
+      rules: rules
+        .filter((r) => r.category === category)
+        .flatMap((r) => r.rule.split('\n'))
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+    };
+  }).filter(group => group.rules.length > 0);
 
   return (
     <DefaultLayout>
@@ -109,11 +92,16 @@ const Rules = () => {
             </div>
 
             {/* Interactive Accordion */}
-            <div className="space-y-4">
-              {rulesData.map((section, index) => {
-                const isOpen = openCategoryIndex === index;
-                
-                return (
+            {loading ? (
+              <div className="text-center py-20 text-gray-500">Loading guidelines...</div>
+            ) : groupedRules.length === 0 ? (
+              <div className="text-center py-20 text-gray-500 font-bold">No rules have been set yet.</div>
+            ) : (
+              <div className="space-y-4">
+                {groupedRules.map((section, index) => {
+                  const isOpen = openCategoryIndex === index;
+                  
+                  return (
                   <div 
                     key={index} 
                     className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${
@@ -159,6 +147,7 @@ const Rules = () => {
                 );
               })}
             </div>
+            )}
             
             {/* Download/Print Action (Static UI representation) */}
             <div className="mt-12 flex justify-center">

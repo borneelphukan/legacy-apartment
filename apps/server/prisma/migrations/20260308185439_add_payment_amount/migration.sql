@@ -1,5 +1,0 @@
--- AlterTable
-ALTER TABLE "MonthlyPayment" ADD COLUMN     "amount" DOUBLE PRECISION NOT NULL DEFAULT 0;
-
--- AlterTable
-ALTER TABLE "SecurityPayment" ADD COLUMN     "amount" DOUBLE PRECISION NOT NULL DEFAULT 0;

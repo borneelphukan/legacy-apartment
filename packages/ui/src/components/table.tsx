@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "./input";
 import Button from "./button";
 
@@ -8,6 +8,7 @@ export interface Resident {
   residence?: string;
   phone?: string;
   phone_no?: string;
+  designation?: string | null;
 }
 
 export interface Props {
@@ -28,6 +29,7 @@ export interface Props {
   yearlyFee?: string;
   showMonthlyFeeLegend?: boolean;
   showYearlyFeeLegend?: boolean;
+  storageKey?: string;
 }
 
 const Table = ({
@@ -48,10 +50,20 @@ const Table = ({
   yearlyFee,
   showMonthlyFeeLegend = true,
   showYearlyFeeLegend = true,
+  storageKey,
 }: Props) => {
   const [isUnlocked, setIsUnlocked] = useState(!enableLock);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (enableLock && storageKey) {
+      const saved = localStorage.getItem(storageKey);
+      if (saved === "true") {
+        setIsUnlocked(true);
+      }
+    }
+  }, [enableLock, storageKey]);
   const [editingCell, setEditingCell] = useState<{ resIdx: number; colIdx: number } | null>(null);
   const [editingMonthly, setEditingMonthly] = useState(false);
   const [editingYearly, setEditingYearly] = useState(false);
@@ -64,6 +76,9 @@ const Table = ({
     e.preventDefault();
     if (password === "legacy6mile") {
       setIsUnlocked(true);
+      if (storageKey) {
+        localStorage.setItem(storageKey, "true");
+      }
       setError("");
     } else {
       setError("Incorrect password");
@@ -132,7 +147,14 @@ const Table = ({
                       {resident.name}
                     </td>
                     <td className={`py-2 px-4 text-sm whitespace-nowrap`}>
-                      {resident.residence || resident.flat}
+                      <div className="flex items-center gap-2">
+                        {resident.residence || resident.flat}
+                        {resident.designation && resident.designation !== 'None' && (
+                          <span className="bg-orange-100 text-orange-600 text-[10px] px-2 py-0.5 rounded-full uppercase font-bold tracking-tighter shrink-0">
+                            {resident.designation}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="py-2 px-4 text-sm pr-6 whitespace-nowrap">
                       {resident.phone_no || resident.phone}

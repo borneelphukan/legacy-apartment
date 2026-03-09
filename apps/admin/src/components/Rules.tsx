@@ -1,0 +1,278 @@
+import React, { useState, useEffect } from 'react';
+import { Button, TextArea, Input } from '@legacy-apartment/ui';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+} from '@legacy-apartment/ui';
+import { useRouter } from 'next/router';
+import Swal from 'sweetalert2';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+
+interface Rule {
+  id: number;
+  category: string;
+  rule: string;
+  icon?: string;
+  createdAt: string;
+}
+
+const API_BASE_URL = 'http://localhost:4000';
+
+const categories = [
+  "General Rules",
+  "Security & Visitors",
+  "Facilities & Amenities",
+  "Parking Guidelines",
+  "Pet Policies"
+];
+
+const Rules = () => {
+  const [rules, setRules] = useState<Rule[]>([]);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [formData, setFormData] = useState({
+    category: categories[0],
+    rule: '',
+  });
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    fetchRules();
+  }, []);
+
+  const fetchRules = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/rules`);
+      if (response.ok) {
+        const data = await response.json();
+        setRules(data);
+      }
+    } catch (error) {
+      console.error('Error fetching rules:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem('adminToken');
+    
+    if (!token) {
+      Swal.fire('Error', 'Unauthorized. Please login again.', 'error');
+      router.push('/login');
+      return;
+    }
+
+    const method = editingId ? 'PATCH' : 'POST';
+    const url = editingId 
+      ? `${API_BASE_URL}/rules/${editingId}`
+      : `${API_BASE_URL}/rules`;
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        Swal.fire('Success', `Rule ${editingId ? 'updated' : 'created'} successfully!`, 'success');
+        setIsFormOpen(false);
+        setEditingId(null);
+        setFormData({ category: categories[0], rule: '' });
+        fetchRules();
+      } else {
+        const data = await response.json();
+        Swal.fire('Error', data.message || 'Something went wrong', 'error');
+      }
+    } catch (error) {
+      Swal.fire('Error', 'Communication with server failed', 'error');
+    }
+  };
+
+  const handleEdit = (rule: Rule) => {
+    setEditingId(rule.id);
+    setFormData({
+      category: rule.category,
+      rule: rule.rule,
+    });
+    setIsFormOpen(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#f97316',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes'
+    });
+
+    if (result.isConfirmed) {
+      const token = localStorage.getItem('adminToken');
+      try {
+        const response = await fetch(`${API_BASE_URL}/rules/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          Swal.fire('Deleted!', 'Rule has been deleted.', 'success');
+          fetchRules();
+        }
+      } catch (error) {
+        Swal.fire('Error', 'Failed to delete rule', 'error');
+      }
+    }
+  };
+
+  return (
+    <div className="w-full">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+        <div>
+          <h1 className="text-3xl md:text-4xl">
+            Manage Society Rules
+          </h1>
+          <p className="mt-2 font-light">
+            Add, edit or remove society guidelines and regulations.
+          </p>
+        </div>
+        <Button 
+            variant="primary"
+            onClick={() => {
+                setEditingId(null);
+                setFormData({ category: categories[0], rule: '' });
+                setIsFormOpen(true);
+            }}
+        >
+          Add Rule
+        </Button>
+      </div>
+
+      {isFormOpen && (
+        <div className="mb-12 bg-white p-8 rounded-md border border-gray-500 overflow-hidden relative">
+          <h2 className="text-2xl font-bold mb-6">{editingId ? 'Edit' : 'Create'} Rule</h2>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-bold">Category</label>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button 
+                    type="button"
+                    className="w-full p-3 border border-gray-300 rounded-md bg-white flex items-center justify-between text-left focus:outline-none focus:border-orange-500"
+                  >
+                    <span>{formData.category}</span>
+                    <KeyboardArrowDownIcon className="text-gray-400 size-5" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-[calc(100vw-3rem)] md:w-[440px]">
+                  <DropdownMenuRadioGroup>
+                    {categories.map(cat => (
+                      <DropdownMenuRadioItem 
+                        key={cat} 
+                        checked={formData.category === cat}
+                        onClick={() => setFormData({...formData, category: cat})}
+                      >
+                        {cat}
+                      </DropdownMenuRadioItem>
+                    ))}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <TextArea 
+              id="rule"
+              label="Rule Content"
+              required
+              rows={6}
+              value={formData.rule}
+              onChange={(e) => setFormData({...formData, rule: e.target.value})}
+              placeholder="Enter one rule per line."
+            />
+            <div className="flex gap-4">
+              <Button variant="primary" type="submit">
+                {editingId ? 'Update' : 'Save Rule'}
+              </Button>
+              <Button 
+                variant="outline"
+                type="button" 
+                onClick={() => setIsFormOpen(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <div className="space-y-8">
+        {loading ? (
+            <div className="text-center py-20 text-gray-100">Loading rules...</div>
+        ) : (rules.length === 0 && !isFormOpen) ? (
+            <p className="text-center">
+                No rules found. Add some to get started.
+            </p>
+        ) : (
+            categories.map(category => {
+              const categoryRules = rules.filter(r => r.category === category);
+              if (categoryRules.length === 0) return null;
+
+              return (
+                <div key={category} className="space-y-4">
+                  <h2 className="text-xl font-black text-orange-500 uppercase tracking-tighter border-b border-gray-200 pb-2">
+                    {category}
+                  </h2>
+                  <div className="grid grid-cols-1 gap-4">
+                    {categoryRules.map((rule) => (
+                      <div key={rule.id} className="bg-white p-6 rounded-md border border-gray-500 flex justify-between items-center gap-6">
+                        <div className="flex-1">
+                          <ul className="space-y-2">
+                            {rule.rule.split('\n').filter(line => line.trim()).map((line, idx) => (
+                              <li key={idx} className="flex items-start">
+                                <span className="flex-shrink-0 w-1.5 h-1.5 mt-1.5 rounded-full bg-orange-500 mr-2"></span>
+                                <span className="text-sm leading-relaxed">{line.trim()}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div className="flex gap-3 shrink-0">
+                          <Button 
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleEdit(rule)}
+                            icon={{ left: <EditIcon className="size-5" /> }}
+                          />
+                          <Button 
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => handleDelete(rule.id)}
+                            icon={{ left: <DeleteIcon className="size-5" /> }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Rules;

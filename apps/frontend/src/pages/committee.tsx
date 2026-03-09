@@ -10,38 +10,22 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
 
 
-const committeeMembers = [
-  {
-    name: "Rajesh Sharma",
-    designation: "President",
-    image: "https://i.pravatar.cc/300?img=11",
-    bio: "Guiding our society with a steadfast commitment to continuous improvement and community building."
-  },
-  {
-    name: "Priya Patel",
-    designation: "Secretary",
-    image: "https://i.pravatar.cc/300?img=5",
-    bio: "Ensuring seamless communication and managing internal operations to keep our society connected."
-  },
-  {
-    name: "Vikram Singh",
-    designation: "Treasurer",
-    image: "https://i.pravatar.cc/300?img=12",
-    bio: "Expertly handling financial matters and optimizing the society's budget for maximum benefit."
-  }
-];
-
 const Committee = () => {
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   const [announcements, setAnnouncements] = useState<Record<string, any[]>>({});
+  const [committeeMembers, setCommitteeMembers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAnnouncements = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:4000/announcements');
-        if (response.ok) {
-          const data = await response.json();
-          // Group by year
+        const [annRes, resRes] = await Promise.all([
+          fetch('http://localhost:4000/announcements'),
+          fetch('http://localhost:4000/residents')
+        ]);
+
+        if (annRes.ok) {
+          const data = await annRes.json();
           const grouped: Record<string, any[]> = {};
           data.forEach((ann: any) => {
             const year = new Date(ann.date).getFullYear().toString();
@@ -52,15 +36,27 @@ const Committee = () => {
             });
           });
           setAnnouncements(grouped);
-          
           const years = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
           if (years.length > 0) setSelectedYear(years[0]);
         }
+
+        if (resRes.ok) {
+          const data = await resRes.json();
+          const committee = data
+            .filter((res: any) => res.designation && res.designation !== 'None')
+            .sort((a: any, b: any) => {
+              const order = ['President', 'Secretary', 'Treasurer'];
+              return order.indexOf(a.designation) - order.indexOf(b.designation);
+            });
+          setCommitteeMembers(committee);
+        }
       } catch (error) {
-        console.error('Error fetching announcements:', error);
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchAnnouncements();
+    fetchData();
   }, []);
 
   return (
@@ -84,39 +80,53 @@ const Committee = () => {
               <h2 className="text-3xl md:text-5xl font-extrabold text-black mb-4 tracking-tight">
                 Society <span className="text-orange-500">Heads</span>
               </h2>
-              <p className="text-gray-600 md:text-lg max-w-2xl mx-auto">
+              <p className="md:text-lg max-w-2xl mx-auto">
                 The visionaries and stewards of our thriving community. Meet the dedicated individuals whose expertise and tireless commitment ensure seamless operations, robust financial health, and an elevated living experience for everyone.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-              {committeeMembers.map((member, idx) => (
-                <div 
-                  key={idx} 
-                  className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-2xl transition-all duration-300 border border-gray-100 flex flex-col items-center text-center transform hover:-translate-y-2 group"
-                >
-                  <div className="relative w-40 h-40 mb-6 rounded-full overflow-hidden border-4 border-orange-50 group-hover:border-orange-100 transition-colors duration-300">
-                    <img 
-                      src={member.image} 
-                      alt={member.name} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                    />
+              {loading ? (
+                <div className="col-span-full text-center py-20">Loading committee...</div>
+              ) : committeeMembers.length === 0 ? (
+                <div className="col-span-full text-center py-20">No committee members assigned yet.</div>
+              ) : (
+                committeeMembers.map((member, idx) => (
+                  <div 
+                    key={idx} 
+                    className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-2xl transition-all duration-300 border border-gray-100 flex flex-col items-center text-center transform hover:-translate-y-2 group"
+                  >
+                    <div className="relative w-40 h-40 mb-6 rounded-full overflow-hidden border-4 border-orange-50 group-hover:border-orange-100 transition-colors duration-300 bg-gray-50 flex items-center justify-center">
+                      {member.avatar ? (
+                        <img 
+                          src={member.avatar} 
+                          alt={member.name} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                        />
+                      ) : (
+                        <div className="bg-gray-100 w-full h-full flex items-center justify-center">
+                          <span className="text-4xl text-gray-300 italic font-serif">{member.name[0]}</span>
+                        </div>
+                      )}
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-1">{member.name}</h3>
+                    <div className="text-gray-500 font-medium mb-4 text-sm flex items-center justify-center gap-2">
+                      {member.residence}
+                    </div>
+                    <div className="text-orange-500 font-semibold mb-4 tracking-wide uppercase text-sm">{member.designation}</div>
+                    <p className="text-gray-600 leading-relaxed text-sm">Dedicated to serving our society in the capacity of {member.designation}.</p>
+                    
+                    <div className="flex space-x-4 mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <button className="text-gray-400 hover:text-orange-500 transition-colors">
+                        <EmailIcon className="w-5 h-5" />
+                      </button>
+                      <button className="text-gray-400 hover:text-orange-500 transition-colors">
+                        <PhoneIcon className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-800 mb-2">{member.name}</h3>
-                  <div className="text-orange-500 font-semibold mb-4 tracking-wide uppercase text-sm">{member.designation}</div>
-                  <p className="text-gray-600 leading-relaxed text-sm">{member.bio}</p>
-                  
-                  {/* Social/Contact quick links placeholder */}
-                  <div className="flex space-x-4 mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button className="text-gray-400 hover:text-orange-500 transition-colors">
-                      <EmailIcon className="w-5 h-5" />
-                    </button>
-                    <button className="text-gray-400 hover:text-orange-500 transition-colors">
-                      <PhoneIcon className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
             {/* Divider */}

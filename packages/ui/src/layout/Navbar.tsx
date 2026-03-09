@@ -155,11 +155,6 @@ const Navbar = () => {
                   Help Desk
                 </Link>
               </li>
-              <li className="py-2">
-                <Link className="text-black hover:text-orange-500" href="/vendors">
-                  Vendors
-                </Link>
-              </li>
             </ul>
           )}
         </div>

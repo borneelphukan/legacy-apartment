@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Upload } from '@legacy-apartment/ui';
+import { Button, Input, Upload, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PersonIcon from '@mui/icons-material/Person';
 import PaymentsIcon from '@mui/icons-material/Payments';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 interface Resident {
   id: number;
@@ -13,7 +14,10 @@ interface Resident {
   name: string;
   residence: string;
   phone_no: string;
+  designation?: string | null;
 }
+
+const designations = ['None', 'Secretary', 'President', 'Treasurer'];
 
 const API_BASE_URL = 'http://localhost:4000';
 
@@ -26,6 +30,7 @@ const Residents = () => {
     residence: '',
     phone_no: '',
     avatar: '',
+    designation: 'None',
   });
   const [loading, setLoading] = useState(true);
   const [avatarFiles, setAvatarFiles] = useState<File[]>([]);
@@ -78,6 +83,11 @@ const Residents = () => {
       ? `${API_BASE_URL}/residents/${editingId}`
       : `${API_BASE_URL}/residents`;
 
+    const body = {
+      ...formData,
+      designation: formData.designation === 'None' ? null : formData.designation
+    };
+
     try {
       const response = await fetch(url, {
         method,
@@ -85,7 +95,7 @@ const Residents = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(body),
       });
 
       if (response.ok) {
@@ -93,7 +103,7 @@ const Residents = () => {
         setIsFormOpen(false);
         setEditingId(null);
         setAvatarFiles([]);
-        setFormData({ name: '', residence: '', phone_no: '', avatar: '' });
+        setFormData({ name: '', residence: '', phone_no: '', avatar: '', designation: 'None' });
         fetchResidents();
       } else {
         const data = await response.json();
@@ -111,6 +121,7 @@ const Residents = () => {
       residence: res.residence,
       phone_no: res.phone_no,
       avatar: res.avatar || '',
+      designation: res.designation || 'None',
     });
     setAvatarFiles([]); // Reset file input when editing (keeps existing URL if not changed)
     setIsFormOpen(true);
@@ -162,7 +173,7 @@ const Residents = () => {
             variant="primary"
             onClick={() => {
                 setEditingId(null);
-                setFormData({ name: '', residence: '', phone_no: '', avatar: '' });
+                setFormData({ name: '', residence: '', phone_no: '', avatar: '', designation: 'None' });
                 setAvatarFiles([]);
                 setIsFormOpen(true);
             }}
@@ -187,12 +198,12 @@ const Residents = () => {
               />
               <Input 
                 id="residence"
-                label="Residence (e.g., FlatA-101)"
+                label="Apartment Number"
                 required
                 type="text" 
                 value={formData.residence}
                 onChange={(e) => setFormData({...formData, residence: e.target.value})}
-                placeholder="Enter flat/villa no."
+                placeholder="Enter flat no."
               />
               <Input 
                 id="phone_no"
@@ -203,6 +214,45 @@ const Residents = () => {
                 onChange={(e) => setFormData({...formData, phone_no: e.target.value})}
                 placeholder="Enter phone number"
               />
+              <div className="flex flex-col gap-1.5 group/select">
+                <label className="text-gray-100 font-medium text-sm group-focus-within/select:text-gray-100">
+                  Designation (Optional)
+                </label>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button 
+                      type="button"
+                      className="w-full py-2 px-3 border border-gray-400 rounded-lg bg-white flex items-center justify-between text-left focus:outline-none focus:ring-[2px] focus:ring-offset-2 focus:ring-orange-500 transition-colors shadow-xs shadow-black/20"
+                    >
+                      <span className={`text-sm ${formData.designation === 'None' ? 'text-gray-300' : 'text-gray-900'}`}>
+                        {formData.designation}
+                      </span>
+                      <KeyboardArrowDownIcon className="text-gray-400 size-5" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-[calc(100vw-3rem)] md:w-[440px]">
+                    <DropdownMenuRadioGroup>
+                      {designations.map(des => {
+                        const isOccupied = residents.some(r => r.id !== editingId && r.designation === des);
+                        const isDisabled = des !== 'None' && isOccupied;
+                        
+                        return (
+                          <DropdownMenuRadioItem 
+                            key={des} 
+                            checked={formData.designation === des}
+                            onClick={() => setFormData({...formData, designation: des})}
+                            disabled={isDisabled}
+                          >
+                            <div className="flex justify-between items-center w-full">
+                              <span>{des}</span>
+                            </div>
+                          </DropdownMenuRadioItem>
+                        );
+                      })}
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               <div className="md:col-span-2">
                 <Upload 
                   label="Profile Image"
@@ -253,7 +303,14 @@ const Residents = () => {
                             )}
                         </div>
                         <div className="truncate">
-                            <h3 className="font-bold text-lg truncate group-hover/card:text-orange-600 transition-colors">{res.name}</h3>
+                            <h3 className="font-bold text-lg truncate group-hover/card:text-orange-600 transition-colors flex items-center gap-2">
+                              {res.name}
+                              {res.designation && res.designation !== 'None' && (
+                                <span className="bg-orange-100 text-orange-600 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-tighter">
+                                  {res.designation}
+                                </span>
+                              )}
+                            </h3>
                             <p className="text-orange-500 text-sm font-bold">{res.residence} <span className='text-gray-100 text-xs font-medium'> | {res.phone_no}</span></p>
                         </div>
                     </div>

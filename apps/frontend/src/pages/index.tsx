@@ -5,6 +5,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { Button } from "@legacy-apartment/ui";
+import { ChevronRightOutlined } from "@mui/icons-material";
  
 const API_BASE_URL = 'http://localhost:4000';
 
@@ -150,10 +151,10 @@ const Home = () => {
           </h1>
           
           <div className="text-center max-w-3xl mx-auto flex flex-col items-center">
-            <p className="text-gray-200 text-lg md:text-xl lg:text-2xl mb-3 font-light">
+            <p className="text-gray-500 text-lg md:text-xl lg:text-2xl mb-3 font-light">
               We are a <span className="font-medium">Community</span>.
             </p>
-            <p className="text-gray-300 text-base md:text-lg lg:text-xl font-light leading-relaxed text-center">
+            <p className="text-gray-400 text-base md:text-lg lg:text-xl font-light leading-relaxed text-center">
               Experience the best of community living with top-notch amenities, a vibrant neighborhood, and a secure environment for you and your family to thrive in.
             </p>
           </div>
@@ -172,39 +173,39 @@ const Home = () => {
 
               {/* Right Side: Content */}
               <div className="w-full md:w-3/5 p-8 md:p-12 lg:p-14 flex flex-col justify-center">
-                <h2 className="text-3xl md:text-4xl lg:text-[2.5rem] font-bold text-gray-800 mb-4 tracking-tight leading-tight">
+                <h2 className="text-3xl md:text-4xl lg:text-[2.5rem] font-bold text-gray-100 mb-4 tracking-tight leading-tight">
                   Who are we?
                 </h2>
                 
-                <p className="text-gray-500 font-light leading-relaxed mb-5 text-sm md:text-base lg:text-lg">
+                <p className="text-gray-200 font-light leading-relaxed mb-5 text-sm md:text-base lg:text-lg">
                   Community living for us is not just about sharing spaces, but building a vibrant, connected neighborhood. Our goal is to create a safe, welcoming, and inclusive environment.
                 </p>
 
-                <p className="text-gray-500 font-light leading-relaxed mb-5 text-sm md:text-base lg:text-lg">
+                <p className="text-gray-200 font-light leading-relaxed mb-5 text-sm md:text-base lg:text-lg">
                   We approach every community project with an organized mindset, focusing on well-maintained facilities and delivering high-quality services to our residents.
                 </p>
 
                 <div className="grid grid-cols-2 gap-y-5 gap-x-6">
                   <div className="flex flex-col">
-                    <span className="text-gray-500 text-sm md:text-base mb-1 tracking-wide">Founded</span>
+                    <span className="text-sm md:text-base mb-1 tracking-wide">Founded</span>
                     <span className="text-4xl md:text-5xl font-bold text-gray-800">
                       <AnimatedCounter end={2010} />
                     </span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-gray-500 text-sm md:text-base mb-1 tracking-wide">Families</span>
+                    <span className="text-sm md:text-base mb-1 tracking-wide">Families</span>
                     <span className="text-4xl md:text-5xl font-bold text-gray-800">
                       <AnimatedCounter end={residents.length} />
                     </span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-gray-500 text-sm md:text-base mb-1 tracking-wide">Events Hosted</span>
+                    <span className="text-sm md:text-base mb-1 tracking-wide">Events Hosted</span>
                     <span className="text-4xl md:text-5xl font-bold text-gray-800">
                       <AnimatedCounter end={150} suffix="+" />
                     </span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-gray-500 text-sm md:text-base mb-1 tracking-wide">Amenities</span>
+                    <span className="text-sm md:text-base mb-1 tracking-wide">Amenities</span>
                     <span className="text-4xl md:text-5xl font-bold text-gray-800">
                       <AnimatedCounter end={20} suffix="+" />
                     </span>
@@ -216,7 +217,7 @@ const Home = () => {
 
           <div className="md:w-1/3 lg:w-1/4 mt-8 md:mt-0">
             <div className="p-6 bg-white/80 backdrop-blur-md border border-white/20 rounded-2xl shadow-sm h-full flex flex-col">
-              <h2 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-3 border-gray-100 flex justify-between items-center">
+              <h2 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-2 border-gray-300 flex justify-between items-center">
                 <span>Latest Announcements</span>
                 <span className="bg-orange-100 text-orange-600 text-xs py-1 px-2 rounded-full">New</span>
               </h2>
@@ -235,12 +236,12 @@ const Home = () => {
                   </div>
                 ))}
                 {announcements.length === 0 && (
-                  <p className="text-xs text-gray-400 text-center py-4 italic">No recent announcements</p>
+                  <p className="text-sm text-center">No recent announcements</p>
                 )}
               </div>
-              <div className="mt-6 pt-4 border-t border-gray-100 text-center flex justify-center">
+              <div className="mt-6 pt-4 border-t border-gray-300 text-center flex justify-center">
                 <Link href="/committee" className="text-sm text-orange-500 hover:text-orange-600 font-semibold flex items-center justify-center group">
-                  View All Decisions <ArrowForwardIcon className="ml-1 w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                  View All Decisions <ChevronRightOutlined className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
             </div>
@@ -260,18 +261,18 @@ const Home = () => {
               Our Amenities
             </h1>
 
-            <p className="text-lg leading-relaxed text-gray-200 sm:text-lg md:text-xl font-light mb-6">
+            <p className="text-lg leading-relaxed text-gray-400 sm:text-lg md:text-xl font-light mb-6">
               With top-tier facilities designed for all age groups, our society ensures a healthy, active, and balanced lifestyle for every resident.
             </p>
 
-            <p className="text-lg leading-relaxed text-gray-200 sm:text-lg md:text-xl font-light mb-4">
+            <p className="text-lg leading-relaxed text-gray-400 sm:text-lg md:text-xl font-light mb-4">
               Here are some of the amenities we offer:
             </p>
 
-            <ul className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-6 sm:gap-10 text-gray-200 text-lg md:text-xl font-light mb-10 w-full list-none">
+            <ul className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-6 sm:gap-10 text-gray-400 text-lg md:text-xl font-light mb-10 w-full list-none">
               <li className="flex items-center gap-3">
                 <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                Swimming Pool
+                Parking Zones
               </li>
               <li className="flex items-center gap-3">
                 <span className="w-2 h-2 rounded-full bg-blue-500"></span>
@@ -288,7 +289,7 @@ const Home = () => {
                 variant="primary" 
                 href="/contact" 
                 className="w-full sm:w-auto" 
-                icon={{ right: <ArrowForwardIcon className="w-5 h-5 text-white transform group-hover:translate-x-1 transition-transform duration-300" /> }}
+                icon={{ right: <ChevronRightOutlined className="w-5 h-5 text-white transform group-hover:translate-x-1 transition-transform duration-300" /> }}
               >
                 Contact Us
               </Button>
@@ -302,7 +303,7 @@ const Home = () => {
         <h2 className="text-3xl md:text-4xl font-extrabold text-center text-gray-800 mb-4 tracking-tight">
           Meet Our <span className="text-orange-500">Residents</span>
         </h2>
-        <p className="text-gray-500 text-lg max-w-2xl text-center mb-12">
+        <p className="text-gray-200 text-lg max-w-2xl text-center mb-12">
           Say hello to some of the wonderful families and individuals who make up our vibrant community.
         </p>
 
@@ -327,9 +328,16 @@ const Home = () => {
                       </div>
                       <div className="flex flex-col text-left overflow-hidden">
                         <h3 className="text-sm md:text-base font-bold text-gray-800 mb-1 truncate">{resident?.name || 'Resident'}</h3>
-                        <span className="inline-block border border-blue-200 bg-blue-50 text-blue-600 text-[10px] md:text-xs font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full shadow-sm w-max">
-                          Flat {resident?.residence || resident?.flat || 'N/A'}
-                        </span>
+                        <div className="flex flex-wrap items-center gap-1">
+                          <span className="inline-block border border-blue-200 bg-blue-50 text-blue-600 text-[10px] md:text-xs font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full shadow-sm w-max">
+                            Flat {resident?.residence || resident?.flat || 'N/A'}
+                          </span>
+                          {resident.designation && resident.designation !== 'None' && (
+                            <span className="bg-orange-100 text-orange-600 text-[10px] px-2 py-0.5 rounded-full uppercase font-bold tracking-tighter shrink-0 border border-orange-200">
+                              {resident.designation}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}

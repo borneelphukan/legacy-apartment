@@ -82,14 +82,6 @@ const Footer = () => {
                   Help Desk
                 </Link>
               </li>
-              <li className="py-1">
-                <Link
-                  className="text-sm text-slate-400 hover:text-orange-500"
-                  href="/vendors"
-                >
-                  Vendors
-                </Link>
-              </li>
             </ul>
           </div>
 

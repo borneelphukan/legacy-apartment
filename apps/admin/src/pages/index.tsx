@@ -4,16 +4,20 @@ import DefaultLayout from '@/layout/DefaultLayout';
 import { useRouter } from 'next/router';
 import Announcements from '@/components/Announcements';
 import Residents from '@/components/Residents';
+import Rules from '@/components/Rules';
+import Complaints from '@/components/Complaints';
 import Sidebar from '@/components/Sidebar';
- 
+
 const API_BASE_URL = 'http://localhost:4000';
 
 const AdminDashboard = () => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'announcements' | 'residents'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'announcements' | 'residents' | 'rules' | 'complaints'>('dashboard');
   const [stats, setStats] = useState({
     residents: 0,
     announcements: 0,
+    rules: 0,
+    complaints: 0,
   });
 
   useEffect(() => {
@@ -23,18 +27,27 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const fetchStats = async () => {
+      const token = localStorage.getItem('adminToken');
       try {
-        const [resResponse, annResponse] = await Promise.all([
+        const [resResponse, annResponse, rulesResponse, complaintsResponse] = await Promise.all([
           fetch(`${API_BASE_URL}/residents`),
-          fetch(`${API_BASE_URL}/announcements`)
+          fetch(`${API_BASE_URL}/announcements`),
+          fetch(`${API_BASE_URL}/rules`),
+          fetch(`${API_BASE_URL}/complaints`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          })
         ]);
         
         const residents = resResponse.ok ? await resResponse.json() : [];
         const announcements = annResponse.ok ? await annResponse.json() : [];
+        const rules = rulesResponse.ok ? await rulesResponse.json() : [];
+        const complaints = complaintsResponse.ok ? await complaintsResponse.json() : [];
         
         setStats({
           residents: Array.isArray(residents) ? residents.length : 0,
           announcements: Array.isArray(announcements) ? announcements.length : 0,
+          rules: Array.isArray(rules) ? rules.length : 0,
+          complaints: Array.isArray(complaints) ? complaints.length : 0,
         });
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
@@ -47,7 +60,7 @@ const AdminDashboard = () => {
   return (
     <DefaultLayout>
       <Head>
-        <title>{activeTab === 'dashboard' ? 'Dashboard' : activeTab === 'announcements' ? 'Announcements' : 'Residents'} | Legacy Apartment Admin</title>
+        <title>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} | Legacy Apartment Admin</title>
       </Head>
 
       <div className="flex min-h-screen bg-gray-50 text-gray-100">
@@ -68,11 +81,11 @@ const AdminDashboard = () => {
               </div>
 
               {/* Quick Stats Grid Placeholder */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
                 {[
                   { label: 'Total Residents', value: stats.residents.toString() },
                   { label: 'Active Announcements', value: stats.announcements.toString() },
-                  { label: 'Pending Requests', value: '12' },
+                  { label: 'Pending Complaints', value: stats.complaints.toString() },
                 ].map((stat, i) => (
                   <div key={i} className="bg-white p-8 rounded-xl border border-gray-500">
                     <p className="text-xs font-bold text-gray-100 uppercase tracking-widest mb-2">{stat.label}</p>
@@ -87,11 +100,19 @@ const AdminDashboard = () => {
             <div className="max-w-5xl mx-auto">
               <Announcements />
             </div>
-          ) : (
+          ) : activeTab === 'residents' ? (
             <div className="max-w-5xl mx-auto">
               <Residents />
             </div>
-          )}
+          ) : activeTab === 'rules' ? (
+            <div className="max-w-5xl mx-auto">
+              <Rules />
+            </div>
+          ) : activeTab === 'complaints' ? (
+            <div className="max-w-5xl mx-auto">
+              <Complaints />
+            </div>
+          ) : null}
         </main>
       </div>
     </DefaultLayout>

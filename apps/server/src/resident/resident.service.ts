@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ResidentService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: { avatar?: string; name: string; residence: string; phone_no: string }) {
+  async create(data: { avatar?: string; name: string; residence: string; phone_no: string; designation?: string }) {
     return this.prisma.resident.create({
       data,
     });
@@ -31,7 +31,7 @@ export class ResidentService {
     return resident;
   }
 
-  async update(id: number, data: { avatar?: string; name?: string; residence?: string; phone_no?: string }) {
+  async update(id: number, data: { avatar?: string; name?: string; residence?: string; phone_no?: string; designation?: string }) {
     try {
       return await this.prisma.resident.update({
         where: { id },

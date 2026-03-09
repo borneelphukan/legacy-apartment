@@ -8,7 +8,7 @@ export class ResidentController {
 
   @Post()
   @UseGuards(AuthGuard)
-  create(@Body() createResidentDto: { avatar?: string; name: string; residence: string; phone_no: string }) {
+  create(@Body() createResidentDto: { avatar?: string; name: string; residence: string; phone_no: string; designation?: string }) {
     return this.residentService.create(createResidentDto);
   }
 
@@ -24,7 +24,7 @@ export class ResidentController {
 
   @Patch(':id')
   @UseGuards(AuthGuard)
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateResidentDto: { avatar?: string; name?: string; residence?: string; phone_no?: string }) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateResidentDto: { avatar?: string; name?: string; residence?: string; phone_no?: string; designation?: string }) {
     return this.residentService.update(id, updateResidentDto);
   }
 
