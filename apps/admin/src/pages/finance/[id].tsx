@@ -366,10 +366,10 @@ const FinancePage = () => {
             </div>
 
             <div className="pt-8 border-t border-gray-400">
-               <h3 className="text-sm font-bold text-gray-100 mb-6">Yearly Maintenance Fees</h3>
+               <h3 className="text-sm font-bold text-gray-100 mb-6 uppercase tracking-wider">Yearly Maintenance Fees</h3>
                <Table 
                 residents={[resident]}
-                columns={[`Year ${selectedYear}`]}
+                columns={[`Fee ${selectedYear}`]}
                 type="numerical"
                 theme="blue"
                 getValue={() => {
@@ -398,7 +398,8 @@ const FinancePage = () => {
                 }}
                 yearlyFee={`₹ ${fees.yearlyFee.toLocaleString()}`}
                 showMonthlyFeeLegend={false}
-                className="!shadow-none !border-gray-500 max-w-xs"
+                className="!shadow-none !border-gray-500"
+                minWidthClass="min-w-full"
               />
             </div>
           </div>

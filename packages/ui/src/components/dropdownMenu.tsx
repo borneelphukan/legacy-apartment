@@ -110,7 +110,7 @@ function DropdownMenuItem({
       className={`relative flex items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none transition-colors select-none ${
         disabled 
           ? "cursor-not-allowed opacity-50 text-gray-400" 
-          : "cursor-default text-gray-700 hover:bg-gray-100 focus:bg-gray-100"
+          : "cursor-default text-gray-100 hover:bg-gray-400 focus:bg-gray-100"
       } ${className || ""}`}
       onClick={handleClick}
       aria-disabled={disabled}
@@ -185,7 +185,7 @@ function DropdownMenuRadioItem({
   return (
     <DropdownMenuItem className={className} onClick={onClick} disabled={disabled} {...props}>
       <span className="flex size-3.5 items-center justify-center mr-2">
-        {checked && <FiberManualRecordIcon className="text-[10px] fill-current" />}
+        {checked && <CheckIcon className="size-4" />}
       </span>
       {children}
     </DropdownMenuItem>

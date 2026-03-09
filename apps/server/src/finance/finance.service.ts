@@ -64,4 +64,16 @@ export class FinanceService {
       },
     });
   }
+
+  async getAllFinance() {
+    return this.prisma.resident.findMany({
+      include: {
+        monthlyPayments: true,
+        securityPayments: true,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+  }
 }

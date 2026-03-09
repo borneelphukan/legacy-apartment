@@ -6,6 +6,7 @@ import Announcements from '@/components/Announcements';
 import Residents from '@/components/Residents';
 import Rules from '@/components/Rules';
 import Complaints from '@/components/Complaints';
+import Finance from '@/components/Finance';
 import Sidebar from '@/components/Sidebar';
 
 const API_BASE_URL = 'http://localhost:4000';
@@ -94,6 +95,10 @@ const AdminDashboard = () => {
                 ))}
               </div>
 
+              {/* Finance Section added to Dashboard as requested */}
+              <div className="mt-10">
+                <Finance />
+              </div>
 
             </div>
           ) : activeTab === 'announcements' ? (

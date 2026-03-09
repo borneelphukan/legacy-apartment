@@ -7,6 +7,11 @@ import { AuthGuard } from '../auth/auth.guard';
 export class FinanceController {
   constructor(private readonly financeService: FinanceService) {}
 
+  @Get()
+  getAllFinance() {
+    return this.financeService.getAllFinance();
+  }
+
   @Get('resident/:id')
   getResidentFinance(@Param('id', ParseIntPipe) id: number) {
     return this.financeService.getResidentFinance(id);

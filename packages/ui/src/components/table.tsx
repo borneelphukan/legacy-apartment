@@ -30,6 +30,7 @@ export interface Props {
   showMonthlyFeeLegend?: boolean;
   showYearlyFeeLegend?: boolean;
   storageKey?: string;
+  readOnly?: boolean;
 }
 
 const Table = ({
@@ -51,6 +52,7 @@ const Table = ({
   showMonthlyFeeLegend = true,
   showYearlyFeeLegend = true,
   storageKey,
+  readOnly = false,
 }: Props) => {
   const [isUnlocked, setIsUnlocked] = useState(!enableLock);
   const [password, setPassword] = useState("");
@@ -181,9 +183,9 @@ const Table = ({
                         return (
                           <td 
                             key={colIdx} 
-                            className="py-1 px-2 text-center cursor-pointer transition-colors"
+                            className={`py-1 px-2 text-center transition-colors ${readOnly ? "" : "cursor-pointer"}`}
                             onClick={() => {
-                              if (!isEditing) {
+                              if (!readOnly && !isEditing) {
                                 setEditingCell({ resIdx: idx, colIdx: colIdx });
                                 setTempValue(String(value));
                               }
@@ -253,10 +255,12 @@ const Table = ({
                         />
                       ) : (
                         <span 
-                          className={`font-bold cursor-pointer hover:underline ${apartmentTextColor}`}
+                          className={`font-bold ${!readOnly ? "cursor-pointer hover:underline" : ""} ${apartmentTextColor}`}
                           onClick={() => {
-                            setEditingMonthly(true);
-                            setTempValue((monthlyFee || "").replace("₹", "").trim());
+                            if (!readOnly) {
+                              setEditingMonthly(true);
+                              setTempValue((monthlyFee || "").replace("₹", "").trim());
+                            }
                           }}
                         >
                           {monthlyFee || "₹ 0"}
@@ -283,10 +287,12 @@ const Table = ({
                         />
                       ) : (
                         <span 
-                          className={`font-bold cursor-pointer hover:underline ${apartmentTextColor}`}
+                          className={`font-bold ${!readOnly ? "cursor-pointer hover:underline" : ""} ${apartmentTextColor}`}
                           onClick={() => {
-                            setEditingYearly(true);
-                            setTempValue((yearlyFee || "").replace("₹", "").trim());
+                            if (!readOnly) {
+                              setEditingYearly(true);
+                              setTempValue((yearlyFee || "").replace("₹", "").trim());
+                            }
                           }}
                         >
                           {yearlyFee || "₹ 0"}
