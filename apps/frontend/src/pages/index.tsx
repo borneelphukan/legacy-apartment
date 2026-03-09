@@ -5,6 +5,8 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { Button } from "@legacy-apartment/ui";
+ 
+const API_BASE_URL = 'http://localhost:4000';
 
 const bannerImages = [
   "url('/cover.webp')",
@@ -51,10 +53,10 @@ const Home = () => {
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
-        const response = await fetch('http://localhost:4000/announcements');
+        const response = await fetch(`${API_BASE_URL}/announcements`);
         if (response.ok) {
           const data = await response.json();
-          setAnnouncements(data);
+          setAnnouncements(Array.isArray(data) ? data : []);
         }
       } catch (error) {
         console.error('Error fetching announcements:', error);
@@ -62,10 +64,10 @@ const Home = () => {
     };
     const fetchResidents = async () => {
       try {
-        const response = await fetch('http://localhost:4000/residents');
+        const response = await fetch(`${API_BASE_URL}/residents`);
         if (response.ok) {
           const data = await response.json();
-          setResidents(data);
+          setResidents(Array.isArray(data) ? data : []);
         }
       } catch (error) {
         console.error('Error fetching residents:', error);
@@ -107,6 +109,7 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
+    if (residentChunks.length === 0) return;
     const residentInterval = setInterval(() => {
       setCurrentResidentIndex((prevIndex) => (prevIndex + 1) % residentChunks.length);
     }, 5000);
@@ -221,7 +224,7 @@ const Home = () => {
                 {announcements.map((ann, idx) => (
                   <div key={idx} className="group cursor-pointer border-b border-gray-50 pb-4 last:border-none">
                     <span className="text-xs font-bold text-orange-500 mb-1 block uppercase tracking-wider">
-                      {new Date(ann.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      {ann.date ? new Date(ann.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Recent'}
                     </span>
                     <h3 className="text-sm font-bold text-gray-800 group-hover:text-orange-500 transition-colors mb-1 line-clamp-1">
                       {ann.title}
@@ -323,9 +326,9 @@ const Home = () => {
                         )}
                       </div>
                       <div className="flex flex-col text-left overflow-hidden">
-                        <h3 className="text-sm md:text-base font-bold text-gray-800 mb-1 truncate">{resident.name}</h3>
+                        <h3 className="text-sm md:text-base font-bold text-gray-800 mb-1 truncate">{resident?.name || 'Resident'}</h3>
                         <span className="inline-block border border-blue-200 bg-blue-50 text-blue-600 text-[10px] md:text-xs font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full shadow-sm w-max">
-                          Flat {resident.residence || resident.flat}
+                          Flat {resident?.residence || resident?.flat || 'N/A'}
                         </span>
                       </div>
                     </div>

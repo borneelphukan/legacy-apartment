@@ -5,6 +5,8 @@ import { useRouter } from 'next/router';
 import Announcements from '@/components/Announcements';
 import Residents from '@/components/Residents';
 import Sidebar from '@/components/Sidebar';
+ 
+const API_BASE_URL = 'http://localhost:4000';
 
 const AdminDashboard = () => {
   const router = useRouter();
@@ -23,18 +25,17 @@ const AdminDashboard = () => {
     const fetchStats = async () => {
       try {
         const [resResponse, annResponse] = await Promise.all([
-          fetch('http://localhost:4000/residents'),
-          fetch('http://localhost:4000/announcements')
+          fetch(`${API_BASE_URL}/residents`),
+          fetch(`${API_BASE_URL}/announcements`)
         ]);
         
-        if (resResponse.ok && annResponse.ok) {
-          const residents = await resResponse.json();
-          const announcements = await annResponse.json();
-          setStats({
-            residents: residents.length,
-            announcements: announcements.length,
-          });
-        }
+        const residents = resResponse.ok ? await resResponse.json() : [];
+        const announcements = annResponse.ok ? await annResponse.json() : [];
+        
+        setStats({
+          residents: Array.isArray(residents) ? residents.length : 0,
+          announcements: Array.isArray(announcements) ? announcements.length : 0,
+        });
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
       }

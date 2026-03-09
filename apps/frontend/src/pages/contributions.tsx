@@ -8,26 +8,34 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
-const years = ["2023", "2024", "2025"];
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: currentYear - 2023 + 1 }, (_, i) => String(2023 + i));
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const securityYearsAll = ["2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025"];
+const securityYearsAll = years;
 
-const getStatus = (resident: any, monthIndex: number, year: string) => {
+const getStatus = (resident: any, monthIndex: number, year: string, monthlyFee: number) => {
   const y = parseInt(year);
-  const payment = resident.monthlyPayments?.find(
-    (p: any) => p.month === monthIndex && p.year === y
-  );
-  if (payment) return payment.status;
 
   const now = new Date();
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth();
-  
-  if (y > currentYear || (y === currentYear && monthIndex > currentMonth)) {
-    return 0; // future
+  const isPast = y < currentYear || (y === currentYear && monthIndex < currentMonth);
+  const isCurrent = y === currentYear && monthIndex === currentMonth;
+
+  // Cumulative balance from Jan through monthIndex for this year.
+  // A positive balance means prior overpayments cover this (and future) months too.
+  let balance = 0;
+  for (let m = 0; m <= monthIndex; m++) {
+    const p = resident.monthlyPayments?.find(
+      (pay: any) => pay.month === m && pay.year === y
+    );
+    balance += (p ? Number(p.amount) : 0) - monthlyFee;
   }
-  
-  return 0; // default to pending
+
+  if (balance >= 0) return 1;   // fully covered — green (past, current, or future)
+  if (isPast) return -1;        // past month in deficit — red
+  if (isCurrent) return 0;      // current month, not yet covered — gray
+  return 0;                     // future month, not covered — gray
 };
 
 const getSecurityStatus = (resident: any, year: string) => {
@@ -56,11 +64,13 @@ const securityFees = [
 const totalSecurityFee = "₹ 5,000";
 
 const MaintenancePay = () => {
-  const [selectedYear, setSelectedYear] = useState<string>("2024");
+  const [selectedYear, setSelectedYear] = useState<string>(String(currentYear));
   const [securityStartIdx, setSecurityStartIdx] = useState<number>(Math.max(0, securityYearsAll.length - 4));
   const [residents, setResidents] = useState<any[]>([]);
+  const [fees, setFees] = useState({ monthlyFee: 1000, yearlyFee: 5000 });
 
   React.useEffect(() => {
+    fetchSettings();
     const fetchResidents = async () => {
       try {
         const response = await fetch('http://localhost:4000/residents');
@@ -74,6 +84,21 @@ const MaintenancePay = () => {
     };
     fetchResidents();
   }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch('http://localhost:4000/setting');
+      if (response.ok) {
+        const data = await response.json();
+        setFees({
+          monthlyFee: data.monthlyFee,
+          yearlyFee: data.yearlyFee,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    }
+  };
 
   const visibleSecurityYears = securityYearsAll.slice(securityStartIdx, securityStartIdx + 4);
 
@@ -144,7 +169,14 @@ const MaintenancePay = () => {
             <Table
               residents={residents}
               columns={months}
-              getStatus={(resident, colIndex) => getStatus(resident, colIndex, selectedYear)}
+              getStatus={(resident, colIndex) => getStatus(resident, colIndex, selectedYear, fees.monthlyFee)}
+              getValue={(resident, colIdx) => {
+                const payment = resident.monthlyPayments?.find(
+                  (p: any) => p.month === colIdx && p.year === parseInt(selectedYear)
+                );
+                return payment?.amount || "0";
+              }}
+              monthlyFee={`₹ ${fees.monthlyFee.toLocaleString()}`}
               theme="blue"
               minWidthClass="min-w-[1000px]"
               className="mb-16"
@@ -155,10 +187,10 @@ const MaintenancePay = () => {
             <div className="flex flex-col md:flex-row justify-between items-center mb-10 mt-16">
               <div className="text-center md:text-left mb-6 md:mb-0">
                 <h2 className="text-3xl font-extrabold text-black mb-2 tracking-tight">
-                  Annual <span className="text-orange-500">Security Fees</span>
+                  Yearly <span className="text-orange-500">Maintenance Fees</span>
                 </h2>
                 <p className="text-gray-600 max-w-xl mx-auto md:mx-0">
-                  Track the annual security fee payment status for each residential unit.
+                  Track the annual maintenance fee payment status for each residential unit.
                 </p>
               </div>
 
@@ -202,6 +234,14 @@ const MaintenancePay = () => {
               residents={residents}
               columns={visibleSecurityYears}
               getStatus={(resident, colIndex) => getSecurityStatus(resident, visibleSecurityYears[colIndex])}
+              getValue={(resident, colIdx) => {
+                const year = parseInt(visibleSecurityYears[colIdx]);
+                const payment = resident.securityPayments?.find(
+                  (p: any) => p.year === year
+                );
+                return payment?.amount || "0";
+              }}
+              yearlyFee={`₹ ${fees.yearlyFee.toLocaleString()}`}
               theme="orange"
               minWidthClass="min-w-[800px]"
               className="mb-20"

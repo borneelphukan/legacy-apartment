@@ -21,7 +21,7 @@ export class FinanceService {
     return resident;
   }
 
-  async updateMonthlyPayment(residentId: number, data: { month: number; year: number; status: number }) {
+  async updateMonthlyPayment(residentId: number, data: { month: number; year: number; status: number; amount?: number }) {
     return this.prisma.monthlyPayment.upsert({
       where: {
         residentId_month_year: {
@@ -32,17 +32,19 @@ export class FinanceService {
       },
       update: {
         status: data.status,
+        amount: data.amount !== undefined ? data.amount : undefined,
       },
       create: {
         residentId,
         month: data.month,
         year: data.year,
         status: data.status,
+        amount: data.amount || 0,
       },
     });
   }
 
-  async updateSecurityPayment(residentId: number, data: { year: number; status: number }) {
+  async updateSecurityPayment(residentId: number, data: { year: number; status: number; amount?: number }) {
     return this.prisma.securityPayment.upsert({
       where: {
         residentId_year: {
@@ -52,11 +54,13 @@ export class FinanceService {
       },
       update: {
         status: data.status,
+        amount: data.amount !== undefined ? data.amount : undefined,
       },
       create: {
         residentId,
         year: data.year,
         status: data.status,
+        amount: data.amount || 0,
       },
     });
   }

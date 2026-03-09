@@ -8,7 +8,8 @@ import {
   DropdownMenuTrigger, 
   DropdownMenuContent, 
   DropdownMenuRadioGroup, 
-  DropdownMenuRadioItem 
+  DropdownMenuRadioItem,
+  Table
 } from '@legacy-apartment/ui';
 import Swal from 'sweetalert2';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
@@ -17,6 +18,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import PendingIcon from '@mui/icons-material/Pending';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Sidebar from '@/components/Sidebar';
+import * as XLSX from 'xlsx';
 
 const API_BASE_URL = 'http://localhost:4000';
 
@@ -30,13 +32,37 @@ const FinancePage = () => {
   const { id } = router.query;
   const [resident, setResident] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [fees, setFees] = useState({ monthlyFee: 1000, yearlyFee: 5000 });
+
+  // Generate years from 2023 to current year
+  const availableYears = Array.from(
+    { length: currentYear - 2023 + 1 }, 
+    (_, i) => 2023 + i
+  );
 
   useEffect(() => {
     if (id) {
       fetchResidentFinance();
+      fetchSettings();
     }
   }, [id]);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/setting`);
+      if (response.ok) {
+        const data = await response.json();
+        setFees({
+          monthlyFee: data.monthlyFee,
+          yearlyFee: data.yearlyFee,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    }
+  };
 
   const fetchResidentFinance = async () => {
     const token = localStorage.getItem('adminToken');
@@ -64,7 +90,20 @@ const FinancePage = () => {
     }
   };
 
-  const updateMonthlyStatus = async (monthIndex: number, status: number) => {
+  const updateMonthlyStatus = async (monthIndex: number, status: number, amount?: number) => {
+    // Optimistic update
+    setResident((prev: any) => {
+      if (!prev) return prev;
+      const newPayments = [...prev.monthlyPayments];
+      const idx = newPayments.findIndex(p => p.month === monthIndex && p.year === selectedYear);
+      if (idx > -1) {
+        newPayments[idx] = { ...newPayments[idx], status, amount: amount ?? newPayments[idx].amount };
+      } else {
+        newPayments.push({ residentId: parseInt(id as string), month: monthIndex, year: selectedYear, status, amount: amount ?? 0 });
+      }
+      return { ...prev, monthlyPayments: newPayments };
+    });
+
     const token = localStorage.getItem('adminToken');
     try {
       const response = await fetch(`${API_BASE_URL}/finance/monthly/${id}`, {
@@ -76,19 +115,35 @@ const FinancePage = () => {
         body: JSON.stringify({
           month: monthIndex,
           year: selectedYear,
-          status
+          status,
+          amount
         }),
       });
 
-      if (response.ok) {
-        fetchResidentFinance();
+      if (!response.ok) {
+        fetchResidentFinance(); // Revert on failure
+        Swal.fire('Error', 'Failed to update status', 'error');
       }
     } catch (error) {
+      fetchResidentFinance(); // Revert on failure
       Swal.fire('Error', 'Failed to update status', 'error');
     }
   };
 
-  const updateSecurityStatus = async (status: number) => {
+  const updateSecurityStatus = async (status: number, amount?: number) => {
+    // Optimistic update
+    setResident((prev: any) => {
+      if (!prev) return prev;
+      const newPayments = [...prev.securityPayments];
+      const idx = newPayments.findIndex(p => p.year === selectedYear);
+      if (idx > -1) {
+        newPayments[idx] = { ...newPayments[idx], status, amount: amount ?? newPayments[idx].amount };
+      } else {
+        newPayments.push({ residentId: parseInt(id as string), year: selectedYear, status, amount: amount ?? 0 });
+      }
+      return { ...prev, securityPayments: newPayments };
+    });
+
     const token = localStorage.getItem('adminToken');
     try {
       const response = await fetch(`${API_BASE_URL}/finance/security/${id}`, {
@@ -99,15 +154,46 @@ const FinancePage = () => {
         },
         body: JSON.stringify({
           year: selectedYear,
-          status
+          status,
+          amount
         }),
       });
 
-      if (response.ok) {
-        fetchResidentFinance();
+      if (!response.ok) {
+        fetchResidentFinance(); // Revert
+        Swal.fire('Error', 'Failed to update status', 'error');
       }
     } catch (error) {
+      fetchResidentFinance(); // Revert
       Swal.fire('Error', 'Failed to update status', 'error');
+    }
+  };
+
+  const updateGlobalFees = async (data: { monthlyFee?: number; yearlyFee?: number }) => {
+    // Optimistic update
+    setFees((prev: any) => ({
+      ...prev,
+      ...data
+    }));
+
+    const token = localStorage.getItem('adminToken');
+    try {
+      const response = await fetch(`${API_BASE_URL}/setting`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        fetchSettings(); // Revert
+        Swal.fire('Error', 'Failed to update global fees', 'error');
+      }
+    } catch (error) {
+      fetchSettings(); // Revert
+      Swal.fire('Error', 'Failed to update global fees', 'error');
     }
   };
 
@@ -160,19 +246,19 @@ const FinancePage = () => {
       <div className="flex min-h-screen bg-gray-50">
         <Sidebar activeTab="residents" />
 
-        <div className="flex-1 ml-64 p-8 md:p-12">
+        <div className="flex-1 min-w-0 md:ml-64 p-4 md:p-8 lg:p-12">
           <div className="max-w-6xl mx-auto">
-            <div className="mb-8 flex items-center gap-4">
+            <div className="mb-8 flex flex-wrap items-center gap-4">
               <Button variant="outline" size="icon" onClick={() => router.back()} icon={{ left: <KeyboardArrowLeftIcon /> }} />
               <div>
-              <h1 className="text-3xl font-bold text-gray-900">Finance Management</h1>
-              <p>Managing payments for <span className="text-orange-500 font-bold">{resident.name}</span> ({resident.residence})</p>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Finance Management</h1>
+                <p className="text-sm md:text-base">Managing payments for <span className="text-orange-500 font-bold">{resident.name}</span> ({resident.residence})</p>
+              </div>
             </div>
-          </div>
 
-          <div className="bg-white p-8 rounded-2xl border border-gray-500 shadow-sm mb-8">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-xl font-bold text-gray-900">Yearly Overview</h2>
+          <div className="bg-white p-4 md:p-8 rounded-2xl border border-gray-500 shadow-sm mb-8">
+              <div className="flex flex-wrap justify-between items-center gap-3 mb-8">
+                <h2 className="text-xl font-bold text-gray-900">Yearly Overview</h2>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
@@ -185,7 +271,7 @@ const FinancePage = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-white border-gray-400">
                   <DropdownMenuRadioGroup>
-                    {[2024, 2025, 2026].map((y) => (
+                    {availableYears.map((y) => (
                       <DropdownMenuRadioItem 
                         key={y} 
                         checked={selectedYear === y} 
@@ -198,32 +284,122 @@ const FinancePage = () => {
                   </DropdownMenuRadioGroup>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
+              </div>
 
             <div className="mb-12">
-              <h3 className="text-sm font-bold text-gray-100 mb-6">Monthly Society Fees</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                {months.map((month, idx) => (
-                  <div key={month} className="p-6 bg-gray-50 rounded-2xl border border-gray-500 flex flex-col items-center text-center">
-                    <span className="text-sm font-bold text-gray-900 mb-4">{month}</span>
-                    <StatusBadge 
-                      status={getMonthlyStatus(idx)} 
-                      onClick={(s) => updateMonthlyStatus(idx, s)} 
-                    />
-                  </div>
-                ))}
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
+                <h3 className="text-sm font-bold text-gray-100">Monthly Society Fees</h3>
+                <button
+                  onClick={() => {
+                    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+                    const monthlyRows = monthNames.map((mon, idx) => {
+                      const p = resident.monthlyPayments?.find(
+                        (pay: any) => pay.month === idx && pay.year === selectedYear
+                      );
+                      return {
+                        Type: 'Monthly Society Fee',
+                        Month: mon,
+                        Year: selectedYear,
+                        Amount: p ? Number(p.amount) : 0,
+                        Status: p ? (p.status === 1 ? 'Paid' : p.status === -1 ? 'Unpaid' : 'Pending') : 'Pending',
+                      };
+                    });
+                    const secPayment = resident.securityPayments?.find(
+                      (p: any) => p.year === selectedYear
+                    );
+                    const yearlyRow = {
+                      Type: 'Yearly Maintenance Fee',
+                      Month: 'N/A',
+                      Year: selectedYear,
+                      Amount: secPayment ? Number(secPayment.amount) : 0,
+                      Status: secPayment ? (secPayment.status === 1 ? 'Paid' : secPayment.status === -1 ? 'Unpaid' : 'Pending') : 'Pending',
+                    };
+                    const ws = XLSX.utils.json_to_sheet([...monthlyRows, yearlyRow]);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, `${selectedYear}`);
+                    XLSX.writeFile(wb, `finance-${resident.name.replace(/\s+/g, '-').toLowerCase()}-${selectedYear}.xlsx`);
+                  }}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 border border-orange-200 bg-orange-50 hover:bg-orange-100 hover:border-orange-400 transition-colors rounded-lg px-3 py-1.5 whitespace-nowrap"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  Download .xlsx
+                </button>
               </div>
+              <Table 
+                residents={[resident]}
+                columns={months}
+                type="numerical"
+                theme="orange"
+                getValue={(res, colIdx) => {
+                  const payment = res.monthlyPayments.find(
+                    (p: any) => p.month === colIdx && p.year === selectedYear
+                  );
+                  return payment ? payment.amount.toLocaleString() : "0";
+                }}
+                onCellClick={(res, colIdx) => {
+                  const payment = res.monthlyPayments.find(
+                    (p: any) => p.month === colIdx && p.year === selectedYear
+                  );
+                  const currentStatus = payment ? payment.status : 0;
+                  const nextStatus = currentStatus === 0 ? 1 : currentStatus === 1 ? -1 : 0;
+                  // Auto-set amount if marking as paid
+                  const amount = nextStatus === 1 ? fees.monthlyFee : (payment?.amount || 0);
+                  updateMonthlyStatus(colIdx, nextStatus, amount);
+                }}
+                onValueChange={(res, colIdx, newValue) => {
+                  const amount = parseFloat(newValue.replace(/,/g, '')) || 0;
+                  const status = amount >= fees.monthlyFee ? 1 : amount > 0 ? 0 : -1;
+                  updateMonthlyStatus(colIdx, status, amount);
+                }}
+                onMonthlyFeeChange={(val) => {
+                  const num = parseFloat(val.replace(/[^0-9.]/g, '')) || 0;
+                  updateGlobalFees({ monthlyFee: num });
+                }}
+                monthlyFee={`₹ ${fees.monthlyFee.toLocaleString()}`}
+                showYearlyFeeLegend={false}
+                className="!shadow-none !border-gray-500"
+              />
             </div>
 
             <div className="pt-8 border-t border-gray-400">
-               <h3 className="text-sm font-bold text-gray-100 mb-6">Annual Security Fees</h3>
-               <div className="max-w-xs p-6 bg-gray-50 rounded-2xl border border-gray-400 flex flex-col items-center text-center">
-                  <span className="text-sm font-bold text-gray-900 mb-4">Security Fee {selectedYear}</span>
-                  <StatusBadge 
-                    status={getSecurityStatus()} 
-                    onClick={(s) => updateSecurityStatus(s)} 
-                  />
-               </div>
+               <h3 className="text-sm font-bold text-gray-100 mb-6">Yearly Maintenance Fees</h3>
+               <Table 
+                residents={[resident]}
+                columns={[`Year ${selectedYear}`]}
+                type="numerical"
+                theme="blue"
+                getValue={() => {
+                  const payment = resident.securityPayments.find(
+                    (p: any) => p.year === selectedYear
+                  );
+                  return payment ? payment.amount.toLocaleString() : "0";
+                }}
+                onCellClick={() => {
+                  const payment = resident.securityPayments.find(
+                    (p: any) => p.year === selectedYear
+                  );
+                  const currentStatus = payment ? payment.status : 0;
+                  const nextStatus = currentStatus === 0 ? 1 : currentStatus === 1 ? -1 : 0;
+                  const amount = nextStatus === 1 ? fees.yearlyFee : (payment?.amount || 0);
+                  updateSecurityStatus(nextStatus, amount);
+                }}
+                onValueChange={(res, colIdx, newValue) => {
+                  const amount = parseFloat(newValue.replace(/,/g, '')) || 0;
+                  const status = amount >= fees.yearlyFee ? 1 : amount > 0 ? 0 : -1;
+                  updateSecurityStatus(status, amount);
+                }}
+                onYearlyFeeChange={(val) => {
+                  const num = parseFloat(val.replace(/[^0-9.]/g, '')) || 0;
+                  updateGlobalFees({ yearlyFee: num });
+                }}
+                yearlyFee={`₹ ${fees.yearlyFee.toLocaleString()}`}
+                showMonthlyFeeLegend={false}
+                className="!shadow-none !border-gray-500 max-w-xs"
+              />
             </div>
           </div>
           </div>
