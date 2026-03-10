@@ -1,12 +1,22 @@
 import React from 'react';
 import { useRouter } from 'next/router';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import CampaignIcon from '@mui/icons-material/Campaign';
+import ApartmentIcon from '@mui/icons-material/Apartment';
+import PaymentsIcon from '@mui/icons-material/Payments';
+import GavelIcon from '@mui/icons-material/Gavel';
+import FeedbackIcon from '@mui/icons-material/Feedback';
+import LogoutIcon from '@mui/icons-material/Logout';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface SidebarProps {
   activeTab: 'dashboard' | 'announcements' | 'residents' | 'rules' | 'complaints' | 'finance' | 'none';
   onTabChange?: (tab: 'dashboard' | 'announcements' | 'residents' | 'rules' | 'complaints' | 'finance') => void;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
+const Sidebar = ({ activeTab, onTabChange, isOpen, onClose }: SidebarProps) => {
   const router = useRouter();
 
   const handleLogout = () => {
@@ -18,56 +28,32 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
     { 
       id: 'dashboard', 
       label: 'Dashboard', 
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
-      )
+      icon: <DashboardIcon className="size-5" />
     },
     { 
       id: 'announcements', 
       label: 'Announcements', 
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-        </svg>
-      )
+      icon: <CampaignIcon className="size-5" />
     },
     { 
       id: 'residents', 
       label: 'Residents', 
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-      )
+      icon: <ApartmentIcon className="size-5" />
     },
     { 
       id: 'finance', 
       label: 'Finance', 
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      )
+      icon: <PaymentsIcon className="size-5" />
     },
     { 
       id: 'rules', 
       label: 'Rules', 
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-      )
+      icon: <GavelIcon className="size-5" />
     },
     { 
       id: 'complaints', 
       label: 'Complaints', 
-      icon: (
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-      )
+      icon: <FeedbackIcon className="size-5" />
     },
   ];
 
@@ -78,45 +64,63 @@ const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
       // If we are on a page where state management isn't local (like finance/[id]), navigate home
       router.push(`/?tab=${id}`);
     }
+    if (onClose) onClose();
   };
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-500 flex flex-col fixed h-screen z-20">
-      <div className="p-8 cursor-pointer" onClick={() => router.push('/')}>
-        <h2 className="text-xl font-black uppercase tracking-tighter text-gray-100">
-          Legacy <span className="text-orange-500">Admin</span>
-        </h2>
-      </div>
-
-      <nav className="flex-1 px-4 space-y-2">
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => handleNavClick(item.id)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
-              activeTab === item.id 
-                ? 'bg-orange-500 text-white' 
-                : 'hover:bg-gray-500 text-gray-100'
-            }`}
+    <>
+      {/* Backdrop for mobile */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-20 lg:hidden backdrop-blur-sm"
+          onClick={onClose}
+        />
+      )}
+      
+      <aside className={`w-64 bg-white border-r border-gray-500 flex flex-col fixed h-screen z-30 transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
+        <div className="p-8 flex items-center justify-between">
+          <div className="cursor-pointer" onClick={() => router.push('/')}>
+            <h2 className="text-xl font-black uppercase tracking-tighter text-gray-100">
+              Legacy <span className="text-orange-500">Admin</span>
+            </h2>
+          </div>
+          {/* Close button for mobile */}
+          <button 
+            onClick={onClose}
+            className="lg:hidden p-2 text-gray-500 hover:text-orange-500 transition-colors"
           >
-            {item.icon}
-            <span className="font-bold text-sm">{item.label}</span>
+            <CloseIcon className="size-6 text-gray-100" />
           </button>
-        ))}
-      </nav>
+        </div>
 
-      <div className="p-4 border-t border-gray-50">
-        <button 
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-orange-50 transition-all duration-300 text-gray-100 hover:text-orange-500"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          <span className="font-bold text-sm">Logout</span>
-        </button>
-      </div>
-    </aside>
+        <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleNavClick(item.id)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
+                activeTab === item.id 
+                  ? 'bg-orange-500 text-white' 
+                  : 'hover:bg-gray-500 text-gray-100'
+              }`}
+            >
+              {item.icon}
+              <span className="font-bold text-sm tracking-tight">{item.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <div className="p-4 border-t border-gray-50">
+          <button 
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-orange-50 transition-all duration-300 text-gray-100 hover:text-orange-500"
+          >
+            <LogoutIcon className="size-5" />
+            <span className="font-bold text-sm">Logout</span>
+          </button>
+        </div>
+      </aside>
+    </>
   );
 };
 

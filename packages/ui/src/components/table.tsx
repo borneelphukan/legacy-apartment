@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Input } from "./input";
 import Button from "./button";
+import LockIcon from '@mui/icons-material/Lock';
 
 export interface Resident {
   name: string;
@@ -12,10 +13,10 @@ export interface Resident {
 }
 
 export interface Props {
-  residents?: any[]; // renamed from residents to support generic data
-  data?: any[]; // optional alias for residents
+  residents?: any[];
+  data?: any[];
   columns: string[];
-  headers?: string[]; // Custom headers if different from column keys
+  headers?: string[];
   getStatus?: (row: any, columnIndex: number) => number;
   getValue?: (row: any, columnIndex: number) => string | number;
   renderCell?: (row: any, column: string, index: number) => React.ReactNode;
@@ -106,9 +107,7 @@ const Table = ({
       {!isUnlocked ? (
         <div className="flex flex-col items-center justify-center p-12 md:p-24 bg-slate-50/50 min-h-[400px]">
           <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center mb-6 text-grey-100 border border-gray-400">
-             <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-             </svg>
+             <LockIcon className="size-8" />
           </div>
           <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-2 tracking-tight">Restricted Access</h3>
           <p className="text-grey-100 mb-8 text-center max-w-sm">Please enter the password to view the contributions data.</p>
@@ -190,11 +189,6 @@ const Table = ({
                         >
                           <div className="flex items-center gap-2">
                             {row.residence || row.flat}
-                            {row.designation && row.designation !== 'None' && (
-                              <span className="bg-orange-100 text-orange-600 text-[10px] px-2 py-0.5 rounded-full uppercase font-bold tracking-tighter shrink-0">
-                                {row.designation}
-                              </span>
-                            )}
                           </div>
                         </td>
                         <td 

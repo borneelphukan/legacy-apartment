@@ -9,6 +9,7 @@ import Complaints from '@/components/Complaints';
 import Finance from '@/components/Finance';
 import Sidebar from '@/components/Sidebar';
 import api from '@/lib/api';
+import MenuIcon from '@mui/icons-material/Menu';
 
 
 const AdminDashboard = () => {
@@ -21,6 +22,7 @@ const AdminDashboard = () => {
     rules: 0,
     complaints: 0,
   });
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (router.query.tab) 
@@ -79,18 +81,35 @@ const AdminDashboard = () => {
 
       <div className="flex min-h-screen bg-gray-50 text-gray-100">
         
-        <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
+        <Sidebar 
+          activeTab={activeTab} 
+          onTabChange={handleTabChange} 
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
 
         {/* Main Content */}
-        <main className="flex-1 ml-64 p-8 min-w-0 overflow-x-hidden">
+        <main className="flex-1 lg:ml-64 p-4 md:p-8 min-w-0 overflow-x-hidden">
+          {/* Mobile Header */}
+          <div className="lg:hidden flex items-center justify-between mb-8 pb-4 border-b border-gray-400">
+            <h2 className="text-xl font-black uppercase tracking-tighter text-gray-100">
+              Legacy <span className="text-orange-500">Admin</span>
+            </h2>
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="p-2 text-gray-500 hover:text-orange-500 transition-colors"
+            >
+              <MenuIcon className="size-8 text-gray-100" />
+            </button>
+          </div>
           {activeTab === 'dashboard' ? (
             <div className="max-w-7xl mx-auto">
               <div className="mb-12">
-                <h1 className="text-3xl md:text-4xl">
+                <h1 className="text-2xl md:text-3xl font-black tracking-tight text-gray-100">
                   Admin Dashboard
                 </h1>
-                <p className="mt-2 text-lg">
-                  Welcome back{userRole ? `, ${userRole}` : ''}! Here's an overview of the society management.
+                <p className="mt-2 text-lg text-gray-100/80">
+                  Welcome back{userRole ? `, ${userRole}` : ''}. Here's an overview of the society.
                 </p>
               </div>
 
@@ -122,11 +141,11 @@ const AdminDashboard = () => {
               <Finance />
             </div>
           ) : activeTab === 'rules' ? (
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-7xl mx-auto">
               <Rules />
             </div>
           ) : activeTab === 'complaints' ? (
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-7xl mx-auto">
               <Complaints />
             </div>
           ) : null}

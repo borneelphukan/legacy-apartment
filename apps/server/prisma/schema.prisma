@@ -43,7 +43,6 @@ model Resident {
   name            String
   residence       String
   phone_no        String
-  designation     String?           // Secretary, President, Treasurer
   monthlyPayments MonthlyPayment[]
   securityPayments SecurityPayment[]
   createdAt       DateTime @default(now())

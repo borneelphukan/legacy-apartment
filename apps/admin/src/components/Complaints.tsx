@@ -78,10 +78,10 @@ const Complaints = () => {
     <div className="w-full">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
         <div>
-          <h1 className="text-3xl md:text-4xl text-gray-100">
-            Resident Complaints
+          <h1 className="text-2xl md:text-3xl text-gray-100 font-black tracking-tight leading-tight">
+            Complaints
           </h1>
-          <p className="mt-2 font-light text-gray-100">
+          <p className="mt-2 text-lg text-gray-100/80">
             Review and manage complaints submitted by residents.
           </p>
         </div>

@@ -6,7 +6,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PersonIcon from '@mui/icons-material/Person';
 import PaymentsIcon from '@mui/icons-material/Payments';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import api from '@/lib/api';
 
 interface Resident {
@@ -15,23 +14,8 @@ interface Resident {
   name: string;
   residence: string;
   phone_no: string;
-  designation?: string | null;
 }
 
-const designations = [
-  'None', 
-  'Secretary', 
-  'President', 
-  'Treasurer', 
-  'Joint Secretary', 
-  'Advisors', 
-  'Technical Advisors', 
-  'Cultural Head', 
-  'Welfare Head', 
-  'Gym Head', 
-  'Gardening', 
-  'Catering'
-];
 
 const Residents = () => {
   const [residents, setResidents] = useState<Resident[]>([]);
@@ -42,7 +26,6 @@ const Residents = () => {
     residence: '',
     phone_no: '',
     avatar: '',
-    designation: 'None',
   });
   const [loading, setLoading] = useState(true);
   const [avatarFiles, setAvatarFiles] = useState<File[]>([]);
@@ -92,8 +75,7 @@ const Residents = () => {
     e.preventDefault();
     
     const body = {
-      ...formData,
-      designation: formData.designation === 'None' ? null : formData.designation
+      ...formData
     };
 
     try {
@@ -105,7 +87,7 @@ const Residents = () => {
       setIsFormOpen(false);
       setEditingId(null);
       setAvatarFiles([]);
-      setFormData({ name: '', residence: '', phone_no: '', avatar: '', designation: 'None' });
+      setFormData({ name: '', residence: '', phone_no: '', avatar: '' });
       fetchResidents();
     } catch (error: any) {
       Swal.fire('Error', error.response?.data?.message || 'Something went wrong', 'error');
@@ -119,7 +101,6 @@ const Residents = () => {
       residence: res.residence,
       phone_no: res.phone_no,
       avatar: res.avatar || '',
-      designation: res.designation || 'None',
     });
     setAvatarFiles([]); // Reset file input when editing (keeps existing URL if not changed)
     setIsFormOpen(true);
@@ -151,10 +132,10 @@ const Residents = () => {
     <div className="w-full">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
         <div>
-          <h1 className="text-3xl md:text-4xl text-gray-100">
+          <h1 className="text-2xl md:text-3xl text-gray-100 font-black tracking-tight leading-tight">
             Manage Residents
           </h1>
-          <p className="mt-2 font-light text-gray-100">
+          <p className="mt-2 text-lg text-gray-100/80">
             Add, edit or remove society residents data.
           </p>
         </div>
@@ -163,7 +144,7 @@ const Residents = () => {
               variant="primary"
               onClick={() => {
                   setEditingId(null);
-                  setFormData({ name: '', residence: '', phone_no: '', avatar: '', designation: 'None' });
+                  setFormData({ name: '', residence: '', phone_no: '', avatar: '' });
                   setAvatarFiles([]);
                   setIsFormOpen(true);
               }}
@@ -205,45 +186,6 @@ const Residents = () => {
                 onChange={(e) => setFormData({...formData, phone_no: e.target.value})}
                 placeholder="Enter phone number"
               />
-              <div className="flex flex-col gap-1.5 group/select">
-                <label className="text-gray-100 font-medium text-sm group-focus-within/select:text-gray-100">
-                  Designation (Optional)
-                </label>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button 
-                      type="button"
-                      className="w-full py-2 px-3 border border-gray-400 rounded-lg bg-white flex items-center justify-between text-left focus:outline-none focus:ring-[2px] focus:ring-offset-2 focus:ring-orange-500 transition-colors shadow-xs shadow-black/20"
-                    >
-                      <span className={`text-sm ${formData.designation === 'None' ? 'text-gray-300' : 'text-gray-900'}`}>
-                        {formData.designation}
-                      </span>
-                      <KeyboardArrowDownIcon className="text-gray-400 size-5" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-[calc(100vw-3rem)] md:w-[440px]">
-                    <DropdownMenuRadioGroup>
-                      {designations.map(des => {
-                        const isOccupied = residents.some(r => r.id !== editingId && r.designation === des);
-                        const isDisabled = des !== 'None' && isOccupied;
-                        
-                        return (
-                          <DropdownMenuRadioItem 
-                            key={des} 
-                            checked={formData.designation === des}
-                            onClick={() => setFormData({...formData, designation: des})}
-                            disabled={isDisabled}
-                          >
-                            <div className="flex justify-between items-center w-full">
-                              <span>{des}</span>
-                            </div>
-                          </DropdownMenuRadioItem>
-                        );
-                      })}
-                    </DropdownMenuRadioGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
               <div className="md:col-span-2">
                 <Upload 
                   label="Profile Image"
@@ -283,12 +225,12 @@ const Residents = () => {
             </div>
         ) : (
             <Table 
-              data={residents}
+              data={editingId && isFormOpen ? residents.filter(r => r.id !== editingId) : residents}
               type="general"
               theme="orange"
-              columns={['resident', 'residence', 'phone_no', 'designation', 'actions']}
-              headers={['Resident', 'Apartment', 'Phone', 'Designation', 'Actions']}
-              minWidthClass="min-w-[800px]"
+              columns={['resident', 'residence', 'phone_no', 'actions']}
+              headers={['Resident', 'Apartment', 'Phone', 'Actions']}
+              minWidthClass="min-w-[600px]"
               showMonthlyFeeLegend={false}
               showYearlyFeeLegend={false}
               renderCell={(res, col) => {
@@ -310,14 +252,6 @@ const Residents = () => {
                     return <span className="text-orange-500 font-bold">{res.residence}</span>;
                   case 'phone_no':
                     return <span className="font-medium text-gray-100">{res.phone_no}</span>;
-                  case 'designation':
-                    return res.designation && res.designation !== 'None' ? (
-                      <span className="bg-orange-100 text-orange-600 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-tighter shadow-sm">
-                        {res.designation}
-                      </span>
-                    ) : (
-                      <span className="text-gray-300 text-sm">N/A</span>
-                    );
                   case 'actions':
                     return (
                       <div className="flex justify-end gap-2">

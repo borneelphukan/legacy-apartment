@@ -106,10 +106,10 @@ const Announcements = () => {
     <div className="w-full">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
         <div>
-          <h1 className="text-3xl md:text-4xl">
-            Manage Announcements
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-gray-100">
+            Announcements
           </h1>
-          <p className="mt-2 font-light">
+          <p className="mt-2 text-lg text-gray-100/80">
             Add, edit or remove society announcements.
           </p>
         </div>
@@ -181,7 +181,7 @@ const Announcements = () => {
                 No announcements. Create one to get started.
             </p>
         ) : (
-            announcements.map((ann) => (
+            (editingId && isFormOpen ? announcements.filter(a => a.id !== editingId) : announcements).map((ann) => (
                 <div key={ann.id} className="bg-white p-6 md:p-8 rounded-md border border-gray-500 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">

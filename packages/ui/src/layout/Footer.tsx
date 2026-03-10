@@ -56,7 +56,7 @@ const Footer = () => {
                   className="text-sm text-slate-400 hover:text-orange-500"
                   href="/rules"
                 >
-                  Society Rules
+                  Rules
                 </Link>
               </li>
             </ul>

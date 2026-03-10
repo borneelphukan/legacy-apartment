@@ -121,10 +121,10 @@ const Rules = () => {
     <div className="w-full">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
         <div>
-          <h1 className="text-3xl md:text-4xl">
-            Manage Society Rules
+          <h1 className="text-2xl md:text-3xl text-gray-100 font-black tracking-tight leading-tight">
+            Rules
           </h1>
-          <p className="mt-2 font-light">
+          <p className="mt-2 text-lg text-gray-100/80">
             Add, edit or remove society guidelines and regulations.
           </p>
         </div>
@@ -207,7 +207,8 @@ const Rules = () => {
             </p>
         ) : (
             categories.map(category => {
-              const categoryRules = rules.filter(r => r.category === category);
+              const currentRules = (editingId && isFormOpen ? rules.filter(r => r.id !== editingId) : rules);
+              const categoryRules = currentRules.filter(r => r.category === category);
               if (categoryRules.length === 0) return null;
 
               return (

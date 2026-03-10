@@ -6,7 +6,6 @@ import { Banner, Breadcrumb, Button, Input, TextArea } from "@legacy-apartment/u
 import SupportAgentOutlinedIcon from "@mui/icons-material/SupportAgentOutlined";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import Swal from 'sweetalert2';
 import { ChevronLeftOutlined, ChevronRightOutlined } from "@mui/icons-material";
 import api from "@/lib/api";
 
@@ -31,17 +30,9 @@ const HelpDesk = () => {
       if (response.status === 201 || response.status === 200) {
         setSubmitted(true);
         setFormData({ name: "", apartment: "", phone_no: "", complaint: "" });
-        Swal.fire({
-          title: 'Submitted!',
-          text: 'Your complaint has been successfully registered. Our team will look into it shortly.',
-          icon: 'success',
-          confirmButtonColor: '#f97316',
-        });
-      } else {
-        Swal.fire('Error', 'Failed to submit complaint. Please try again.', 'error');
       }
     } catch (error) {
-      Swal.fire('Error', 'Communication with server failed', 'error');
+      console.error('Error submitting complaint:', error);
     } finally {
       setSubmitting(false);
     }

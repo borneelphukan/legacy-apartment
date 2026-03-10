@@ -207,10 +207,10 @@ const Finance = () => {
         <div className="w-full pb-20">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
                 <div className="flex-1">
-                    <h1 className="text-3xl md:text-5xl text-gray-100 font-black tracking-tight leading-tight">
+                    <h1 className="text-2xl md:text-3xl text-gray-100 font-black tracking-tight leading-tight">
                         Finance Management
                     </h1>
-                    <p className="mt-3 text-lg font-light text-gray-100/80">
+                    <p className="mt-2 text-lg text-gray-100/80">
                         Detailed overview of all resident contributions for the year {selectedYear}.
                     </p>
                 </div>

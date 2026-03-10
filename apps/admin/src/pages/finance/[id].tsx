@@ -20,6 +20,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Sidebar from '@/components/Sidebar';
 import * as XLSX from 'xlsx';
 import api from '@/lib/api';
+import MenuIcon from '@mui/icons-material/Menu';
 
 
 const months = [
@@ -36,6 +37,7 @@ const FinancePage = () => {
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [fees, setFees] = useState({ monthlyFee: 1000, yearlyFee: 5000 });
   const [isPresident, setIsPresident] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem('adminUser');
@@ -206,9 +208,25 @@ const FinancePage = () => {
       </Head>
 
       <div className="flex min-h-screen bg-gray-50">
-        <Sidebar activeTab="finance" />
+        <Sidebar 
+          activeTab="finance" 
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
 
-        <div className="flex-1 min-w-0 md:ml-64 p-4 md:p-8 lg:p-12">
+        <div className="flex-1 min-w-0 lg:ml-64 p-4 md:p-8 lg:p-12">
+          {/* Mobile Header */}
+          <div className="lg:hidden flex items-center justify-between mb-8 pb-4 border-b border-gray-400">
+            <h2 className="text-xl font-black uppercase tracking-tighter text-gray-100">
+              Legacy <span className="text-orange-500">Admin</span>
+            </h2>
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="p-2 text-gray-500 hover:text-orange-500 transition-colors"
+            >
+              <MenuIcon className="size-8" />
+            </button>
+          </div>
           <div className="max-w-6xl mx-auto">
             <div className="mb-8 flex flex-wrap items-center gap-4">
               <Button variant="outline" size="icon" onClick={() => router.back()} icon={{ left: <KeyboardArrowLeftIcon /> }} />
