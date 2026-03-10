@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import api from '@/lib/api';
 
 interface Announcement {
   id: number;
@@ -12,7 +13,6 @@ interface Announcement {
   date: string;
 }
 
-const API_BASE_URL = 'http://localhost:4000';
 
 const Announcements = () => {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -24,7 +24,18 @@ const Announcements = () => {
     date: new Date().toISOString().split('T')[0],
   });
   const [loading, setLoading] = useState(true);
+  const [canManage, setCanManage] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const stored = localStorage.getItem('adminUser');
+    if (stored) {
+      try {
+        const user = JSON.parse(stored);
+        setCanManage(user?.role === 'president' || user?.role === 'secretary');
+      } catch {}
+    }
+  }, []);
 
   useEffect(() => {
     fetchAnnouncements();
@@ -32,11 +43,8 @@ const Announcements = () => {
 
   const fetchAnnouncements = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/announcements`);
-      if (response.ok) {
-        const data = await response.json();
-        setAnnouncements(data);
-      }
+      const response = await api.get('/announcements');
+      setAnnouncements(response.data);
     } catch (error) {
       console.error('Error fetching announcements:', error);
     } finally {
@@ -46,41 +54,19 @@ const Announcements = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('adminToken');
-    
-    if (!token) {
-      Swal.fire('Error', 'Unauthorized. Please login again.', 'error');
-      router.push('/login');
-      return;
-    }
-
-    const method = editingId ? 'PATCH' : 'POST';
-    const url = editingId 
-      ? `${API_BASE_URL}/announcements/${editingId}`
-      : `${API_BASE_URL}/announcements`;
 
     try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = editingId 
+        ? await api.patch(`/announcements/${editingId}`, formData)
+        : await api.post('/announcements', formData);
 
-      if (response.ok) {
-        Swal.fire('Success', `Announcement ${editingId ? 'updated' : 'created'} successfully!`, 'success');
-        setIsFormOpen(false);
-        setEditingId(null);
-        setFormData({ title: '', description: '', date: new Date().toISOString().split('T')[0] });
-        fetchAnnouncements();
-      } else {
-        const data = await response.json();
-        Swal.fire('Error', data.message || 'Something went wrong', 'error');
-      }
-    } catch (error) {
-      Swal.fire('Error', 'Communication with server failed', 'error');
+      Swal.fire('Success', `Announcement ${editingId ? 'updated' : 'created'} successfully!`, 'success');
+      setIsFormOpen(false);
+      setEditingId(null);
+      setFormData({ title: '', description: '', date: new Date().toISOString().split('T')[0] });
+      fetchAnnouncements();
+    } catch (error: any) {
+      Swal.fire('Error', error.response?.data?.message || 'Something went wrong', 'error');
     }
   };
 
@@ -106,19 +92,10 @@ const Announcements = () => {
     });
 
     if (result.isConfirmed) {
-      const token = localStorage.getItem('adminToken');
       try {
-        const response = await fetch(`${API_BASE_URL}/announcements/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (response.ok) {
-          Swal.fire('Deleted!', 'Announcement has been deleted.', 'success');
-          fetchAnnouncements();
-        }
+        await api.delete(`/announcements/${id}`);
+        Swal.fire('Deleted!', 'Announcement has been deleted.', 'success');
+        fetchAnnouncements();
       } catch (error) {
         Swal.fire('Error', 'Failed to delete announcement', 'error');
       }
@@ -136,16 +113,18 @@ const Announcements = () => {
             Add, edit or remove society announcements.
           </p>
         </div>
-        <Button 
-            variant="primary"
-            onClick={() => {
-                setEditingId(null);
-                setFormData({ title: '', description: '', date: new Date().toISOString().split('T')[0] });
-                setIsFormOpen(true);
-            }}
-        >
-          Create
-        </Button>
+        {canManage && (
+          <Button 
+              variant="primary"
+              onClick={() => {
+                  setEditingId(null);
+                  setFormData({ title: '', description: '', date: new Date().toISOString().split('T')[0] });
+                  setIsFormOpen(true);
+              }}
+          >
+            Create
+          </Button>
+        )}
       </div>
 
       {isFormOpen && (
@@ -213,20 +192,22 @@ const Announcements = () => {
                         <h3 className="text-xl font-bold mb-2">{ann.title}</h3>
                         <p className="text-sm line-clamp-2">{ann.description}</p>
                     </div>
-                    <div className="flex gap-3 shrink-0">
-                        <Button 
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleEdit(ann)}
-                            icon={{ left: <EditIcon className="size-5" /> }}
-                        />
-                        <Button 
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => handleDelete(ann.id)}
-                            icon={{ left: <DeleteIcon className="size-5" /> }}
-                        />
-                    </div>
+                    {canManage && (
+                      <div className="flex gap-3 shrink-0">
+                          <Button 
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleEdit(ann)}
+                              icon={{ left: <EditIcon className="size-5" /> }}
+                          />
+                          <Button 
+                              variant="destructive"
+                              size="icon"
+                              onClick={() => handleDelete(ann.id)}
+                              icon={{ left: <DeleteIcon className="size-5" /> }}
+                          />
+                      </div>
+                    )}
                 </div>
             ))
         )}

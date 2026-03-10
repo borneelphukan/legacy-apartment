@@ -12,6 +12,7 @@ import {
   DropdownMenuItem 
 } from '@legacy-apartment/ui';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import api from '@/lib/api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -33,17 +34,10 @@ export default function Login() {
       : { email, password };
 
     try {
-      const res = await fetch(`http://localhost:4000/users/${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await api.post(`/users/${endpoint}`, payload);
+      const data = response.data;
 
-      const data = await res.json();
-
-      if (res.ok) {
+      if (response.status === 200 || response.status === 201) {
         Swal.fire({
           icon: 'success',
           title: isRegisterMode ? 'User Created!' : 'Welcome back!',

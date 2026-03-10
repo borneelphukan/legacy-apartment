@@ -8,8 +8,8 @@ import Rules from '@/components/Rules';
 import Complaints from '@/components/Complaints';
 import Finance from '@/components/Finance';
 import Sidebar from '@/components/Sidebar';
+import api from '@/lib/api';
 
-const API_BASE_URL = 'http://localhost:4000';
 
 const AdminDashboard = () => {
   const router = useRouter();
@@ -27,6 +27,11 @@ const AdminDashboard = () => {
       setActiveTab(router.query.tab as any);
   }, [router.query.tab]);
 
+  const handleTabChange = (tab: any) => {
+    setActiveTab(tab);
+    router.push(`/?tab=${tab}`, undefined, { shallow: true });
+  };
+
   useEffect(() => {
     const stored = localStorage.getItem('adminUser');
     if (stored) {
@@ -39,21 +44,18 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const fetchStats = async () => {
-      const token = localStorage.getItem('adminToken');
       try {
         const [resResponse, annResponse, rulesResponse, complaintsResponse] = await Promise.all([
-          fetch(`${API_BASE_URL}/residents`),
-          fetch(`${API_BASE_URL}/announcements`),
-          fetch(`${API_BASE_URL}/rules`),
-          fetch(`${API_BASE_URL}/complaints`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          })
+          api.get('/residents'),
+          api.get('/announcements'),
+          api.get('/rules'),
+          api.get('/complaints')
         ]);
         
-        const residents = resResponse.ok ? await resResponse.json() : [];
-        const announcements = annResponse.ok ? await annResponse.json() : [];
-        const rules = rulesResponse.ok ? await rulesResponse.json() : [];
-        const complaints = complaintsResponse.ok ? await complaintsResponse.json() : [];
+        const residents = resResponse.data || [];
+        const announcements = annResponse.data || [];
+        const rules = rulesResponse.data || [];
+        const complaints = complaintsResponse.data || [];
         
         setStats({
           residents: Array.isArray(residents) ? residents.length : 0,
@@ -77,7 +79,7 @@ const AdminDashboard = () => {
 
       <div className="flex min-h-screen bg-gray-50 text-gray-100">
         
-        <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
 
         {/* Main Content */}
         <main className="flex-1 ml-64 p-8 min-w-0 overflow-x-hidden">

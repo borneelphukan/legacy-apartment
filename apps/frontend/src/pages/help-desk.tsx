@@ -8,8 +8,8 @@ import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import Swal from 'sweetalert2';
 import { ChevronLeftOutlined, ChevronRightOutlined } from "@mui/icons-material";
+import api from "@/lib/api";
 
-const API_BASE_URL = 'http://localhost:4000';
 
 const HelpDesk = () => {
   const [formData, setFormData] = useState({
@@ -26,15 +26,9 @@ const HelpDesk = () => {
     setSubmitting(true);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/complaints`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await api.post('/complaints', formData);
 
-      if (response.ok) {
+      if (response.status === 201 || response.status === 200) {
         setSubmitted(true);
         setFormData({ name: "", apartment: "", phone_no: "", complaint: "" });
         Swal.fire({

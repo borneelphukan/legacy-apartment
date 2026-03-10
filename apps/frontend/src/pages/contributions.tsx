@@ -8,6 +8,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { ChevronRightOutlined } from "@mui/icons-material";
+import api from "@/lib/api";
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: currentYear - 2023 + 1 }, (_, i) => String(2023 + i));
@@ -66,11 +67,8 @@ const MaintenancePay = () => {
     fetchSettings();
     const fetchResidents = async () => {
       try {
-        const response = await fetch('http://localhost:4000/residents');
-        if (response.ok) {
-          const data = await response.json();
-          setResidents(data);
-        }
+        const response = await api.get('/residents');
+        setResidents(response.data);
       } catch (error) {
         console.error('Error fetching residents:', error);
       }
@@ -80,9 +78,9 @@ const MaintenancePay = () => {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch('http://localhost:4000/setting');
-      if (response.ok) {
-        const data = await response.json();
+      const response = await api.get('/setting');
+      const data = response.data;
+      if (data) {
         setFees({
           monthlyFee: data.monthlyFee,
           yearlyFee: data.yearlyFee,

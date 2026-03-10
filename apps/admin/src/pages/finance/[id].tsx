@@ -19,8 +19,8 @@ import PendingIcon from '@mui/icons-material/Pending';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Sidebar from '@/components/Sidebar';
 import * as XLSX from 'xlsx';
+import api from '@/lib/api';
 
-const API_BASE_URL = 'http://localhost:4000';
 
 const months = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -62,9 +62,9 @@ const FinancePage = () => {
 
   const fetchSettings = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/setting?year=${selectedYear}`);
-      if (response.ok) {
-        const data = await response.json();
+      const response = await api.get(`/setting?year=${selectedYear}`);
+      const data = response.data;
+      if (data) {
         setFees({
           monthlyFee: data.monthlyFee,
           yearlyFee: data.yearlyFee,
@@ -76,25 +76,15 @@ const FinancePage = () => {
   };
 
   const fetchResidentFinance = async () => {
-    const token = localStorage.getItem('adminToken');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
     try {
-      const response = await fetch(`${API_BASE_URL}/finance/resident/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setResident(data);
+      const response = await api.get(`/finance/resident/${id}`);
+      setResident(response.data);
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        router.push('/login');
       } else {
         Swal.fire('Error', 'Failed to fetch finance data', 'error');
       }
-    } catch (error) {
       console.error('Error:', error);
     } finally {
       setLoading(false);
@@ -115,26 +105,13 @@ const FinancePage = () => {
       return { ...prev, monthlyPayments: newPayments };
     });
 
-    const token = localStorage.getItem('adminToken');
     try {
-      const response = await fetch(`${API_BASE_URL}/finance/monthly/${id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          month: monthIndex,
-          year: selectedYear,
-          status,
-          amount
-        }),
+      await api.post(`/finance/monthly/${id}`, {
+        month: monthIndex,
+        year: selectedYear,
+        status,
+        amount
       });
-
-      if (!response.ok) {
-        fetchResidentFinance(); // Revert on failure
-        Swal.fire('Error', 'Failed to update status', 'error');
-      }
     } catch (error) {
       fetchResidentFinance(); // Revert on failure
       Swal.fire('Error', 'Failed to update status', 'error');
@@ -155,25 +132,12 @@ const FinancePage = () => {
       return { ...prev, securityPayments: newPayments };
     });
 
-    const token = localStorage.getItem('adminToken');
     try {
-      const response = await fetch(`${API_BASE_URL}/finance/security/${id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          year: selectedYear,
-          status,
-          amount
-        }),
+      await api.post(`/finance/security/${id}`, {
+        year: selectedYear,
+        status,
+        amount
       });
-
-      if (!response.ok) {
-        fetchResidentFinance(); // Revert
-        Swal.fire('Error', 'Failed to update status', 'error');
-      }
     } catch (error) {
       fetchResidentFinance(); // Revert
       Swal.fire('Error', 'Failed to update status', 'error');
@@ -187,21 +151,8 @@ const FinancePage = () => {
       ...data
     }));
 
-    const token = localStorage.getItem('adminToken');
     try {
-      const response = await fetch(`${API_BASE_URL}/setting`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        fetchSettings(); // Revert
-        Swal.fire('Error', 'Failed to update global fees', 'error');
-      }
+      await api.post('/setting', data);
     } catch (error) {
       fetchSettings(); // Revert
       Swal.fire('Error', 'Failed to update global fees', 'error');

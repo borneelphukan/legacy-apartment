@@ -7,6 +7,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import PersonIcon from '@mui/icons-material/Person';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import api from '@/lib/api';
 
 interface Resident {
   id: number;
@@ -31,8 +32,6 @@ const designations = [
   'Gardening', 
   'Catering'
 ];
-
-const API_BASE_URL = 'http://localhost:4000';
 
 const Residents = () => {
   const [residents, setResidents] = useState<Resident[]>([]);
@@ -66,11 +65,8 @@ const Residents = () => {
 
   const fetchResidents = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/residents`);
-      if (response.ok) {
-        const data = await response.json();
-        setResidents(data);
-      }
+      const response = await api.get('/residents');
+      setResidents(response.data);
     } catch (error) {
       console.error('Error fetching residents:', error);
     } finally {
@@ -94,47 +90,25 @@ const Residents = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('adminToken');
     
-    if (!token) {
-      Swal.fire('Error', 'Unauthorized. Please login again.', 'error');
-      router.push('/login');
-      return;
-    }
-
-    const method = editingId ? 'PATCH' : 'POST';
-    const url = editingId 
-      ? `${API_BASE_URL}/residents/${editingId}`
-      : `${API_BASE_URL}/residents`;
-
     const body = {
       ...formData,
       designation: formData.designation === 'None' ? null : formData.designation
     };
 
     try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(body),
-      });
+      const response = editingId 
+        ? await api.patch(`/residents/${editingId}`, body)
+        : await api.post('/residents', body);
 
-      if (response.ok) {
-        Swal.fire('Success', `Resident ${editingId ? 'updated' : 'created'} successfully!`, 'success');
-        setIsFormOpen(false);
-        setEditingId(null);
-        setAvatarFiles([]);
-        setFormData({ name: '', residence: '', phone_no: '', avatar: '', designation: 'None' });
-        fetchResidents();
-      } else {
-        const data = await response.json();
-        Swal.fire('Error', data.message || 'Something went wrong', 'error');
-      }
-    } catch (error) {
-      Swal.fire('Error', 'Communication with server failed', 'error');
+      Swal.fire('Success', `Resident ${editingId ? 'updated' : 'created'} successfully!`, 'success');
+      setIsFormOpen(false);
+      setEditingId(null);
+      setAvatarFiles([]);
+      setFormData({ name: '', residence: '', phone_no: '', avatar: '', designation: 'None' });
+      fetchResidents();
+    } catch (error: any) {
+      Swal.fire('Error', error.response?.data?.message || 'Something went wrong', 'error');
     }
   };
 
@@ -163,19 +137,10 @@ const Residents = () => {
     });
 
     if (result.isConfirmed) {
-      const token = localStorage.getItem('adminToken');
       try {
-        const response = await fetch(`${API_BASE_URL}/residents/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (response.ok) {
-          Swal.fire('Deleted!', 'Resident has been deleted.', 'success');
-          fetchResidents();
-        }
+        await api.delete(`/residents/${id}`);
+        Swal.fire('Deleted!', 'Resident has been deleted.', 'success');
+        fetchResidents();
       } catch (error) {
         Swal.fire('Error', 'Failed to delete resident', 'error');
       }

@@ -6,8 +6,7 @@ import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { Button } from "@legacy-apartment/ui";
 import { ChevronRightOutlined } from "@mui/icons-material";
- 
-const API_BASE_URL = 'http://localhost:4000';
+import api from "@/lib/api";
 
 const bannerImages = [
   "url('/cover.webp')",
@@ -54,22 +53,16 @@ const Home = () => {
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/announcements`);
-        if (response.ok) {
-          const data = await response.json();
-          setAnnouncements(Array.isArray(data) ? data : []);
-        }
+        const response = await api.get('/announcements');
+        setAnnouncements(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error('Error fetching announcements:', error);
       }
     };
     const fetchResidents = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/residents`);
-        if (response.ok) {
-          const data = await response.json();
-          setResidents(Array.isArray(data) ? data : []);
-        }
+        const response = await api.get('/residents');
+        setResidents(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error('Error fetching residents:', error);
       }

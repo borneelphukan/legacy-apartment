@@ -7,6 +7,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import api from "@/lib/api";
 
 
 
@@ -20,36 +21,33 @@ const Committee = () => {
     const fetchData = async () => {
       try {
         const [annRes, resRes] = await Promise.all([
-          fetch('http://localhost:4000/announcements'),
-          fetch('http://localhost:4000/residents')
+          api.get('/announcements'),
+          api.get('/residents')
         ]);
 
-        if (annRes.ok) {
-          const data = await annRes.json();
-          const grouped: Record<string, any[]> = {};
-          data.forEach((ann: any) => {
-            const year = new Date(ann.date).getFullYear().toString();
-            if (!grouped[year]) grouped[year] = [];
-            grouped[year].push({
-                ...ann,
-                date: new Date(ann.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-            });
-          });
-          setAnnouncements(grouped);
-          const years = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
-          if (years.length > 0) setSelectedYear(years[0]);
-        }
+        const annData = annRes.data || [];
+        const resData = resRes.data || [];
 
-        if (resRes.ok) {
-          const data = await resRes.json();
-          const committee = data
-            .filter((res: any) => res.designation && res.designation !== 'None')
-            .sort((a: any, b: any) => {
-              const order = ['President', 'Secretary', 'Treasurer'];
-              return order.indexOf(a.designation) - order.indexOf(b.designation);
-            });
-          setCommitteeMembers(committee);
-        }
+        const grouped: Record<string, any[]> = {};
+        annData.forEach((ann: any) => {
+          const year = new Date(ann.date).getFullYear().toString();
+          if (!grouped[year]) grouped[year] = [];
+          grouped[year].push({
+              ...ann,
+              date: new Date(ann.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+          });
+        });
+        setAnnouncements(grouped);
+        const years = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
+        if (years.length > 0) setSelectedYear(years[0]);
+
+        const committee = resData
+          .filter((res: any) => res.designation && res.designation !== 'None')
+          .sort((a: any, b: any) => {
+            const order = ['President', 'Secretary', 'Treasurer'];
+            return order.indexOf(a.designation) - order.indexOf(b.designation);
+          });
+        setCommitteeMembers(committee);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {

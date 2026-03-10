@@ -12,8 +12,8 @@ import {
 import * as XLSX from 'xlsx';
 import DownloadIcon from '@mui/icons-material/Download';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import api from '@/lib/api';
 
-const API_BASE_URL = 'http://localhost:4000';
 
 const months = [
   'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
@@ -77,15 +77,13 @@ const Finance = () => {
 
     const fetchSettings = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/setting?year=${selectedYear}`);
-            if (response.ok) {
-                const data = await response.json();
-                if (data) {
-                    setFees({
-                        monthlyFee: data.monthlyFee || 1000,
-                        yearlyFee: data.yearlyFee || 5000,
-                    });
-                }
+            const response = await api.get(`/setting?year=${selectedYear}`);
+            const data = response.data;
+            if (data) {
+                setFees({
+                    monthlyFee: data.monthlyFee || 1000,
+                    yearlyFee: data.yearlyFee || 5000,
+                });
             }
         } catch (error) {
             console.error('Error fetching settings:', error);
@@ -93,17 +91,9 @@ const Finance = () => {
     };
 
     const fetchFinanceData = async () => {
-        const token = localStorage.getItem('adminToken');
         try {
-            const response = await fetch(`${API_BASE_URL}/finance`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setFinanceData(data);
-            }
+            const response = await api.get('/finance');
+            setFinanceData(response.data);
         } catch (error) {
             console.error('Error fetching finance data:', error);
         } finally {
@@ -142,72 +132,39 @@ const Finance = () => {
     };
 
     const updateMonthlyStatus = async (residentId: number, monthIndex: number, status: number, amount?: number) => {
-        const token = localStorage.getItem('adminToken');
         try {
-            const response = await fetch(`${API_BASE_URL}/finance/monthly/${residentId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    month: monthIndex,
-                    year: selectedYear,
-                    status,
-                    amount
-                }),
+            await api.post(`/finance/monthly/${residentId}`, {
+                month: monthIndex,
+                year: selectedYear,
+                status,
+                amount
             });
-
-            if (response.ok) {
-                fetchFinanceData();
-            }
+            fetchFinanceData();
         } catch (error) {
             console.error('Error updating monthly status:', error);
         }
     };
 
     const updateSecurityStatus = async (residentId: number, status: number, amount?: number) => {
-        const token = localStorage.getItem('adminToken');
         try {
-            const response = await fetch(`${API_BASE_URL}/finance/security/${residentId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    year: selectedYear,
-                    status,
-                    amount
-                }),
+            await api.post(`/finance/security/${residentId}`, {
+                year: selectedYear,
+                status,
+                amount
             });
-
-            if (response.ok) {
-                fetchFinanceData();
-            }
+            fetchFinanceData();
         } catch (error) {
             console.error('Error updating security status:', error);
         }
     };
 
     const updateGlobalFees = async (data: { monthlyFee?: number; yearlyFee?: number }) => {
-        const token = localStorage.getItem('adminToken');
         try {
-            const response = await fetch(`${API_BASE_URL}/setting`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    ...data,
-                    year: selectedYear
-                }),
+            await api.post('/setting', {
+                ...data,
+                year: selectedYear
             });
-
-            if (response.ok) {
-                fetchSettings();
-            }
+            fetchSettings();
         } catch (error) {
             console.error('Error updating global fees:', error);
         }

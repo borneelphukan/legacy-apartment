@@ -12,6 +12,7 @@ import Swal from 'sweetalert2';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import api from '@/lib/api';
 
 interface Rule {
   id: number;
@@ -21,7 +22,6 @@ interface Rule {
   createdAt: string;
 }
 
-const API_BASE_URL = 'http://localhost:4000';
 
 const categories = [
   "General Rules",
@@ -59,11 +59,8 @@ const Rules = () => {
 
   const fetchRules = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/rules`);
-      if (response.ok) {
-        const data = await response.json();
-        setRules(data);
-      }
+      const response = await api.get('/rules');
+      setRules(response.data);
     } catch (error) {
       console.error('Error fetching rules:', error);
     } finally {
@@ -73,41 +70,19 @@ const Rules = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('adminToken');
-    
-    if (!token) {
-      Swal.fire('Error', 'Unauthorized. Please login again.', 'error');
-      router.push('/login');
-      return;
-    }
-
-    const method = editingId ? 'PATCH' : 'POST';
-    const url = editingId 
-      ? `${API_BASE_URL}/rules/${editingId}`
-      : `${API_BASE_URL}/rules`;
 
     try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = editingId 
+        ? await api.patch(`/rules/${editingId}`, formData)
+        : await api.post('/rules', formData);
 
-      if (response.ok) {
-        Swal.fire('Success', `Rule ${editingId ? 'updated' : 'created'} successfully!`, 'success');
-        setIsFormOpen(false);
-        setEditingId(null);
-        setFormData({ category: categories[0], rule: '' });
-        fetchRules();
-      } else {
-        const data = await response.json();
-        Swal.fire('Error', data.message || 'Something went wrong', 'error');
-      }
-    } catch (error) {
-      Swal.fire('Error', 'Communication with server failed', 'error');
+      Swal.fire('Success', `Rule ${editingId ? 'updated' : 'created'} successfully!`, 'success');
+      setIsFormOpen(false);
+      setEditingId(null);
+      setFormData({ category: categories[0], rule: '' });
+      fetchRules();
+    } catch (error: any) {
+      Swal.fire('Error', error.response?.data?.message || 'Something went wrong', 'error');
     }
   };
 
@@ -132,19 +107,10 @@ const Rules = () => {
     });
 
     if (result.isConfirmed) {
-      const token = localStorage.getItem('adminToken');
       try {
-        const response = await fetch(`${API_BASE_URL}/rules/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (response.ok) {
-          Swal.fire('Deleted!', 'Rule has been deleted.', 'success');
-          fetchRules();
-        }
+        await api.delete(`/rules/${id}`);
+        Swal.fire('Deleted!', 'Rule has been deleted.', 'success');
+        fetchRules();
       } catch (error) {
         Swal.fire('Error', 'Failed to delete rule', 'error');
       }

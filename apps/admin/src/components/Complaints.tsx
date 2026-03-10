@@ -7,6 +7,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import HomeIcon from '@mui/icons-material/Home';
 import PhoneIcon from '@mui/icons-material/Phone';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import api from '@/lib/api';
 
 interface Complaint {
   id: number;
@@ -17,7 +18,6 @@ interface Complaint {
   createdAt: string;
 }
 
-const API_BASE_URL = 'http://localhost:4000';
 
 const Complaints = () => {
   const [complaints, setComplaints] = useState<Complaint[]>([]);
@@ -29,23 +29,13 @@ const Complaints = () => {
   }, []);
 
   const fetchComplaints = async () => {
-    const token = localStorage.getItem('adminToken');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
     try {
-      const response = await fetch(`${API_BASE_URL}/complaints`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setComplaints(data);
+      const response = await api.get('/complaints');
+      setComplaints(response.data);
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        router.push('/login');
       }
-    } catch (error) {
       console.error('Error fetching complaints:', error);
     } finally {
       setLoading(false);
@@ -64,19 +54,10 @@ const Complaints = () => {
     });
 
     if (result.isConfirmed) {
-      const token = localStorage.getItem('adminToken');
       try {
-        const response = await fetch(`${API_BASE_URL}/complaints/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (response.ok) {
-          Swal.fire('Deleted!', 'Complaint has been removed.', 'success');
-          fetchComplaints();
-        }
+        await api.delete(`/complaints/${id}`);
+        Swal.fire('Deleted!', 'Complaint has been removed.', 'success');
+        fetchComplaints();
       } catch (error) {
         Swal.fire('Error', 'Failed to delete complaint', 'error');
       }

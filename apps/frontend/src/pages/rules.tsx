@@ -10,6 +10,7 @@ import LocalParkingOutlinedIcon from "@mui/icons-material/LocalParkingOutlined";
 import PetsOutlinedIcon from "@mui/icons-material/PetsOutlined";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import api from "@/lib/api";
 
 const categoryMetadata: Record<string, { icon: React.ReactNode }> = {
   "General Rules": { icon: <InfoOutlinedIcon className="w-6 h-6" /> },
@@ -19,7 +20,6 @@ const categoryMetadata: Record<string, { icon: React.ReactNode }> = {
   "Pet Policies": { icon: <PetsOutlinedIcon className="w-6 h-6" /> }
 };
 
-const API_BASE_URL = 'http://localhost:4000';
 
 const Rules = () => {
   const [openCategoryIndex, setOpenCategoryIndex] = useState<number | null>(0); // First one open by default
@@ -29,11 +29,8 @@ const Rules = () => {
   useEffect(() => {
     const fetchRules = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/rules`);
-        if (response.ok) {
-          const data = await response.json();
-          setRules(data);
-        }
+        const response = await api.get('/rules');
+        setRules(response.data);
       } catch (error) {
         console.error("Error fetching rules:", error);
       } finally {
