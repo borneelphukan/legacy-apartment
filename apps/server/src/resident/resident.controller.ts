@@ -28,6 +28,8 @@ export class ResidentController {
   }
 
   @Patch(':id')
+  @Roles('president')
+  @UseGuards(RolesGuard)
   update(@Param('id', ParseIntPipe) id: number, @Body() updateResidentDto: { avatar?: string; name?: string; residence?: string; phone_no?: string; designation?: string }) {
     return this.residentService.update(id, updateResidentDto);
   }

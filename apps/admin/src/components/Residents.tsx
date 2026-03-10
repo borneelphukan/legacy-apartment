@@ -196,7 +196,7 @@ const Residents = () => {
       </div>
 
       {isFormOpen && (
-        <div className="mb-12 bg-white p-8 rounded-md border border-gray-500 shadow-xl overflow-hidden relative text-gray-900">
+        <div className="mb-12 bg-white p-8 rounded-md border border-gray-500 overflow-hidden relative text-gray-900">
           <h2 className="text-2xl font-bold mb-6">{editingId ? 'Edit' : 'Add'} Resident</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -294,64 +294,87 @@ const Residents = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20">
+      <div className="bg-white rounded-xl border border-gray-400 overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] pb-12 mb-20">
         {loading ? (
-            <div className="col-span-full text-center py-20 text-gray-100">Loading residents...</div>
+            <div className="text-center py-20 text-gray-100">Loading residents...</div>
         ) : (residents.length === 0 && !isFormOpen) ? (
-            <p className="col-span-full text-center text-gray-100">
+            <p className="text-center py-20 text-gray-100">
                 No residents data available. Add one to get started.
             </p>
         ) : (
-            residents.map((res) => (
-                <div 
-                    key={res.id} 
-                    className="bg-white p-6 rounded-md border border-gray-500 flex justify-between items-center gap-4 transition-all hover:border-orange-500 group/card"
-                >
-                    <div className="flex items-center gap-4 text-gray-900 overflow-hidden">
-                        <div className="size-16 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border border-gray-200 shrink-0 group-hover/card:border-orange-200">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[800px]">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-gray-400">
+                    <th className="py-5 px-6 text-xs font-bold uppercase tracking-wider text-gray-100">Resident</th>
+                    <th className="py-5 px-6 text-xs font-bold uppercase tracking-wider text-gray-100">Apartment</th>
+                    <th className="py-5 px-6 text-xs font-bold uppercase tracking-wider text-gray-100">Phone</th>
+                    <th className="py-5 px-6 text-xs font-bold uppercase tracking-wider text-gray-100">Designation</th>
+                    <th className="py-5 px-6 text-xs font-bold uppercase tracking-wider text-gray-100 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {residents.map((res) => (
+                    <tr key={res.id} className="hover:bg-orange-50/30 transition-colors group">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-4">
+                          <div className="size-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border border-gray-200 shrink-0 shadow-sm">
                             {res.avatar ? (
                                 <img src={res.avatar} alt={res.name} className="w-full h-full object-cover" />
                             ) : (
-                                <PersonIcon className="text-gray-400 size-8" />
+                                <PersonIcon className="text-gray-400 size-6" />
                             )}
+                          </div>
+                          <span className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors">{res.name}</span>
                         </div>
-                        <div className="truncate">
-                            <h3 className="font-bold text-lg truncate group-hover/card:text-orange-600 transition-colors flex items-center gap-2">
-                              {res.name}
-                              {res.designation && res.designation !== 'None' && (
-                                <span className="bg-orange-100 text-orange-600 text-[10px] px-2 py-0.5 rounded-full uppercase tracking-tighter">
-                                  {res.designation}
-                                </span>
-                              )}
-                            </h3>
-                            <p className="text-orange-500 text-sm font-bold">{res.residence} <span className='text-gray-100 text-xs font-medium'> | {res.phone_no}</span></p>
-                        </div>
-                    </div>
-                    <div className="flex gap-2 shrink-0">
-                        <Button 
-                            variant="outline"
-                            size="icon"
-                            onClick={() => router.push(`/finance/${res.id}`)}
-                            icon={{ left: <PaymentsIcon className="size-5" /> }}
-                            title="Finance"
-                        />
-                        <Button 
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleEdit(res)}
-                            icon={{ left: <EditIcon className="size-5" /> }}
-                        />
-                        {isPresident && (
-                          <Button 
-                              variant="destructive"
-                              size="icon"
-                              onClick={() => handleDelete(res.id)}
-                              icon={{ left: <DeleteIcon className="size-5" /> }}
-                          />
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className="text-orange-500 font-bold">{res.residence}</span>
+                      </td>
+                      <td className="py-4 px-6 font-medium text-gray-100">{res.phone_no}</td>
+                      <td className="py-4 px-6">
+                        {res.designation && res.designation !== 'None' ? (
+                          <span className="bg-orange-100 text-orange-600 text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-tighter shadow-sm">
+                            {res.designation}
+                          </span>
+                        ) : (
+                          <span className="text-gray-300 text-sm">N/A</span>
                         )}
-                    </div>
-                </div>
-            ))
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="flex justify-end gap-2">
+                          <Button 
+                              variant="outline"
+                              size="icon"
+                              onClick={() => router.push(`/finance/${res.id}`)}
+                              icon={{ left: <PaymentsIcon className="size-5" /> }}
+                              title="Finance"
+                          />
+                          {isPresident && (
+                            <Button 
+                                variant="outline"
+                                size="icon"
+                                onClick={() => handleEdit(res)}
+                                icon={{ left: <EditIcon className="size-5" /> }}
+                                title="Edit"
+                            />
+                          )}
+                          {isPresident && (
+                            <Button 
+                                variant="destructive"
+                                size="icon"
+                                onClick={() => handleDelete(res.id)}
+                                icon={{ left: <DeleteIcon className="size-5" /> }}
+                                title="Delete"
+                            />
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
         )}
       </div>
     </div>

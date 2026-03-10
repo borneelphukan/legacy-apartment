@@ -218,7 +218,7 @@ const Navbar = () => {
       >
         <Link
           href="/"
-          className={`block w-full text-left py-4 px-6 text-gray-800 border-b border-gray-100 hover:text-orange-500 hover:bg-gray-50 transition-colors ${
+          className={`block w-full text-left py-4 px-6 text-gray-800 border-b border-gray-400 hover:text-orange-500 hover:bg-gray-50 transition-colors ${
             selectedLink === "Home" ? "text-orange-500" : ""
           }`}
           onClick={() => {
@@ -230,7 +230,7 @@ const Navbar = () => {
         </Link>
 
         {/* Our Society (Mobile) */}
-        <div className="w-full border-b border-gray-100">
+        <div className="w-full border-b border-gray-400">
           <button
             className={`w-full flex justify-between items-center py-4 px-6 text-gray-800 hover:text-orange-500 hover:bg-gray-50 focus:outline-none transition-colors ${
               selectedLink === "Our Society" ? "text-orange-500" : ""
@@ -267,7 +267,7 @@ const Navbar = () => {
         </div>
 
         {/* Services (Mobile) */}
-        <div className="w-full border-b border-gray-100">
+        <div className="w-full border-b border-gray-400">
           <button
             className={`w-full flex justify-between items-center py-4 px-6 text-gray-800 hover:text-orange-500 hover:bg-gray-50 focus:outline-none transition-colors ${
               selectedLink === "Services" ? "text-orange-500" : ""
@@ -304,7 +304,7 @@ const Navbar = () => {
         </div>
 
         {/* Events (Mobile) */}
-        <div className="w-full border-b border-gray-100">
+        <div className="w-full border-b border-gray-400">
           <button
             className={`w-full flex justify-between items-center py-4 px-6 text-gray-800 hover:text-orange-500 hover:bg-gray-50 focus:outline-none transition-colors ${
               selectedLink === "Events" ? "text-orange-500" : ""
