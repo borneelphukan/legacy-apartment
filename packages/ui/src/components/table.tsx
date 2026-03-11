@@ -249,7 +249,7 @@ const Table = ({
                         return (
                           <td 
                             key={colIdx} 
-                            className={`${tight ? 'py-0 px-2' : 'py-4 px-4'} text-left`}
+                            className={`${tight ? 'py-2 px-2' : 'py-4 px-4'} text-left`}
                           >
                             {renderCell ? renderCell(row, col, colIdx) : (row[col] || "-")}
                           </td>

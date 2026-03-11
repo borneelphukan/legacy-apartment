@@ -112,12 +112,6 @@ const Documents = () => {
     try {
       const payload = { ...formData, category: activeCategory };
       await api.post('/documents', payload);
-      setAlertDialog({
-        open: true,
-        title: 'Success',
-        description: 'Document uploaded successfully!',
-        type: 'success'
-      });
       setIsFormOpen(false);
       setFormData({ 
         document: '', 
@@ -146,12 +140,6 @@ const Documents = () => {
       onConfirm: async () => {
         try {
           await api.delete(`/documents/${id}`);
-          setAlertDialog({
-            open: true,
-            title: 'Deleted!',
-            description: 'Document has been deleted.',
-            type: 'success'
-          });
           fetchDocuments();
         } catch (error) {
           setAlertDialog({

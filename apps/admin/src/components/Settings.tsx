@@ -116,7 +116,7 @@ const Settings = () => {
         <h1 className="text-2xl md:text-3xl text-gray-100 font-black tracking-tight leading-tight">
           Account Management
         </h1>
-        <p className="mt-2 text-lg text-gray-100/80">
+        <p className="mt-2 text-lg text-gray-100/80 font-medium">
           Review existing administrative users and securely remove legacy accounts.
         </p>
       </div>
@@ -138,37 +138,40 @@ const Settings = () => {
               columns={['name', 'email', 'role', 'joined', 'actions']}
               headers={['Name', 'Email', 'Role', 'Joined Date', 'Actions']}
               minWidthClass="min-w-[800px]"
+              tight={true}
               showMonthlyFeeLegend={false}
               showYearlyFeeLegend={false}
               renderCell={(user, col) => {
-                switch(col) {
-                  case 'name':
-                    return <span className="font-bold text-gray-900">{user.firstName} {user.lastName}</span>;
-                  case 'email':
-                    return <span className="text-gray-600 font-medium">{user.email}</span>;
-                  case 'role':
-                    return <Badge label={user.role} type="default" size="sm" />;
-                  case 'joined':
-                    return <span>{new Date(user.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>;
-                  case 'actions':
-                    return (
-                      <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="destructive" 
-                          size="icon" 
-                          onClick={() => handleDelete(user.id)} 
-                          icon={{ left: <DeleteIcon className="size-5" /> }} 
-                        />
-                      </div>
-                    );
-                  default: return null;
-                }
-              }}
-            />
+              switch(col) {
+                case 'name':
+                  return <span className="font-bold text-gray-900">{user.firstName} {user.lastName}</span>;
+                case 'email':
+                  return <span className="text-gray-600 font-medium">{user.email}</span>;
+                case 'role':
+                  return <Badge label={user.role} type="default" size="sm" />;
+                case 'joined':
+                  return <span>{new Date(user.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>;
+                case 'actions':
+                  return (
+                    <div className="flex justify-end gap-2">
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        onClick={() => handleDelete(user.id)} 
+                        
+                      >
+                      Delete
+                      </Button>
+                    </div>
+                  );
+                default: return null;
+              }
+            }}
+          />
         )}
       </div>
 
-      {/* Confirmation Dialog */}
+      {/* Persistence Components */}
       {confirmDialog && (
         <Dialog open={confirmDialog.open} onOpenChange={(open) => !open && setConfirmDialog(null)}>
           <DialogContent className="max-w-md">
