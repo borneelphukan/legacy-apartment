@@ -1,6 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
+/**
+ * Service to handle finance related operations
+ */
 @Injectable()
 export class FinanceService {
   constructor(private prisma: PrismaService) {}
@@ -21,7 +24,15 @@ export class FinanceService {
     return resident;
   }
 
-  async updateMonthlyPayment(residentId: number, data: { month: number; year: number; status: number; amount?: number }) {
+  async updateMonthlyPayment(residentId: number, data: { 
+    month: number; 
+    year: number; 
+    status: number; 
+    amount?: number;
+    paymentType?: string;
+    paymentDate?: string;
+    lateFee?: number;
+  }) {
     return this.prisma.monthlyPayment.upsert({
       where: {
         residentId_month_year: {
@@ -33,6 +44,9 @@ export class FinanceService {
       update: {
         status: data.status,
         amount: data.amount !== undefined ? data.amount : undefined,
+        paymentType: data.paymentType,
+        paymentDate: data.paymentDate ? new Date(data.paymentDate) : undefined,
+        lateFee: data.lateFee !== undefined ? data.lateFee : undefined,
       },
       create: {
         residentId,
@@ -40,11 +54,22 @@ export class FinanceService {
         year: data.year,
         status: data.status,
         amount: data.amount || 0,
+        paymentType: data.paymentType,
+        paymentDate: data.paymentDate ? new Date(data.paymentDate) : undefined,
+        lateFee: data.lateFee || 0,
       },
     });
   }
 
-  async updateSecurityPayment(residentId: number, data: { year: number; status: number; amount?: number }) {
+  async updateSecurityPayment(residentId: number, data: { 
+    year: number; 
+    status: number; 
+    yearlyRate?: number;
+    amount?: number;
+    paymentType?: string;
+    paymentDate?: string;
+    lateFee?: number;
+  }) {
     return this.prisma.securityPayment.upsert({
       where: {
         residentId_year: {
@@ -54,13 +79,21 @@ export class FinanceService {
       },
       update: {
         status: data.status,
+        yearlyRate: data.yearlyRate !== undefined ? data.yearlyRate : undefined,
         amount: data.amount !== undefined ? data.amount : undefined,
+        paymentType: data.paymentType,
+        paymentDate: data.paymentDate ? new Date(data.paymentDate) : undefined,
+        lateFee: data.lateFee !== undefined ? data.lateFee : undefined,
       },
       create: {
         residentId,
         year: data.year,
         status: data.status,
+        yearlyRate: data.yearlyRate || 0,
         amount: data.amount || 0,
+        paymentType: data.paymentType,
+        paymentDate: data.paymentDate ? new Date(data.paymentDate) : undefined,
+        lateFee: data.lateFee || 0,
       },
     });
   }

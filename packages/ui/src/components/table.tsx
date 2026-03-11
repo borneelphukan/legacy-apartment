@@ -41,6 +41,9 @@ export interface Props {
   onRowClick?: (row: any) => void;
   onHeaderClick?: (columnIndex: number) => void;
   selectedColumnIndex?: number;
+  tight?: boolean;
+  getRowClass?: (row: any) => string;
+  getCellClass?: (row: any, columnIndex: number) => string;
 }
 
 const Table = ({
@@ -71,6 +74,9 @@ const Table = ({
   onRowClick,
   onHeaderClick,
   selectedColumnIndex,
+  tight = false,
+  getRowClass,
+  getCellClass,
 }: Props) => {
   const [isUnlocked, setIsUnlocked] = useState(!enableLock);
   const [password, setPassword] = useState("");
@@ -143,17 +149,17 @@ const Table = ({
                 <tr>
                   {type !== "general" && (
                     <>
-                      <th className="py-4 px-4 md:px-6 text-xs text-gray-100 uppercase tracking-tighter font-black bg-slate-50 text-left">
+                      <th className={`${tight ? 'py-2 px-2' : 'py-4 px-4 md:px-6'} text-xs text-gray-100 uppercase tracking-tighter font-black bg-slate-50 text-left`}>
                         Resident
                       </th>
-                      <th className="py-4 px-4 text-xs text-gray-100 uppercase tracking-tighter font-black bg-slate-50 text-left">
+                      <th className={`${tight ? 'py-2 px-2' : 'py-4 px-4'} text-xs text-gray-100 uppercase tracking-tighter font-black bg-slate-50 text-left`}>
                         Apartment
                       </th>
-                      <th className="py-4 px-4 text-xs text-gray-100 uppercase tracking-tighter font-black bg-slate-50 text-left">
+                      <th className={`${tight ? 'py-2 px-2' : 'py-4 px-4'} text-xs text-gray-100 uppercase tracking-tighter font-black bg-slate-50 text-left`}>
                         Phone
                       </th>
                       {showMonthlyRate && (
-                        <th className="py-4 px-4 text-xs text-gray-100 uppercase tracking-tighter font-black bg-slate-50 text-left">
+                        <th className={`${tight ? 'py-2 px-2' : 'py-4 px-4'} text-xs text-gray-100 uppercase tracking-tighter font-black bg-slate-50 text-left`}>
                           Monthly Rate
                         </th>
                       )}
@@ -168,8 +174,8 @@ const Table = ({
                     return (
                       <th 
                         key={idx} 
-                        className={`py-4 px-4 text-xs uppercase tracking-tighter font-black transition-colors ${headerHighlight} ${
-                          type === 'general' ? (idx === (headers || columns).length - 1 ? 'text-right' : 'text-left') : 'text-center'
+                        className={`${tight ? 'py-2 px-2' : 'py-4 px-4'} text-xs uppercase tracking-tighter font-black transition-colors ${headerHighlight} ${
+                          type === 'general' ? 'text-left' : 'text-center'
                         } ${onHeaderClick ? "cursor-pointer hover:bg-gray-400" : ""}`}
                         onClick={() => onHeaderClick?.(idx)}
                       >
@@ -183,18 +189,18 @@ const Table = ({
                 {rowData.map((row: any, idx: number) => (
                   <tr 
                     key={idx} 
-                    className="border-b border-gray-50 hover:bg-orange-50/20 transition-colors duration-150 group"
+                    className={`border-b border-gray-50 hover:bg-orange-50/20 transition-colors duration-150 group ${getRowClass ? getRowClass(row) : ""}`}
                   >
                     {type !== "general" && (
                       <>
                         <td 
-                          className={`py-2 px-4 md:px-6 z-10 whitespace-nowrap transition-colors text-sm font-medium ${onRowClick ? "cursor-pointer" : ""}`}
+                          className={`${tight ? 'py-1 px-2' : 'py-2 px-4 md:px-6'} z-10 whitespace-nowrap transition-colors text-sm font-medium ${onRowClick ? "cursor-pointer" : ""}`}
                           onClick={() => onRowClick?.(row)}
                         >
                           {row.name}
                         </td>
                         <td 
-                          className={`py-2 px-4 text-sm whitespace-nowrap ${onRowClick ? "cursor-pointer" : ""}`}
+                          className={`${tight ? 'py-1 px-2' : 'py-2 px-4'} text-sm whitespace-nowrap ${onRowClick ? "cursor-pointer" : ""}`}
                           onClick={() => onRowClick?.(row)}
                         >
                           <div className="flex items-center gap-2">
@@ -202,14 +208,14 @@ const Table = ({
                           </div>
                         </td>
                         <td 
-                          className={`py-2 px-4 text-sm pr-6 whitespace-nowrap ${onRowClick ? "cursor-pointer" : ""}`}
+                          className={`${tight ? 'py-1 px-2' : 'py-2 px-4'} text-sm pr-6 whitespace-nowrap ${onRowClick ? "cursor-pointer" : ""}`}
                           onClick={() => onRowClick?.(row)}
                         >
                           {row.phone_no || row.phone}
                         </td>
                         {showMonthlyRate && (
                           <td 
-                            className={`py-2 px-4 text-sm font-bold text-orange-600 whitespace-nowrap ${readOnly ? "" : "cursor-pointer hover:bg-orange-50"}`}
+                            className={`${tight ? 'py-1 px-2' : 'py-2 px-4'} text-sm font-bold text-orange-600 whitespace-nowrap ${readOnly ? "" : "cursor-pointer hover:bg-orange-50"}`}
                             onClick={() => {
                               if (!readOnly) {
                                 setEditingCell({ resIdx: idx, colIdx: -1 });
@@ -243,7 +249,7 @@ const Table = ({
                         return (
                           <td 
                             key={colIdx} 
-                            className={`py-4 px-4 ${colIdx === columns.length - 1 ? 'text-right' : ''}`}
+                            className={`${tight ? 'py-0 px-2' : 'py-4 px-4'} text-left`}
                           >
                             {renderCell ? renderCell(row, col, colIdx) : (row[col] || "-")}
                           </td>
@@ -274,7 +280,7 @@ const Table = ({
                         return (
                           <td 
                             key={colIdx} 
-                            className={`py-1 px-2 text-center transition-colors ${cellHighlight} ${readOnly ? "" : "cursor-pointer"}`}
+                            className={`py-1 px-2 text-center transition-colors ${cellHighlight} ${readOnly ? "" : "cursor-pointer"} ${getCellClass ? getCellClass(row, colIdx) : ""}`}
                             onClick={() => {
                               if (!readOnly && !isEditing) {
                                 setEditingCell({ resIdx: idx, colIdx: colIdx });

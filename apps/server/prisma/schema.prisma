@@ -48,29 +48,36 @@ model Resident {
 }
 
 model MonthlyPayment {
-  id         Int      @id @default(autoincrement())
-  residentId Int
-  month      Int
-  year       Int
-  status     Int      @default(0)
-  amount     Float    @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  id          Int       @id @default(autoincrement())
+  residentId  Int
+  month       Int
+  year        Int
+  status      Int       @default(0)
+  amount      Float     @default(0)
+  paymentType String?   // "Cash" or "Online"
+  paymentDate DateTime?
+  lateFee     Float     @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  resident    Resident  @relation(fields: [residentId], references: [id], onDelete: Cascade)
 
   @@unique([residentId, month, year])
   @@map("monthly_payment")
 }
 
 model SecurityPayment {
-  id         Int      @id @default(autoincrement())
-  residentId Int
-  year       Int
-  status     Int      @default(0)
-  amount     Float    @default(0)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  resident   Resident @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  id          Int       @id @default(autoincrement())
+  residentId  Int
+  year        Int
+  status      Int       @default(0)
+  yearlyRate  Float     @default(0)
+  amount      Float     @default(0)
+  paymentType String?   // "Cash" or "Online"
+  paymentDate DateTime?
+  lateFee     Float     @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  resident    Resident  @relation(fields: [residentId], references: [id], onDelete: Cascade)
 
   @@unique([residentId, year])
   @@map("security_payment")

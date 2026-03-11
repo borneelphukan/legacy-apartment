@@ -26,6 +26,9 @@ interface MonthlyPayment {
     year: number;
     amount: number;
     status: number;
+    lateFee?: number;
+    paymentType?: string;
+    paymentDate?: string;
 }
 
 interface SecurityPayment {
@@ -189,7 +192,7 @@ const Finance = () => {
         const monthPayment = (resident.monthlyPayments || []).find(
             p => p.month === selectedMonth && p.year === selectedYear
         );
-        const monthAmount = monthPayment ? Number(monthPayment.amount) : 0;
+        const monthAmount = monthPayment ? Number(monthPayment.amount) + (Number(monthPayment.lateFee) || 0) : 0;
         
         let residentPending = 0;
         let isDefaulter = false;
@@ -210,12 +213,26 @@ const Finance = () => {
         return {
             currentCollected: acc.currentCollected + monthAmount,
             totalPending: acc.totalPending + residentPending,
+            totalPendingYearly: acc.totalPendingYearly + (fees.yearlyFee - (resident.securityPayments?.find(p => p.year === selectedYear)?.amount || 0)),
             defaulterCount: acc.defaulterCount + (isDefaulter ? 1 : 0)
         };
-    }, { currentCollected: 0, totalPending: 0, defaulterCount: 0 });
+    }, { currentCollected: 0, totalPending: 0, totalPendingYearly: 0, defaulterCount: 0 });
+
+    const checkIsDefaulter = (resident: ResidentFinance) => {
+        const endMonth = selectedYear < currentYear ? 11 : (selectedYear === currentYear ? currentMonthIdx : -1);
+        if (endMonth >= 0) {
+            for (let m = 0; m <= endMonth; m++) {
+                const p = (resident.monthlyPayments || []).find(pay => pay.month === m && pay.year === selectedYear);
+                const amt = p ? Number(p.amount) : 0;
+                const expectedRate = resident.monthlyRate || fees.monthlyFee;
+                if (amt < expectedRate) return true;
+            }
+        }
+        return false;
+    };
 
     const totalExpectedCurrentMonth = financeData.reduce((sum, res) => sum + (res.monthlyRate || fees.monthlyFee), 0);
-    const isReadOnly = !canEditFinance || selectedYear !== currentYear;
+    const isReadOnly = true;
 
     return (
         <div className="w-full pb-20">
@@ -278,7 +295,10 @@ const Finance = () => {
                 <div className="bg-white p-8 rounded-xl border border-gray-400 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
                     <p className="text-[10px] font-bold text-gray-100 uppercase tracking-[0.2em] mb-3 relative z-10">Pending Collection (Cumulative)</p>
-                    <p className="text-4xl font-black text-blue-500 relative z-10">₹ {stats.totalPending.toLocaleString()}</p>
+                    <div className="flex items-baseline gap-2 relative z-10">
+                        <span className="text-4xl font-black text-blue-500">₹ {stats.totalPending.toLocaleString()}</span>
+                        <span className="text-gray-100/50 font-bold text-sm">/ ₹ {(stats.totalPending + stats.totalPendingYearly).toLocaleString()} <span className="text-[10px]">(with maintenance)</span></span>
+                    </div>
                 </div>
                 <div className="bg-white p-8 rounded-xl border border-gray-400 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110"></div>
@@ -344,6 +364,11 @@ const Finance = () => {
                             showMonthlyFeeLegend={false}
                             showYearlyFeeLegend={false}
                             minWidthClass="min-w-[1100px]"
+                            getRowClass={(res) => checkIsDefaulter(res) ? "!bg-red-400" : ""}
+                            getCellClass={(res, colIdx) => {
+                                const p = (res.monthlyPayments || []).find((pay: any) => pay.month === colIdx && pay.year === selectedYear);
+                                return p?.paymentType === 'Cash' ? "!bg-green-300" : "";
+                            }}
                         />
                     </div>
 
@@ -389,6 +414,7 @@ const Finance = () => {
                             }}
                             yearlyFee={`₹ ${fees.yearlyFee.toLocaleString()}`}
                             showMonthlyFeeLegend={false}
+                            showYearlyFeeLegend={false}
                             minWidthClass="min-w-full"
                         />
                     </div>

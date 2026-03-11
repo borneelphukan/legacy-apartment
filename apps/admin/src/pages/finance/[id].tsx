@@ -15,17 +15,17 @@ import {
   DialogHeader,
   DialogFooter,
   DialogTitle,
-  DialogDescription
+  DialogDescription,
+  Input,
+  DropdownMenuItem
 } from '@legacy-apartment/ui';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
-import PendingIcon from '@mui/icons-material/Pending';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Sidebar from '@/components/Sidebar';
 import * as XLSX from 'xlsx';
 import api from '@/lib/api';
 import MenuIcon from '@mui/icons-material/Menu';
+import DownloadIcon from '@mui/icons-material/Download';
 
 
 const months = [
@@ -56,7 +56,7 @@ const FinancePage = () => {
     if (stored) {
       try {
         const user = JSON.parse(stored);
-        setIsPresident(user?.role === 'president');
+        setIsPresident(user?.role === 'president' || user?.role === 'treasurer');
       } catch {}
     }
   }, []);
@@ -110,57 +110,85 @@ const FinancePage = () => {
     }
   };
 
-  const updateMonthlyStatus = async (monthIndex: number, status: number, amount?: number) => {
+  const updateMonthlyStatus = async (monthIndex: number, update: { status?: number; amount?: number; paymentType?: string; paymentDate?: string; lateFee?: number }) => {
     // Optimistic update
     setResident((prev: any) => {
       if (!prev) return prev;
       const newPayments = [...prev.monthlyPayments];
       const idx = newPayments.findIndex(p => p.month === monthIndex && p.year === selectedYear);
+      
       if (idx > -1) {
-        newPayments[idx] = { ...newPayments[idx], status, amount: amount ?? newPayments[idx].amount };
+        newPayments[idx] = { ...newPayments[idx], ...update };
       } else {
-        newPayments.push({ residentId: parseInt(id as string), month: monthIndex, year: selectedYear, status, amount: amount ?? 0 });
+        newPayments.push({ 
+          residentId: parseInt(id as string), 
+          month: monthIndex, 
+          year: selectedYear, 
+          status: update.status ?? 0, 
+          amount: update.amount ?? 0,
+          paymentType: update.paymentType,
+          paymentDate: update.paymentDate,
+          lateFee: update.lateFee ?? 0
+        });
       }
       return { ...prev, monthlyPayments: newPayments };
     });
 
     try {
+      const payment = resident.monthlyPayments.find(
+        (p: any) => p.month === monthIndex && p.year === selectedYear
+      );
       await api.post(`/finance/monthly/${id}`, {
         month: monthIndex,
         year: selectedYear,
-        status,
-        amount
+        status: update.status ?? payment?.status ?? 0,
+        amount: update.amount ?? payment?.amount ?? 0,
+        ...update
       });
     } catch (error) {
       fetchResidentFinance(); // Revert on failure
       setAlertDialog({
         open: true,
         title: 'Error',
-        description: 'Failed to update status',
+        description: 'Failed to update payment details',
         type: 'error'
       });
     }
   };
 
-  const updateSecurityStatus = async (year: number, status: number, amount?: number) => {
+  const updateSecurityStatus = async (year: number, update: { status?: number; yearlyRate?: number; amount?: number; paymentType?: string; paymentDate?: string; lateFee?: number }) => {
     // Optimistic update
     setResident((prev: any) => {
       if (!prev) return prev;
       const newPayments = [...prev.securityPayments];
       const idx = newPayments.findIndex(p => p.year === year);
+      
       if (idx > -1) {
-        newPayments[idx] = { ...newPayments[idx], status, amount: amount ?? newPayments[idx].amount };
+        newPayments[idx] = { ...newPayments[idx], ...update };
       } else {
-        newPayments.push({ residentId: parseInt(id as string), year: year, status, amount: amount ?? 0 });
+        newPayments.push({ 
+          residentId: parseInt(id as string), 
+          year: year, 
+          status: update.status ?? 0, 
+          yearlyRate: update.yearlyRate ?? 0,
+          amount: update.amount ?? 0,
+          paymentType: update.paymentType,
+          paymentDate: update.paymentDate,
+          lateFee: update.lateFee ?? 0
+        });
       }
       return { ...prev, securityPayments: newPayments };
     });
 
     try {
+      const payment = resident.securityPayments.find(
+        (p: any) => p.year === year
+      );
       await api.post(`/finance/security/${id}`, {
         year: year,
-        status,
-        amount
+        status: update.status ?? payment?.status ?? 0,
+        amount: update.amount ?? payment?.amount ?? 0,
+        ...update
       });
     } catch (error) {
       fetchResidentFinance(); // Revert
@@ -173,76 +201,8 @@ const FinancePage = () => {
     }
   };
 
-  const updateResidentMonthlyRate = async (rate: number) => {
-    try {
-      await api.patch(`/residents/${id}`, {
-        monthlyRate: rate
-      });
-      fetchResidentFinance();
-    } catch (error) {
-      console.error('Error updating resident monthly rate:', error);
-    }
-  };
-
-  const updateGlobalFees = async (data: { monthlyFee?: number; yearlyFee?: number }) => {
-    // Optimistic update
-    setFees((prev: any) => ({
-      ...prev,
-      ...data
-    }));
-
-    try {
-      await api.post('/setting', data);
-    } catch (error) {
-      fetchSettings(); // Revert
-      setAlertDialog({
-        open: true,
-        title: 'Error',
-        description: 'Failed to update global fees',
-        type: 'error'
-      });
-    }
-  };
-
   if (loading) return <div className="p-12 text-center">Loading...</div>;
   if (!resident) return <div className="p-12 text-center">Resident not found</div>;
-
-  const getMonthlyStatus = (monthIndex: number) => {
-    const payment = resident.monthlyPayments.find(
-      (p: any) => p.month === monthIndex && p.year === selectedYear
-    );
-    return payment ? payment.status : 0;
-  };
-
-  const getSecurityStatus = () => {
-    const payment = resident.securityPayments.find(
-      (p: any) => p.year === selectedYear
-    );
-    return payment ? payment.status : 0;
-  };
-
-  const StatusBadge = ({ status, onClick }: { status: number, onClick?: (s: number) => void }) => {
-    const configs: Record<number, any> = {
-      1: { icon: <CheckCircleIcon className="text-green-500" />, label: 'Paid', color: 'bg-green-50 text-green-700 border-green-200' },
-      [-1]: { icon: <CancelIcon className="text-red-500" />, label: 'Unpaid', color: 'bg-red-50 text-red-700 border-red-200' },
-      0: { icon: <PendingIcon className="text-gray-400" />, label: 'Pending', color: 'bg-gray-50 text-gray-500 border-gray-200' },
-    };
-    const config = configs[status];
-
-    return (
-      <div className="flex flex-col items-center gap-2">
-        <div className={`flex items-center gap-2 px-3 py-1 rounded-full border border-gray-400 text-xs font-bold ${config.color}`}>
-          {config.icon}
-          {config.label}
-        </div>
-        <div className="flex gap-1 mt-2">
-          <button onClick={() => onClick?.(1)} className="p-1 hover:bg-green-300 rounded transition-colors" title="Mark as Paid"><CheckCircleIcon className="size-5 text-green-200" /></button>
-          <button onClick={() => onClick?.(-1)} className="p-1 hover:bg-red-300 rounded transition-colors" title="Mark as Unpaid"><CancelIcon className="size-5 text-red-200" /></button>
-          <button onClick={() => onClick?.(0)} className="p-1 hover:bg-gray-400 rounded transition-colors" title="Mark as Pending"><PendingIcon className="size-5 text-gray-300" /></button>
-        </div>
-      </div>
-    );
-  };
 
   return (
     <DefaultLayout>
@@ -312,105 +272,270 @@ const FinancePage = () => {
             <div className="mb-12">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
                 <h3 className="text-sm font-bold text-gray-100">Monthly Society Fees</h3>
-                <button
+                <Button
                   onClick={() => {
-                    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-                    const monthlyRows = monthNames.map((mon, idx) => {
-                      const p = resident.monthlyPayments?.find(
-                        (pay: any) => pay.month === idx && pay.year === selectedYear
-                      );
-                      return {
-                        Type: 'Monthly Society Fee',
-                        Month: mon,
-                        Year: selectedYear,
-                        Amount: p ? Number(p.amount) : 0,
-                        Status: p ? (p.status === 1 ? 'Paid' : p.status === -1 ? 'Unpaid' : 'Pending') : 'Pending',
-                      };
-                    });
-                    const secPayment = resident.securityPayments?.find(
-                      (p: any) => p.year === selectedYear
-                    );
-                    const yearlyRow = {
-                      Type: 'Yearly Maintenance Fee',
-                      Month: 'N/A',
-                      Year: selectedYear,
-                      Amount: secPayment ? Number(secPayment.amount) : 0,
-                      Status: secPayment ? (secPayment.status === 1 ? 'Paid' : secPayment.status === -1 ? 'Unpaid' : 'Pending') : 'Pending',
-                    };
-                    const ws = XLSX.utils.json_to_sheet([...monthlyRows, yearlyRow]);
                     const wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, ws, `${selectedYear}`);
-                    XLSX.writeFile(wb, `finance-${resident.name.replace(/\s+/g, '-').toLowerCase()}-${selectedYear}.xlsx`);
+                    
+                    // Sort years descending to show latest first in tabs
+                    [...availableYears].sort((a, b) => b - a).forEach(year => {
+                      const monthlyHeaders = ['Month', 'Monthly Rate', 'Amount Paid', 'Payment Mode', 'Payment Received On', 'Late Payment'];
+                      const monthlyData = months.map((mon, idx) => {
+                        const p = resident.monthlyPayments?.find(
+                          (pay: any) => pay.month === idx && pay.year === year
+                        );
+                        return [
+                          mon,
+                          resident.monthlyRate || 0,
+                          p ? Number(p.amount) : 0,
+                          p?.paymentType || '-',
+                          p?.paymentDate ? new Date(p.paymentDate).toLocaleDateString() : '-',
+                          p?.lateFee || 0
+                        ];
+                      });
+
+                      const yearlyHeaders = ['Year', 'Yearly Rate', 'Payment Made', 'Payment Mode', 'Payment Received On', 'Late Payment'];
+                      const secPayment = resident.securityPayments?.find(
+                        (p: any) => p.year === year
+                      );
+                      const yearlyData = [
+                        [
+                          year,
+                          secPayment?.yearlyRate || 0,
+                          secPayment?.amount || 0,
+                          secPayment?.paymentType || '-',
+                          secPayment?.paymentDate ? new Date(secPayment.paymentDate).toLocaleDateString() : '-',
+                          secPayment?.lateFee || 0
+                        ]
+                      ];
+
+                      const wsData = [
+                        ['Monthly Society Fees'],
+                        monthlyHeaders,
+                        ...monthlyData,
+                        [],
+                        ['Yearly Maintenance Fees'],
+                        yearlyHeaders,
+                        ...yearlyData
+                      ];
+
+                      const ws = XLSX.utils.aoa_to_sheet(wsData);
+                      XLSX.utils.book_append_sheet(wb, ws, `${year}`);
+                    });
+
+                    XLSX.writeFile(wb, `finance-${resident.name.replace(/\s+/g, '-').toLowerCase()}-all-years.xlsx`);
                   }}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-600 border border-orange-200 bg-orange-50 hover:bg-orange-100 hover:border-orange-400 transition-colors rounded-lg px-3 py-1.5 whitespace-nowrap"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                  Download .xlsx
-                </button>
+                  variant="outline"
+                  size="sm"
+                  className="text-orange-600 border-orange-200 bg-orange-50 hover:bg-orange-100 hover:border-orange-400"
+                  icon={{ left: <DownloadIcon className="size-4" /> }}
+                  label="Download .xlsx"
+                />
               </div>
               <Table 
-                residents={[resident]}
-                columns={months}
-                type="numerical"
+                data={months.map((m, i) => ({ month: m, index: i }))}
+                columns={['month', 'monthlyRate', 'amount', 'type', 'date', 'lateFee']}
+                headers={['Month', 'Monthly Rate', 'Amount Paid', 'Payment Mode', 'Payment Received On', 'Late Payment']}
+                type="general"
                 theme="orange"
-                monthlyFee={`₹ ${(resident.monthlyRate || fees.monthlyFee).toLocaleString()}`}
-                getValue={(res, colIdx) => {
-                  const payment = res.monthlyPayments.find(
-                    (p: any) => p.month === colIdx && p.year === selectedYear
-                  );
-                  return payment ? payment.amount.toLocaleString() : "0";
-                }}
-                onMonthlyRateChange={(_, val) => {
-                  const rate = parseFloat(val.replace(/[^0-9.]/g, '')) || 0;
-                  updateResidentMonthlyRate(rate);
-                }}
-                showMonthlyFeeLegend={false}
-                showYearlyFeeLegend={false}
                 className="!shadow-none !border-gray-400"
                 readOnly={!isPresident}
+                tight={true}
+                showMonthlyFeeLegend={false}
+                showYearlyFeeLegend={false}
+                renderCell={(row, col) => {
+                  const payment = resident.monthlyPayments.find(
+                    (p: any) => p.month === row.index && p.year === selectedYear
+                  );
+                  
+                  if (col === 'month') return <span className="font-bold">{row.month}</span>;
+
+                  if (col === 'monthlyRate') {
+                    return `₹ ${(resident.monthlyRate || 0).toLocaleString()}`;
+                  }
+                  
+                  if (col === 'amount') {
+                    if (!isPresident) return `₹ ${(payment?.amount || 0).toLocaleString()}`;
+                    return (
+                      <Input 
+                        id={`amount-${row.index}`}
+                        label="Amount"
+                        hideLabel
+                        type="number"
+                        className="w-24 !py-1"
+                        value={payment?.amount ?? 0}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value) || 0;
+                          updateMonthlyStatus(row.index, { amount: val, status: val > 0 ? 1 : 0 });
+                        }}
+                      />
+                    );
+                  }
+
+                  if (col === 'type') {
+                    if (!isPresident) return payment?.paymentType || '-';
+                    return (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="w-24 p-1 border border-gray-400 rounded text-sm text-left flex items-center justify-between">
+                            {payment?.paymentType || 'Select'}
+                            <KeyboardArrowDownIcon className="size-4 text-gray-400" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="bg-white border-gray-400">
+                          <DropdownMenuItem onClick={() => updateMonthlyStatus(row.index, { paymentType: 'Cash' })}>Cash</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => updateMonthlyStatus(row.index, { paymentType: 'Online' })}>Online</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    );
+                  }
+
+                  if (col === 'date') {
+                    if (!isPresident) return payment?.paymentDate ? new Date(payment.paymentDate).toLocaleDateString() : '-';
+                    return (
+                      <Input 
+                        id={`date-${row.index}`}
+                        label="Date"
+                        hideLabel
+                        type="date"
+                        className="w-36 !py-1"
+                        value={payment?.paymentDate ? new Date(payment.paymentDate).toISOString().split('T')[0] : ''}
+                        onChange={(e) => updateMonthlyStatus(row.index, { paymentDate: e.target.value })}
+                      />
+                    );
+                  }
+
+                  if (col === 'lateFee') {
+                    if (!isPresident) return `₹ ${(payment?.lateFee || 0).toLocaleString()}`;
+                    return (
+                      <Input 
+                        id={`lateFee-${row.index}`}
+                        label="Late Fee"
+                        hideLabel
+                        type="number"
+                        className="w-24 !py-1"
+                        value={payment?.lateFee ?? 0}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value) || 0;
+                          updateMonthlyStatus(row.index, { lateFee: val });
+                        }}
+                      />
+                    );
+                  }
+
+                  return '-';
+                }}
               />
             </div>
 
             <div className="pt-8 border-t border-gray-400">
                <h3 className="text-sm font-bold text-gray-100 mb-6 uppercase tracking-wider">Yearly Maintenance Fees</h3>
                <Table 
-                residents={[resident]}
-                columns={yearlyColumns}
-                type="numerical"
+                data={[{ year: selectedYear }]}
+                columns={['year', 'yearlyRate', 'amount', 'type', 'date', 'lateFee']}
+                headers={['Year', 'Yearly Rate', 'Payment Made', 'Payment Mode', 'Payment Received On', 'Late Payment']}
+                type="general"
                 theme="blue"
-                showMonthlyRate={false}
-                readOnly={!isPresident}
-                getValue={(res, colIdx) => {
-                  const year = parseInt(yearlyColumns[colIdx]);
-                  const payment = resident.securityPayments.find(
-                    (p: any) => p.year === year
-                  );
-                  return payment ? payment.amount.toLocaleString() : "0";
-                }}
-                onCellClick={(res, colIdx) => {
-                  const year = parseInt(yearlyColumns[colIdx]);
-                  const payment = (res.securityPayments || []).find(
-                    (p: any) => p.year === year
-                  );
-                  const currentStatus = payment ? payment.status : 0;
-                  const nextStatus = currentStatus === 0 ? 1 : currentStatus === 1 ? -1 : 0;
-                  const amount = nextStatus === 1 ? fees.yearlyFee : (payment?.amount || 0);
-                  updateSecurityStatus(year, nextStatus, amount);
-                }}
-                onValueChange={(res, colIdx, newValue) => {
-                  const year = parseInt(yearlyColumns[colIdx]);
-                  const amount = parseFloat(newValue.replace(/,/g, '')) || 0;
-                  const status = amount >= fees.yearlyFee ? 1 : amount > 0 ? 0 : -1;
-                  updateSecurityStatus(year, status, amount);
-                }}
-                yearlyFee={`₹ ${fees.yearlyFee.toLocaleString()}`}
-                showMonthlyFeeLegend={false}
                 className="!shadow-none !border-gray-400"
-                minWidthClass="min-w-full"
+                readOnly={!isPresident}
+                tight={true}
+                showMonthlyFeeLegend={false}
+                showYearlyFeeLegend={false}
+                renderCell={(row, col) => {
+                  const payment = resident.securityPayments.find(
+                    (p: any) => p.year === row.year
+                  );
+
+                  if (col === 'year') return <span className="font-bold">{row.year}</span>;
+
+                  if (col === 'yearlyRate') {
+                    if (!isPresident) return `₹ ${(payment?.yearlyRate || 0).toLocaleString()}`;
+                    return (
+                      <Input 
+                        id={`yearly-rate-${row.year}`}
+                        label="Yearly Rate"
+                        hideLabel
+                        type="number"
+                        className="w-24 !py-1"
+                        value={payment?.yearlyRate ?? 0}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value) || 0;
+                          updateSecurityStatus(row.year, { yearlyRate: val, status: val > 0 ? 1 : 0 });
+                        }}
+                      />
+                    );
+                  }
+
+                  if (col === 'amount') {
+                    if (!isPresident) return `₹ ${(payment?.amount || 0).toLocaleString()}`;
+                    return (
+                      <Input 
+                        id={`yearly-amount-${row.year}`}
+                        label="Payment Made"
+                        hideLabel
+                        type="number"
+                        className="w-24 !py-1"
+                        value={payment?.amount ?? 0}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value) || 0;
+                          updateSecurityStatus(row.year, { amount: val });
+                        }}
+                      />
+                    );
+                  }
+
+                  if (col === 'type') {
+                    if (!isPresident) return payment?.paymentType || '-';
+                    return (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="w-24 p-1 border border-gray-400 rounded text-sm text-left flex items-center justify-between">
+                            {payment?.paymentType || 'Select'}
+                            <KeyboardArrowDownIcon className="size-4 text-gray-400" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="bg-white border-gray-400">
+                          <DropdownMenuItem onClick={() => updateSecurityStatus(row.year, { paymentType: 'Cash' })}>Cash</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => updateSecurityStatus(row.year, { paymentType: 'Online' })}>Online</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    );
+                  }
+
+                  if (col === 'date') {
+                    if (!isPresident) return payment?.paymentDate ? new Date(payment.paymentDate).toLocaleDateString() : '-';
+                    return (
+                      <Input 
+                        id={`yearly-date-${row.year}`}
+                        label="Date"
+                        hideLabel
+                        type="date"
+                        className="w-36 !py-1"
+                        value={payment?.paymentDate ? new Date(payment.paymentDate).toISOString().split('T')[0] : ''}
+                        onChange={(e) => updateSecurityStatus(row.year, { paymentDate: e.target.value })}
+                      />
+                    );
+                  }
+
+                  if (col === 'lateFee') {
+                    if (!isPresident) return `₹ ${(payment?.lateFee || 0).toLocaleString()}`;
+                    return (
+                      <Input 
+                        id={`yearly-lateFee-${row.year}`}
+                        label="Late Fee"
+                        hideLabel
+                        type="number"
+                        className="w-24 !py-1"
+                        value={payment?.lateFee ?? 0}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value) || 0;
+                          updateSecurityStatus(row.year, { lateFee: val });
+                        }}
+                      />
+                    );
+                  }
+
+                  return '-';
+                }}
               />
             </div>
           </div>

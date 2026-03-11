@@ -18,7 +18,7 @@ export class FinanceController {
   @Post('monthly/:id')
   updateMonthly(
     @Param('id', ParseIntPipe) id: number,
-    @Body() data: { month: number; year: number; status: number; amount?: number },
+    @Body() data: { month: number; year: number; status: number; amount?: number; paymentType?: string; paymentDate?: string; lateFee?: number },
   ) {
     return this.financeService.updateMonthlyPayment(id, data);
   }
@@ -26,7 +26,7 @@ export class FinanceController {
   @Post('security/:id')
   updateSecurity(
     @Param('id', ParseIntPipe) id: number,
-    @Body() data: { year: number; status: number; amount?: number },
+    @Body() data: { year: number; status: number; yearlyRate?: number; amount?: number; paymentType?: string; paymentDate?: string; lateFee?: number },
   ) {
     return this.financeService.updateSecurityPayment(id, data);
   }
