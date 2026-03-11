@@ -43,10 +43,11 @@ model Resident {
   name            String
   residence       String
   phone_no        String
+  showInWebsite   Boolean           @default(false)
   monthlyPayments MonthlyPayment[]
   securityPayments SecurityPayment[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 
   @@map("resident")
 }
@@ -111,4 +112,17 @@ model Complaint {
   updatedAt DateTime @updatedAt
 
   @@map("complaint")
+}
+
+model CommitteeMember {
+  id        Int      @id @default(autoincrement())
+  avatar    String?
+  name      String
+  residence String
+  phone_no  String
+  role      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("committee_member")
 }

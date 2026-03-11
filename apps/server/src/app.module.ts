@@ -11,6 +11,7 @@ import { FinanceModule } from './finance/finance.module';
 import { SettingModule } from './setting/setting.module';
 import { RuleModule } from './rules/rule.module';
 import { ComplaintModule } from './complaint/complaint.module';
+import { CommitteeModule } from './committee/committee.module';
 import { AuthGuard } from './auth/auth.guard';
 
 @Module({
@@ -29,6 +30,7 @@ import { AuthGuard } from './auth/auth.guard';
     SettingModule,
     RuleModule,
     ComplaintModule,
+    CommitteeModule,
   ],
   providers: [
     {

@@ -8,10 +8,11 @@ import GavelIcon from '@mui/icons-material/Gavel';
 import FeedbackIcon from '@mui/icons-material/Feedback';
 import LogoutIcon from '@mui/icons-material/Logout';
 import CloseIcon from '@mui/icons-material/Close';
+import PeopleIcon from '@mui/icons-material/People';
 
 interface SidebarProps {
-  activeTab: 'dashboard' | 'announcements' | 'residents' | 'rules' | 'complaints' | 'finance' | 'none';
-  onTabChange?: (tab: 'dashboard' | 'announcements' | 'residents' | 'rules' | 'complaints' | 'finance') => void;
+  activeTab: 'dashboard' | 'announcements' | 'residents' | 'rules' | 'complaints' | 'finance' | 'committee' | 'none';
+  onTabChange?: (tab: 'dashboard' | 'announcements' | 'residents' | 'rules' | 'complaints' | 'finance' | 'committee') => void;
   isOpen?: boolean;
   onClose?: () => void;
 }
@@ -39,6 +40,11 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onClose }: SidebarProps) => {
       id: 'residents', 
       label: 'Residents', 
       icon: <ApartmentIcon className="size-5" />
+    },
+    { 
+      id: 'committee', 
+      label: 'Committee', 
+      icon: <PeopleIcon className="size-5" />
     },
     { 
       id: 'finance', 

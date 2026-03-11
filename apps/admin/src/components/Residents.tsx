@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Upload, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, Table } from '@legacy-apartment/ui';
+import { Button, Input, Upload, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, Table, Switch } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PersonIcon from '@mui/icons-material/Person';
+import AddIcon from '@mui/icons-material/Add';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import api from '@/lib/api';
 
@@ -14,6 +15,7 @@ interface Resident {
   name: string;
   residence: string;
   phone_no: string;
+  showInWebsite: boolean;
 }
 
 
@@ -26,6 +28,7 @@ const Residents = () => {
     residence: '',
     phone_no: '',
     avatar: '',
+    showInWebsite: false,
   });
   const [loading, setLoading] = useState(true);
   const [avatarFiles, setAvatarFiles] = useState<File[]>([]);
@@ -87,7 +90,7 @@ const Residents = () => {
       setIsFormOpen(false);
       setEditingId(null);
       setAvatarFiles([]);
-      setFormData({ name: '', residence: '', phone_no: '', avatar: '' });
+      setFormData({ name: '', residence: '', phone_no: '', avatar: '', showInWebsite: false });
       fetchResidents();
     } catch (error: any) {
       Swal.fire('Error', error.response?.data?.message || 'Something went wrong', 'error');
@@ -101,6 +104,7 @@ const Residents = () => {
       residence: res.residence,
       phone_no: res.phone_no,
       avatar: res.avatar || '',
+      showInWebsite: res.showInWebsite || false,
     });
     setAvatarFiles([]); // Reset file input when editing (keeps existing URL if not changed)
     setIsFormOpen(true);
@@ -142,9 +146,10 @@ const Residents = () => {
         {isPresident && (
           <Button 
               variant="primary"
+              icon={{ left: <AddIcon className="size-5" /> }}
               onClick={() => {
                   setEditingId(null);
-                  setFormData({ name: '', residence: '', phone_no: '', avatar: '' });
+                  setFormData({ name: '', residence: '', phone_no: '', avatar: '', showInWebsite: false });
                   setAvatarFiles([]);
                   setIsFormOpen(true);
               }}
@@ -186,6 +191,15 @@ const Residents = () => {
                 onChange={(e) => setFormData({...formData, phone_no: e.target.value})}
                 placeholder="Enter phone number"
               />
+              <div className="flex flex-col justify-center px-4 py-3">
+                <Switch
+                  id="showInWebsite"
+                  label="Show in Website"
+                  hint="Publicly show this name on the frontend website."
+                  checked={formData.showInWebsite}
+                  onChange={(checked) => setFormData({...formData, showInWebsite: checked})}
+                />
+              </div>
               <div className="md:col-span-2">
                 <Upload 
                   label="Profile Image"

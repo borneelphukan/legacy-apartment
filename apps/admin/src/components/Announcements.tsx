@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Swal from 'sweetalert2';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
 import api from '@/lib/api';
 
 interface Announcement {
@@ -116,10 +117,13 @@ const Announcements = () => {
         {canManage && (
           <Button 
               variant="primary"
+              icon={{ left: <AddIcon className="size-5" /> }}
               onClick={() => {
+                
                   setEditingId(null);
                   setFormData({ title: '', description: '', date: new Date().toISOString().split('T')[0] });
                   setIsFormOpen(true);
+                  
               }}
           >
             Create

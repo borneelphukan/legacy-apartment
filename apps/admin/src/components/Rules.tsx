@@ -12,6 +12,7 @@ import Swal from 'sweetalert2';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import AddIcon from '@mui/icons-material/Add';
 import api from '@/lib/api';
 
 interface Rule {
@@ -131,6 +132,7 @@ const Rules = () => {
         {isPresident && (
           <Button 
               variant="primary"
+              icon={{ left: <AddIcon className="size-5" /> }}
               onClick={() => {
                   setEditingId(null);
                   setFormData({ category: categories[0], rule: '' });

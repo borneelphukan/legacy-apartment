@@ -20,13 +20,13 @@ const Committee = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [annRes, resRes] = await Promise.all([
+        const [annRes, committeeRes] = await Promise.all([
           api.get('/announcements'),
-          api.get('/residents')
+          api.get('/committee')
         ]);
 
         const annData = annRes.data || [];
-        const resData = resRes.data || [];
+        const committeeData = committeeRes.data || [];
 
         const grouped: Record<string, any[]> = {};
         annData.forEach((ann: any) => {
@@ -41,12 +41,15 @@ const Committee = () => {
         const years = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
         if (years.length > 0) setSelectedYear(years[0]);
 
-        const committee = resData
-          .filter((res: any) => res.designation && res.designation !== 'None')
-          .sort((a: any, b: any) => {
-            const order = ['President', 'Secretary', 'Treasurer'];
-            return order.indexOf(a.designation) - order.indexOf(b.designation);
-          });
+        const committee = committeeData.sort((a: any, b: any) => {
+          const order = ['President', 'Secretary', 'Treasurer'];
+          const idxA = order.indexOf(a.role);
+          const idxB = order.indexOf(b.role);
+          if (idxA === -1 && idxB === -1) return 0;
+          if (idxA === -1) return 1;
+          if (idxB === -1) return -1;
+          return idxA - idxB;
+        });
         setCommitteeMembers(committee);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -92,9 +95,9 @@ const Committee = () => {
                 committeeMembers.map((member, idx) => (
                   <div 
                     key={idx} 
-                    className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-2xl transition-all duration-300 border border-gray-100 flex flex-col items-center text-center transform hover:-translate-y-2 group"
+                    className="bg-white rounded-3xl p-8 transition-all duration-300 border border-gray-400 flex flex-col items-center text-center transform group"
                   >
-                    <div className="relative w-40 h-40 mb-6 rounded-full overflow-hidden border-4 border-orange-50 group-hover:border-orange-100 transition-colors duration-300 bg-gray-50 flex items-center justify-center">
+                    <div className="relative w-40 h-40 mb-6 rounded-full overflow-hidden transition-colors duration-300 flex items-center justify-center">
                       {member.avatar ? (
                         <img 
                           src={member.avatar} 
@@ -103,22 +106,18 @@ const Committee = () => {
                         />
                       ) : (
                         <div className="bg-gray-100 w-full h-full flex items-center justify-center">
-                          <span className="text-4xl text-gray-300 italic font-serif">{member.name[0]}</span>
+                          <span className="text-2xl text-white">{member.name[0]}</span>
                         </div>
                       )}
                     </div>
                     <h3 className="text-2xl font-bold text-gray-800 mb-1">{member.name}</h3>
-                    <div className="text-gray-500 font-medium mb-4 text-sm flex items-center justify-center gap-2">
+                    <div className="text-blue-200 font-bold mb-4 text-sm flex items-center justify-center gap-2">
                       {member.residence}
                     </div>
-                    <div className="text-orange-500 font-semibold mb-4 tracking-wide uppercase text-sm">{member.designation}</div>
-                    <p className="text-gray-600 leading-relaxed text-sm">Dedicated to serving our society in the capacity of {member.designation}.</p>
+                    <div className="text-orange-500 font-semibold mb-4 tracking-wide uppercase text-sm">{member.role}</div>
                     
-                    <div className="flex space-x-4 mt-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <button className="text-gray-400 hover:text-orange-500 transition-colors">
-                        <EmailIcon className="w-5 h-5" />
-                      </button>
-                      <button className="text-gray-400 hover:text-orange-500 transition-colors">
+                    <div className="flex space-x-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <button className="text-gray-100 hover:text-orange-500 transition-colors">
                         <PhoneIcon className="w-5 h-5" />
                       </button>
                     </div>

@@ -62,7 +62,8 @@ const Home = () => {
     const fetchResidents = async () => {
       try {
         const response = await api.get('/residents');
-        setResidents(Array.isArray(response.data) ? response.data : []);
+        const data = Array.isArray(response.data) ? response.data : [];
+        setResidents(data.filter((res: any) => res.showInWebsite));
       } catch (error) {
         console.error('Error fetching residents:', error);
       }
@@ -307,7 +308,7 @@ const Home = () => {
               {residentChunks.map((chunk, slideIdx) => (
                 <div key={slideIdx} className="w-full flex-shrink-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 content-start gap-4 p-4 md:p-6 bg-white min-h-[400px]">
                   {chunk.map((resident, idx) => (
-                    <div key={idx} className="group flex items-center p-3 md:p-4 bg-slate-50 rounded-2xl hover:bg-white transition-all duration-300 cursor-pointer border border-transparent hover:border-blue-100 hover:shadow-lg hover:-translate-y-1">
+                    <div key={idx} className="group flex items-center p-3 md:p-4 rounded-xl transition-all duration-300 border border-gray-400">
                       <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0 mr-4 group-hover:border-blue-50 transition-colors bg-gray-100 flex items-center justify-center">
                         {resident.avatar || resident.image ? (
                            <img 
