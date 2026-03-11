@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Upload, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, Table, Switch } from '@legacy-apartment/ui';
+import { Button, Input, Upload, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, Table, Switch, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
-import Swal from 'sweetalert2';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PersonIcon from '@mui/icons-material/Person';
@@ -34,6 +33,19 @@ const Residents = () => {
   const [avatarFiles, setAvatarFiles] = useState<File[]>([]);
   const [isPresident, setIsPresident] = useState(false);
   const router = useRouter();
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+  } | null>(null);
+
+  const [alertDialog, setAlertDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    type: 'success' | 'error';
+  } | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('adminUser');
@@ -86,14 +98,18 @@ const Residents = () => {
         ? await api.patch(`/residents/${editingId}`, body)
         : await api.post('/residents', body);
 
-      Swal.fire('Success', `Resident ${editingId ? 'updated' : 'created'} successfully!`, 'success');
       setIsFormOpen(false);
       setEditingId(null);
       setAvatarFiles([]);
       setFormData({ name: '', residence: '', phone_no: '', avatar: '', showInWebsite: false });
       fetchResidents();
     } catch (error: any) {
-      Swal.fire('Error', error.response?.data?.message || 'Something went wrong', 'error');
+      setAlertDialog({
+        open: true,
+        title: 'Error',
+        description: error.response?.data?.message || 'Something went wrong',
+        type: 'error'
+      });
     }
   };
 
@@ -111,25 +127,24 @@ const Residents = () => {
   };
 
   const handleDelete = async (id: number) => {
-    const result = await Swal.fire({
+    setConfirmDialog({
+      open: true,
       title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#f97316',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes'
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await api.delete(`/residents/${id}`);
-        Swal.fire('Deleted!', 'Resident has been deleted.', 'success');
-        fetchResidents();
-      } catch (error) {
-        Swal.fire('Error', 'Failed to delete resident', 'error');
+      description: "You won't be able to revert this!",
+      onConfirm: async () => {
+        try {
+          await api.delete(`/residents/${id}`);
+          fetchResidents();
+        } catch (error) {
+          setAlertDialog({
+            open: true,
+            title: 'Error',
+            description: 'Failed to delete resident',
+            type: 'error'
+          });
+        }
       }
-    }
+    });
   };
 
   return (
@@ -252,11 +267,11 @@ const Residents = () => {
                   case 'resident':
                     return (
                       <div className="flex items-center gap-4">
-                        <div className="size-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border border-gray-200 shrink-0 shadow-sm">
+                        <div className="size-12 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center border border-gray-400 shrink-0">
                           {res.avatar ? (
                               <img src={res.avatar} alt={res.name} className="w-full h-full object-cover" />
                           ) : (
-                              <PersonIcon className="text-gray-400 size-6" />
+                              <PersonIcon className="text-gray-400" />
                           )}
                         </div>
                         <span className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors">{res.name}</span>
@@ -272,20 +287,22 @@ const Residents = () => {
                         {isPresident && (
                           <Button 
                               variant="outline"
-                              size="icon"
                               onClick={() => handleEdit(res)}
-                              icon={{ left: <EditIcon className="size-5" /> }}
                               title="Edit"
-                          />
+                              size='sm'
+                          >
+                            Edit
+                          </Button>
                         )}
                         {isPresident && (
                           <Button 
                               variant="destructive"
-                              size="icon"
                               onClick={() => handleDelete(res.id)}
-                              icon={{ left: <DeleteIcon className="size-5" /> }}
                               title="Delete"
-                          />
+                              size='sm'
+                          >
+                            Delete
+                          </Button>
                         )}
                       </div>
                     );
@@ -296,6 +313,42 @@ const Residents = () => {
             />
         )}
       </div>
+
+      {/* Confirmation Dialog */}
+      {confirmDialog && (
+        <Dialog open={confirmDialog.open} onOpenChange={(open) => !open && setConfirmDialog(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>{confirmDialog.title}</DialogTitle>
+              <DialogDescription>{confirmDialog.description}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setConfirmDialog(null)}>Cancel</Button>
+              <Button variant="primary" onClick={() => {
+                confirmDialog.onConfirm();
+                setConfirmDialog(null);
+              }}>Confirm</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Success/Error Alert Dialog */}
+      {alertDialog && (
+        <Dialog open={alertDialog.open} onOpenChange={(open) => !open && setAlertDialog(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className={alertDialog.type === 'error' ? 'text-red-600' : 'text-orange-600'}>
+                {alertDialog.title}
+              </DialogTitle>
+              <DialogDescription>{alertDialog.description}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="primary" onClick={() => setAlertDialog(null)}>OK</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

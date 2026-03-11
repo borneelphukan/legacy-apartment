@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import Swal from 'sweetalert2';
 import DefaultLayout from '@/layout/DefaultLayout';
 import { 
   Input, 
@@ -9,7 +8,13 @@ import {
   DropdownMenu, 
   DropdownMenuTrigger, 
   DropdownMenuContent, 
-  DropdownMenuItem 
+  DropdownMenuItem,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription
 } from '@legacy-apartment/ui';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import api from '@/lib/api';
@@ -23,26 +28,33 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const router = useRouter();
+  const [alertDialog, setAlertDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    type: 'success' | 'error';
+    onClose?: () => void;
+  } | null>(null);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email || !password) {
-      Swal.fire({
-        icon: 'error',
+      setAlertDialog({
+        open: true,
         title: 'Validation Error',
-        text: 'Please enter both email and password',
-        confirmButtonColor: '#f97316',
+        description: 'Please enter both email and password',
+        type: 'error'
       });
       return;
     }
 
     if (isRegisterMode && (!firstName || !lastName)) {
-      Swal.fire({
-        icon: 'error',
+      setAlertDialog({
+        open: true,
         title: 'Validation Error',
-        text: 'Please fill in all required fields',
-        confirmButtonColor: '#f97316',
+        description: 'Please fill in all required fields',
+        type: 'error'
       });
       return;
     }
@@ -59,37 +71,35 @@ export default function Login() {
       const data = response.data;
 
       if (response.status === 200 || response.status === 201) {
-        Swal.fire({
-          icon: 'success',
-          title: isRegisterMode ? 'User Created!' : 'Welcome back!',
-          text: isRegisterMode ? 'You can now log in' : 'Login successful',
-          timer: 1500,
-          showConfirmButton: false,
-        });
-        
         if (!isRegisterMode) {
           localStorage.setItem('adminToken', data.token);
           localStorage.setItem('adminUser', JSON.stringify(data.user));
           router.push('/');
         } else {
-          setIsRegisterMode(false);
+          setAlertDialog({
+            open: true,
+            title: 'User Created!',
+            description: 'You can now log in',
+            type: 'success',
+            onClose: () => setIsRegisterMode(false)
+          });
         }
       } else {
-        Swal.fire({
-          icon: 'error',
+        setAlertDialog({
+          open: true,
           title: 'Login failed',
-          text: data.message || 'Invalid credentials',
-          confirmButtonColor: '#f97316',
+          description: data.message || 'Invalid credentials',
+          type: 'error'
         });
       }
     } catch (error: any) {
       console.error(error);
       const errorMessage = error.response?.data?.message || 'An unexpected error occurred. Please check your credentials.';
-      Swal.fire({
-        icon: 'error',
+      setAlertDialog({
+        open: true,
         title: 'Authentication Failed',
-        text: errorMessage,
-        confirmButtonColor: '#f97316',
+        description: errorMessage,
+        type: 'error'
       });
     } finally {
       setIsSubmitting(false);
@@ -208,6 +218,26 @@ export default function Login() {
             </form>
           </div>
         </div>
+
+        {/* Success/Error Alert Dialog */}
+        {alertDialog && (
+          <Dialog open={alertDialog.open} onOpenChange={(open) => !open && setAlertDialog(null)}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className={alertDialog.type === 'error' ? 'text-red-600' : 'text-orange-600'}>
+                  {alertDialog.title}
+                </DialogTitle>
+                <DialogDescription>{alertDialog.description}</DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="primary" onClick={() => {
+                  alertDialog.onClose?.();
+                  setAlertDialog(null);
+                }}>OK</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </DefaultLayout>
   );

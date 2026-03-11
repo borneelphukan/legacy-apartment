@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Upload, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, Table, Badge } from '@legacy-apartment/ui';
-import Swal from 'sweetalert2';
+import { Button, Input, Upload, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, Table, Badge, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@legacy-apartment/ui';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PersonIcon from '@mui/icons-material/Person';
@@ -45,6 +44,19 @@ const Committee = () => {
   const [loading, setLoading] = useState(true);
   const [avatarFiles, setAvatarFiles] = useState<File[]>([]);
   const [isPresident, setIsPresident] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+  } | null>(null);
+
+  const [alertDialog, setAlertDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    type: 'success' | 'error';
+  } | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('adminUser');
@@ -89,14 +101,18 @@ const Committee = () => {
         ? await api.patch(`/committee/${editingId}`, formData)
         : await api.post('/committee', formData);
 
-      Swal.fire('Success', `Member ${editingId ? 'updated' : 'added'} successfully!`, 'success');
       setIsFormOpen(false);
       setEditingId(null);
       setAvatarFiles([]);
       setFormData({ name: '', residence: '', phone_no: '', avatar: '', role: roles[0] });
       fetchMembers();
     } catch (error: any) {
-      Swal.fire('Error', error.response?.data?.message || 'Something went wrong', 'error');
+      setAlertDialog({
+        open: true,
+        title: 'Error',
+        description: error.response?.data?.message || 'Something went wrong',
+        type: 'error'
+      });
     }
   };
 
@@ -114,25 +130,24 @@ const Committee = () => {
   };
 
   const handleDelete = async (id: number) => {
-    const result = await Swal.fire({
+    setConfirmDialog({
+      open: true,
       title: 'Are you sure?',
-      text: "Remove this member from the committee?",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#f97316',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes'
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await api.delete(`/committee/${id}`);
-        Swal.fire('Removed!', 'Member removed from committee.', 'success');
-        fetchMembers();
-      } catch (error) {
-        Swal.fire('Error', 'Failed to remove member', 'error');
+      description: "Remove this member from the committee?",
+      onConfirm: async () => {
+        try {
+          await api.delete(`/committee/${id}`);
+          fetchMembers();
+        } catch (error) {
+          setAlertDialog({
+            open: true,
+            title: 'Error',
+            description: 'Failed to remove member',
+            type: 'error'
+          });
+        }
       }
-    }
+    });
   };
 
   return (
@@ -262,8 +277,8 @@ const Committee = () => {
                   case 'member':
                     return (
                       <div className="flex items-center gap-4">
-                        <div className="size-12 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border border-gray-200">
-                          {member.avatar ? <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" /> : <PersonIcon className="text-gray-400 size-6" />}
+                        <div className="size-12 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center border border-gray-400">
+                          {member.avatar ? <img src={member.avatar} alt={member.name} className="w-full h-full object-cover" /> : <PersonIcon className="text-gray-400" />}
                         </div>
                         <span className="font-bold text-gray-900">{member.name}</span>
                       </div>
@@ -278,10 +293,14 @@ const Committee = () => {
                     return (
                       <div className="flex justify-end gap-2">
                         {isPresident && (
-                          <Button variant="outline" size="icon" onClick={() => handleEdit(member)} icon={{ left: <EditIcon className="size-5" /> }} />
+                          <Button variant="outline" size="sm" onClick={() => handleEdit(member)} title="Edit" >
+                            Edit
+                          </Button>
                         )}
                         {isPresident && (
-                          <Button variant="destructive" size="icon" onClick={() => handleDelete(member.id)} icon={{ left: <DeleteIcon className="size-5" /> }} />
+                          <Button variant="destructive" size="sm" onClick={() => handleDelete(member.id)} title="Delete" >
+                            Delete
+                          </Button>
                         )}
                       </div>
                     );
@@ -291,6 +310,42 @@ const Committee = () => {
             />
         )}
       </div>
+
+      {/* Confirmation Dialog */}
+      {confirmDialog && (
+        <Dialog open={confirmDialog.open} onOpenChange={(open) => !open && setConfirmDialog(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>{confirmDialog.title}</DialogTitle>
+              <DialogDescription>{confirmDialog.description}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setConfirmDialog(null)}>Cancel</Button>
+              <Button variant="primary" onClick={() => {
+                confirmDialog.onConfirm();
+                setConfirmDialog(null);
+              }}>Confirm</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Success/Error Alert Dialog */}
+      {alertDialog && (
+        <Dialog open={alertDialog.open} onOpenChange={(open) => !open && setAlertDialog(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className={alertDialog.type === 'error' ? 'text-red-600' : 'text-orange-600'}>
+                {alertDialog.title}
+              </DialogTitle>
+              <DialogDescription>{alertDialog.description}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="primary" onClick={() => setAlertDialog(null)}>OK</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

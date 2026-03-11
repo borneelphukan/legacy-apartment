@@ -9,9 +9,14 @@ import {
   DropdownMenuContent, 
   DropdownMenuRadioGroup, 
   DropdownMenuRadioItem,
-  Table
+  Table,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription
 } from '@legacy-apartment/ui';
-import Swal from 'sweetalert2';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -38,6 +43,12 @@ const FinancePage = () => {
   const [fees, setFees] = useState({ monthlyFee: 1000, yearlyFee: 5000 });
   const [isPresident, setIsPresident] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [alertDialog, setAlertDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    type: 'success' | 'error';
+  } | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('adminUser');
@@ -85,7 +96,12 @@ const FinancePage = () => {
       if (error.response?.status === 401) {
         router.push('/login');
       } else {
-        Swal.fire('Error', 'Failed to fetch finance data', 'error');
+        setAlertDialog({
+          open: true,
+          title: 'Error',
+          description: 'Failed to fetch finance data',
+          type: 'error'
+        });
       }
       console.error('Error:', error);
     } finally {
@@ -116,7 +132,12 @@ const FinancePage = () => {
       });
     } catch (error) {
       fetchResidentFinance(); // Revert on failure
-      Swal.fire('Error', 'Failed to update status', 'error');
+      setAlertDialog({
+        open: true,
+        title: 'Error',
+        description: 'Failed to update status',
+        type: 'error'
+      });
     }
   };
 
@@ -142,7 +163,12 @@ const FinancePage = () => {
       });
     } catch (error) {
       fetchResidentFinance(); // Revert
-      Swal.fire('Error', 'Failed to update status', 'error');
+      setAlertDialog({
+        open: true,
+        title: 'Error',
+        description: 'Failed to update status',
+        type: 'error'
+      });
     }
   };
 
@@ -157,7 +183,12 @@ const FinancePage = () => {
       await api.post('/setting', data);
     } catch (error) {
       fetchSettings(); // Revert
-      Swal.fire('Error', 'Failed to update global fees', 'error');
+      setAlertDialog({
+        open: true,
+        title: 'Error',
+        description: 'Failed to update global fees',
+        type: 'error'
+      });
     }
   };
 
@@ -350,6 +381,23 @@ const FinancePage = () => {
           </div>
           </div>
         </div>
+
+        {/* Success/Error Alert Dialog */}
+        {alertDialog && (
+          <Dialog open={alertDialog.open} onOpenChange={(open) => !open && setAlertDialog(null)}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className={alertDialog.type === 'error' ? 'text-red-600' : 'text-orange-600'}>
+                  {alertDialog.title}
+                </DialogTitle>
+                <DialogDescription>{alertDialog.description}</DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="primary" onClick={() => setAlertDialog(null)}>OK</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </DefaultLayout>
   );

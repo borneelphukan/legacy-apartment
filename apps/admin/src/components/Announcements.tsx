@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button, TextArea, Input } from '@legacy-apartment/ui';
+import { Button, TextArea, Input, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
-import Swal from 'sweetalert2';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -26,6 +25,19 @@ const Announcements = () => {
   });
   const [loading, setLoading] = useState(true);
   const [canManage, setCanManage] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+  } | null>(null);
+
+  const [alertDialog, setAlertDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    type: 'success' | 'error';
+  } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -61,13 +73,17 @@ const Announcements = () => {
         ? await api.patch(`/announcements/${editingId}`, formData)
         : await api.post('/announcements', formData);
 
-      Swal.fire('Success', `Announcement ${editingId ? 'updated' : 'created'} successfully!`, 'success');
       setIsFormOpen(false);
       setEditingId(null);
       setFormData({ title: '', description: '', date: new Date().toISOString().split('T')[0] });
       fetchAnnouncements();
     } catch (error: any) {
-      Swal.fire('Error', error.response?.data?.message || 'Something went wrong', 'error');
+      setAlertDialog({
+        open: true,
+        title: 'Error',
+        description: error.response?.data?.message || 'Something went wrong',
+        type: 'error'
+      });
     }
   };
 
@@ -82,25 +98,24 @@ const Announcements = () => {
   };
 
   const handleDelete = async (id: number) => {
-    const result = await Swal.fire({
+    setConfirmDialog({
+      open: true,
       title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#f97316',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes'
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await api.delete(`/announcements/${id}`);
-        Swal.fire('Deleted!', 'Announcement has been deleted.', 'success');
-        fetchAnnouncements();
-      } catch (error) {
-        Swal.fire('Error', 'Failed to delete announcement', 'error');
+      description: "You won't be able to revert this!",
+      onConfirm: async () => {
+        try {
+          await api.delete(`/announcements/${id}`);
+          fetchAnnouncements();
+        } catch (error) {
+          setAlertDialog({
+            open: true,
+            title: 'Error',
+            description: 'Failed to delete announcement',
+            type: 'error'
+          });
+        }
       }
-    }
+    });
   };
 
   return (
@@ -216,6 +231,42 @@ const Announcements = () => {
             ))
         )}
       </div>
+
+      {/* Confirmation Dialog */}
+      {confirmDialog && (
+        <Dialog open={confirmDialog.open} onOpenChange={(open) => !open && setConfirmDialog(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>{confirmDialog.title}</DialogTitle>
+              <DialogDescription>{confirmDialog.description}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setConfirmDialog(null)}>Cancel</Button>
+              <Button variant="primary" onClick={() => {
+                confirmDialog.onConfirm();
+                setConfirmDialog(null);
+              }}>Confirm</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Success/Error Alert Dialog */}
+      {alertDialog && (
+        <Dialog open={alertDialog.open} onOpenChange={(open) => !open && setAlertDialog(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className={alertDialog.type === 'error' ? 'text-red-600' : 'text-orange-600'}>
+                {alertDialog.title}
+              </DialogTitle>
+              <DialogDescription>{alertDialog.description}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="primary" onClick={() => setAlertDialog(null)}>OK</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

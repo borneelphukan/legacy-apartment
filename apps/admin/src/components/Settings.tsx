@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Badge } from '@legacy-apartment/ui';
-import Swal from 'sweetalert2';
+import { Button, Table, Badge, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@legacy-apartment/ui';
 import DeleteIcon from '@mui/icons-material/Delete';
 import api from '@/lib/api';
 
@@ -18,6 +17,20 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
   const [isPresident, setIsPresident] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+  } | null>(null);
+
+  const [alertDialog, setAlertDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    type: 'success' | 'error';
+    onClose?: () => void;
+  } | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('adminUser');
@@ -52,34 +65,40 @@ const Settings = () => {
   const handleDelete = async (id: number) => {
     const isSelf = id === currentUserId;
 
-    const result = await Swal.fire({
+    setConfirmDialog({
+      open: true,
       title: 'Delete user account?',
-      text: isSelf
+      description: isSelf
         ? "You are about to delete your own account. This action is irreversible and you will be logged out immediately."
         : "This action is irreversible and permanently removes the administrator's access to the society portal.",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#f97316',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes'
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await api.delete(`/users/${id}`);
-        Swal.fire('Deleted!', 'The user account has been successfully removed.', 'success').then(() => {
-          if (isSelf) {
-            localStorage.removeItem('adminToken');
-            localStorage.removeItem('adminUser');
-            window.location.href = '/login';
-          } else {
-            fetchUsers();
-          }
-        });
-      } catch (error) {
-        Swal.fire('Error', 'Failed to delete user account.', 'error');
+      onConfirm: async () => {
+        try {
+          await api.delete(`/users/${id}`);
+          setAlertDialog({
+            open: true,
+            title: 'Deleted!',
+            description: 'The user account has been successfully removed.',
+            type: 'success',
+            onClose: () => {
+              if (isSelf) {
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminUser');
+                window.location.href = '/login';
+              } else {
+                fetchUsers();
+              }
+            }
+          });
+        } catch (error) {
+          setAlertDialog({
+            open: true,
+            title: 'Error',
+            description: 'Failed to delete user account.',
+            type: 'error'
+          });
+        }
       }
-    }
+    });
   };
 
   if (!loading && !isPresident) {
@@ -148,6 +167,45 @@ const Settings = () => {
             />
         )}
       </div>
+
+      {/* Confirmation Dialog */}
+      {confirmDialog && (
+        <Dialog open={confirmDialog.open} onOpenChange={(open) => !open && setConfirmDialog(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>{confirmDialog.title}</DialogTitle>
+              <DialogDescription>{confirmDialog.description}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setConfirmDialog(null)}>Cancel</Button>
+              <Button variant="primary" onClick={() => {
+                confirmDialog.onConfirm();
+                setConfirmDialog(null);
+              }}>Confirm</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Success/Error Alert Dialog */}
+      {alertDialog && (
+        <Dialog open={alertDialog.open} onOpenChange={(open) => !open && setAlertDialog(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className={alertDialog.type === 'error' ? 'text-red-600' : 'text-orange-600'}>
+                {alertDialog.title}
+              </DialogTitle>
+              <DialogDescription>{alertDialog.description}</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="primary" onClick={() => {
+                alertDialog.onClose?.();
+                setAlertDialog(null);
+              }}>OK</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };

@@ -15,3 +15,5 @@ export * from "./components/dropdownMenu";
 export { Toggle } from "./components/toggle";
 export { Switch } from "./components/switch";
 export { Badge } from "./components/badge";
+export { Modal } from "./components/modal";
+export * from "./components/dialog";
