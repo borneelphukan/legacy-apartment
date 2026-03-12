@@ -62,13 +62,14 @@ const Modal = ({
             className="absolute inset-0"
             onClick={() => handleOpenChange(false)}
           />
-          <div className="relative flex flex-col w-full max-w-lg rounded-2xl border border-gray-400 bg-white shadow-2xl animate-in fade-in zoom-in-95 duration-200 overflow-hidden mx-4">
+          <div className="relative flex flex-col w-full max-w-lg rounded-2xl border-gray-400 p-[3px] bg-white/60 shadow-xl animate-in fade-in zoom-in-95 duration-200 mx-4">
+            <div className="flex flex-col w-full rounded-[14px] border border-gray-300 bg-white overflow-hidden">
             
             {/* Header */}
-            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-gray-50 shrink-0">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-400 bg-gray-50 shrink-0">
               <div className="flex flex-col gap-1 min-w-0 pr-4">
                 <h3 className="text-xl font-bold text-gray-900 truncate">{title}</h3>
-                {description && <p className="text-sm font-medium text-gray-500 break-words">{description}</p>}
+                {description && <p className="text-sm font-medium text-gray-100 break-words">{description}</p>}
               </div>
               {showCloseButton && (
                 <button
@@ -76,7 +77,7 @@ const Modal = ({
                   onClick={() => handleOpenChange(false)}
                   className="size-8 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0"
                 >
-                  <CloseIcon className="size-5" />
+                  <CloseIcon className="text-gray-200 size-5" />
                   <span className="sr-only">Close</span>
                 </button>
               )}
@@ -89,13 +90,14 @@ const Modal = ({
 
             {/* Footer */}
             {actions && actions.length > 0 && (
-              <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-200 shrink-0">
+              <div className="flex justify-end gap-3 px-6 py-4 bg-gray-50 border-t border-gray-400 shrink-0">
                 {actions.map((action, index) => 
                   React.cloneElement(action, { key: index })
                 )}
               </div>
             )}
             
+            </div>
           </div>
         </div>
       )}

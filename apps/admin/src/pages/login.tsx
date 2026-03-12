@@ -159,7 +159,7 @@ export default function Login() {
                           <KeyboardArrowDownIcon/>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-full min-w-[300px]">
-                          {['president', 'secretary', 'treasurer'].map((r) => (
+                          {['president', 'secretary', 'treasurer', 'advisor', 'technical_advisor', 'cultural_head', 'welfare_head', 'gym_head', 'gardening', 'catering'].map((r) => (
                             <DropdownMenuItem 
                               key={r} 
                               onClick={() => setRole(r)}

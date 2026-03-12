@@ -11,10 +11,11 @@ import CloseIcon from '@mui/icons-material/Close';
 import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import DescriptionIcon from '@mui/icons-material/Description';
+import CollectionsIcon from '@mui/icons-material/Collections';
 
 interface SidebarProps {
-  activeTab: 'dashboard' | 'announcements' | 'residents' | 'rules' | 'complaints' | 'finance' | 'committee' | 'settings' | 'documents' | 'none';
-  onTabChange?: (tab: 'dashboard' | 'announcements' | 'residents' | 'rules' | 'complaints' | 'finance' | 'committee' | 'settings' | 'documents') => void;
+  activeTab: 'dashboard' | 'announcements' | 'residents' | 'rules' | 'complaints' | 'finance' | 'committee' | 'settings' | 'documents' | 'gallery' | 'none';
+  onTabChange?: (tab: 'dashboard' | 'announcements' | 'residents' | 'rules' | 'complaints' | 'finance' | 'committee' | 'settings' | 'documents' | 'gallery') => void;
   isOpen?: boolean;
   onClose?: () => void;
 }
@@ -79,6 +80,11 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onClose }: SidebarProps) => {
       label: 'Documents', 
       icon: <DescriptionIcon className="size-5" />
     },
+    { 
+      id: 'gallery', 
+      label: 'Gallery', 
+      icon: <CollectionsIcon className="size-5" />
+    },
   ];
 
   const handleNavClick = (id: string) => {
@@ -103,7 +109,7 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onClose }: SidebarProps) => {
       
       <aside className={`w-64 bg-white border-r border-gray-500 flex flex-col fixed h-screen z-30 transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
         <div className="p-8 flex items-center justify-between">
-          <div className="cursor-pointer" onClick={() => router.push('/')}>
+          <div>
             <h2 className="text-xl font-black uppercase tracking-tighter text-gray-100">
               Legacy <span className="text-orange-500">Admin</span>
             </h2>

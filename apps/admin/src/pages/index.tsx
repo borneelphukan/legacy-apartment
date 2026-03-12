@@ -13,11 +13,12 @@ import Sidebar from '@/components/Sidebar';
 import api from '@/lib/api';
 import MenuIcon from '@mui/icons-material/Menu';
 import Documents from '@/components/Documents';
+import Gallery from '@/components/Gallery';
 
 
 const AdminDashboard = () => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'announcements' | 'residents' | 'rules' | 'complaints' | 'finance' | 'committee' | 'settings' | 'documents'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'announcements' | 'residents' | 'rules' | 'complaints' | 'finance' | 'committee' | 'settings' | 'documents' | 'gallery'>('dashboard');
   const [userRole, setUserRole] = useState('');
   const [stats, setStats] = useState({
     residents: 0,
@@ -168,6 +169,10 @@ const AdminDashboard = () => {
           ) : activeTab === 'documents' ? (
             <div className="max-w-7xl mx-auto">
               <Documents />
+            </div>
+          ) : activeTab === 'gallery' ? (
+            <div className="max-w-7xl mx-auto">
+              <Gallery />
             </div>
           ) : null}
         </main>

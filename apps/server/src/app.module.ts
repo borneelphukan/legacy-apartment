@@ -13,6 +13,7 @@ import { RuleModule } from './rules/rule.module';
 import { ComplaintModule } from './complaint/complaint.module';
 import { CommitteeModule } from './committee/committee.module';
 import { DocumentModule } from './document/document.module';
+import { GalleryModule } from './gallery/gallery.module';
 import { AuthGuard } from './auth/auth.guard';
 import { RolesGuard } from './auth/roles.guard';
 
@@ -34,6 +35,7 @@ import { RolesGuard } from './auth/roles.guard';
     ComplaintModule,
     CommitteeModule,
     DocumentModule,
+    GalleryModule,
   ],
   providers: [
     {

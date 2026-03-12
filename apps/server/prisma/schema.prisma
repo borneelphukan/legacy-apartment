@@ -141,3 +141,29 @@ model Document {
 
   @@map("document")
 }
+
+model GalleryEvent {
+  id        Int            @id @default(autoincrement())
+  name      String
+  date      DateTime
+  year      Int
+  photos    GalleryPhoto[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@map("gallery_event")
+}
+
+model GalleryPhoto {
+  id        Int          @id @default(autoincrement())
+  eventId   Int
+  src       String       @db.Text
+  alt       String?
+  className String?
+  event     GalleryEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@map("gallery_photo")
+}
+
