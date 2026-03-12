@@ -98,7 +98,7 @@ const Gallery = () => {
         <div className="absolute top-[40%] right-[10%] w-[700px] h-[700px] bg-purple-300/20 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
         <div className="absolute bottom-[20%] right-[0%] w-[500px] h-[500px] bg-sky-400/10 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
 
-        <Banner title="Our Gallery" subtitle="Gallery" bgClass="gallery-cover" theme="light" />
+        <Banner title="Gallery" subtitle="Legacy Moments" bgClass="gallery-cover" theme="light" />
         <Breadcrumb items={[{ label: "Events", href: "/" }, { label: "Gallery" }]} />
 
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-12">
@@ -217,7 +217,7 @@ const Gallery = () => {
                   <p className="text-xs font-black uppercase tracking-widest text-orange-400 mb-2">Memory Lane</p>
                   <h4 className="text-lg font-bold mb-3 leading-tight">Capturing Life together.</h4>
                   <p className="text-sm text-gray-300 leading-relaxed opacity-80">
-                    Our gallery is updated after every major event. If you have any photos to contribute, please contact the Committee Secretary.
+                    Our gallery is updated after every major event. If you have any photos to contribute, please contact the Cultural Secretary.
                   </p>
                 </div>
               </div>

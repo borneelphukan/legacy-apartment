@@ -213,7 +213,6 @@ const Home = () => {
             <div className="p-6 bg-white/80 backdrop-blur-md border border-white/20 rounded-2xl shadow-sm h-full flex flex-col">
               <h2 className="text-xl font-semibold mb-6 text-gray-800 border-b pb-2 border-gray-300 flex justify-between items-center">
                 <span>Latest Announcements</span>
-                <span className="bg-orange-100 text-orange-600 text-xs py-1 px-2 rounded-full">New</span>
               </h2>
               <div className="space-y-5 overflow-y-auto flex-grow pr-2">
                 {announcements.map((ann, idx) => (

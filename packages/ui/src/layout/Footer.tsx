@@ -46,14 +46,6 @@ const Footer = () => {
               <li className="py-1">
                 <Link
                   className="text-sm text-slate-400 hover:text-orange-500"
-                  href="/amenities"
-                >
-                  Amenities
-                </Link>
-              </li>
-              <li className="py-1">
-                <Link
-                  className="text-sm text-slate-400 hover:text-orange-500"
                   href="/rules"
                 >
                   Rules
@@ -95,14 +87,6 @@ const Footer = () => {
                   href="/gallery"
                 >
                   Gallery
-                </Link>
-              </li>
-              <li className="py-1">
-                <Link
-                  className="text-sm text-slate-400 hover:text-orange-500"
-                  href="/upcoming-events"
-                >
-                  Upcoming Events
                 </Link>
               </li>
               <li className="py-1">

@@ -31,7 +31,7 @@ const Navbar = () => {
     const path = pathname.toLowerCase();
     
     if (path === "/") setSelectedLink("Home");
-    else if (path.startsWith("/committee") || path.startsWith("/amenities") || path.startsWith("/rules")) setSelectedLink("Our Society");
+    else if (path.startsWith("/committee") || path.startsWith("/rules")) setSelectedLink("Our Society");
     else if (path.startsWith("/contributions") || path.startsWith("/help-desk") || path.startsWith("/vendors")) setSelectedLink("Services");
     else if (path.startsWith("/gallery") || path.startsWith("/upcoming-events")) setSelectedLink("Events");
     else if (path.startsWith("/contact")) setSelectedLink("Contact Us");
@@ -109,11 +109,6 @@ const Navbar = () => {
                 </Link>
               </li>
               <li className="py-2">
-                <Link className="text-black hover:text-orange-500" href="/amenities">
-                  Amenities
-                </Link>
-              </li>
-              <li className="py-2">
                 <Link className="text-black hover:text-orange-500" href="/rules">
                   Rules
                 </Link>
@@ -187,11 +182,6 @@ const Navbar = () => {
                   Gallery
                 </Link>
               </li>
-              <li className="py-2">
-                <Link className="text-black hover:text-orange-500" href="/upcoming-events">
-                  Upcoming Events
-                </Link>
-              </li>
             </ul>
           )}
         </div>
@@ -250,11 +240,6 @@ const Navbar = () => {
               <li>
                 <Link href="/committee" onClick={toggleMobileMenu} className="block w-full text-left py-3 px-10 text-gray-600 hover:text-orange-500 hover:bg-gray-100 transition-colors">
                   Committee
-                </Link>
-              </li>
-              <li>
-                <Link href="/amenities" onClick={toggleMobileMenu} className="block w-full text-left py-3 px-10 text-gray-600 hover:text-orange-500 hover:bg-gray-100 transition-colors">
-                  Amenities
                 </Link>
               </li>
               <li>
@@ -323,11 +308,6 @@ const Navbar = () => {
               <li>
                 <Link href="/gallery" onClick={toggleMobileMenu} className="block w-full text-left py-3 px-10 text-gray-600 hover:text-orange-500 hover:bg-gray-100 transition-colors">
                   Gallery
-                </Link>
-              </li>
-              <li>
-                <Link href="/upcoming-events" onClick={toggleMobileMenu} className="block w-full text-left py-3 px-10 text-gray-600 hover:text-orange-500 hover:bg-gray-100 transition-colors">
-                  Upcoming Events
                 </Link>
               </li>
             </ul>

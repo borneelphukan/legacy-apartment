@@ -17,3 +17,4 @@ export { Switch } from "./components/switch";
 export { Badge } from "./components/badge";
 export { Modal } from "./components/modal";
 export * from "./components/dialog";
+export { StatusLight } from "./components/statusLight";

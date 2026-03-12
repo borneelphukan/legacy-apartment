@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Input } from "./input";
 import Button from "./button";
 import LockIcon from '@mui/icons-material/Lock';
+import { StatusLight } from "./statusLight";
 
 export interface Resident {
   name: string;
@@ -260,12 +261,12 @@ const Table = ({
                         const mFee = (monthlyFee || "0").replace(/[^0-9]/g, "");
                         const numericValue = String(value).replace(/[^0-9]/g, "");
                         
-                        let bgClass = "bg-gray-300"; // Future/Blank
-                        if (status === 1 || (numericValue !== "0" && numericValue === mFee)) bgClass = "bg-green-500";
-                        else if (status === -1) bgClass = "bg-red-500";
+                        let finalStatus = status;
+                        if (numericValue !== "0" && numericValue === mFee) finalStatus = 1;
+
                         return (
-                          <td key={colIdx} className="py-3 px-4 md:px-2 text-center">
-                            <div className={`w-3 h-3 md:w-4 md:h-4 mx-auto rounded-full shadow-sm border ${bgClass}`}></div>
+                          <td key={colIdx} className="py-2 px-1 text-center">
+                            <StatusLight status={finalStatus} size="small" />
                           </td>
                         );
                       } else {
@@ -324,12 +325,16 @@ const Table = ({
               {type === "status" ? (
                 <>
                   <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full bg-green-200"></div>
+                      <StatusLight status={1} size="small" />
                       Paid
                   </div>
                   <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full bg-red-200"></div>
+                      <StatusLight status={-1} size="small" />
                       Unpaid
+                  </div>
+                  <div className="flex items-center gap-2">
+                      <StatusLight status={0} size="small" />
+                      Future
                   </div>
                 </>
               ) : (
