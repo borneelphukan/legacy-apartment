@@ -1,6 +1,5 @@
 [build]
-  base = "apps/frontend"
-  command = "pnpm run build"
+  command = "next build"
   publish = ".next"
 
 [[plugins]]
