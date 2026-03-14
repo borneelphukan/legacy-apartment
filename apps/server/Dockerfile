@@ -36,10 +36,12 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/server/node_modules ./apps/server/node_modules
 COPY --from=builder /app/apps/server/dist ./apps/server/dist
 COPY --from=builder /app/apps/server/package.json ./apps/server/package.json
+COPY --from=builder /app/apps/server/prisma ./apps/server/prisma
 
 ENV NODE_ENV=production
 ENV PORT=8000
 EXPOSE 8000
 
 WORKDIR /app/apps/server
-CMD ["node", "dist/main"]
+# CMD to run migrations and then start the server
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
