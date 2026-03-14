@@ -1,5 +1,5 @@
 [build]
-  command = "PRISMA_SCHEMA=$(find ../.. -name schema.prisma | grep server | head -n 1) && npx prisma generate --schema=$PRISMA_SCHEMA && next build"
+  command = "PRISMA_SCHEMA=$(find ../.. -name schema.prisma | grep server | head -n 1) && npx prisma generate --schema=$PRISMA_SCHEMA && pnpm run build"
   publish = ".next"
 
 [[plugins]]
