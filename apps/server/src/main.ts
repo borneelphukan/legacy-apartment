@@ -9,6 +9,6 @@ async function bootstrap() {
   app.enableCors();
   app.use(express.json({ limit: '50mb' }));
   app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-  await app.listen(process.env.PORT || 4000);
+  await app.listen(process.env.PORT || 8000, '0.0.0.0');
 }
 bootstrap();

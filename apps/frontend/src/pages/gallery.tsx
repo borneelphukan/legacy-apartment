@@ -272,7 +272,7 @@ const Gallery = () => {
         </div>
       )}
 
-      <style jsx global>{`
+      <style>{`
         @keyframes zoomIn {
           from {
             opacity: 0;
