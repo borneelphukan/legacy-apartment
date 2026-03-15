@@ -18,8 +18,8 @@ type InputProps = React.ComponentPropsWithoutRef<"input"> & {
   id: string;
   label: string;
   icon?: {
-    left?: React.ComponentType<{ className?: string }>;
-    right?: React.ComponentType<{ className?: string }>;
+    left?: React.ReactNode;
+    right?: React.ReactNode;
   };
   dropdown?: {
     left?: DropdownConfig;
@@ -88,8 +88,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
     const isPasswordField = type === "password";
 
-    const LeftIcon = icon?.left;
-    const RightIcon = icon?.right;
+
 
     return (
       <div className={`flex flex-col gap-1.5 group/input ${disabled ? "cursor-not-allowed opacity-50" : ""}`}>
@@ -140,10 +139,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               </DropdownMenu>
             )}
 
-            {LeftIcon && (
-              <LeftIcon
-                className="text-gray-100 group-focus-within/input:text-gray-100 shrink-0"
-              />
+            {icon?.left && (
+              <div className="text-gray-100 group-focus-within/input:text-gray-100 shrink-0 flex items-center justify-center">
+                {icon.left}
+              </div>
             )}
 
             <input
@@ -172,10 +171,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 )}
               </button>
             )}
-            {RightIcon && !isPasswordField && (
-              <RightIcon
-                className="text-gray-100 group-focus-within/input:text-gray-100 shrink-0"
-              />
+            {icon?.right && !isPasswordField && (
+              <div className="text-gray-100 group-focus-within/input:text-gray-100 shrink-0 flex items-center justify-center">
+                {icon.right}
+              </div>
             )}
             {inputButton && (
               <Button

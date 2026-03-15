@@ -168,7 +168,7 @@ const Table = ({
                   placeholder={searchPlaceholder}
                   value={search || ""}
                   onChange={(e) => onSearchChange(e.target.value)}
-                  icon={{ left: <Icon type="search" className="text-[20px]" /> as any }}
+                  icon={{ left: <Icon type="search" className="text-[20px]" /> }}
                 />
               </div>
             </div>
