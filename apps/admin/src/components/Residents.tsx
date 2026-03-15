@@ -110,11 +110,11 @@ const Residents = () => {
         ? await api.patch(`/residents/${editingId}`, body)
         : await api.post('/residents', body);
 
+      await fetchResidents();
       setIsFormOpen(false);
       setEditingId(null);
       setAvatarFiles([]);
       setFormData({ name: '', residence: '', phone_no: '', monthlyRate: 1000, avatar: '' });
-      fetchResidents();
     } catch (error: any) {
       setAlertDialog({
         open: true,

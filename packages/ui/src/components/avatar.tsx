@@ -38,7 +38,7 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImageProps>(
     const { imageLoadingStatus, onImageLoadingStatusChange } =
       React.useContext(AvatarContext);
 
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
       if (src) {
         onImageLoadingStatusChange("loading");
       } else {

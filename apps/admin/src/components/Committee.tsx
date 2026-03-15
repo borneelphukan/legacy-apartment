@@ -111,11 +111,11 @@ const Committee = () => {
         ? await api.patch(`/committee/${editingId}`, formData)
         : await api.post('/committee', formData);
 
+      await fetchMembers();
       setIsFormOpen(false);
       setEditingId(null);
       setAvatarFiles([]);
       setFormData({ name: '', residence: '', phone_no: '', avatar: '', role: roles[0] });
-      fetchMembers();
     } catch (error: any) {
       setAlertDialog({
         open: true,
