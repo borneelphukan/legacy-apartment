@@ -18,6 +18,10 @@ interface Resident {
 
 const Residents = () => {
   const [residents, setResidents] = useState<Resident[]>([]);
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [sortColumn, setSortColumn] = useState('');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | ''>('');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
@@ -56,12 +60,25 @@ const Residents = () => {
   }, []);
 
   useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  useEffect(() => {
     fetchResidents();
-  }, []);
+  }, [debouncedSearch, sortColumn, sortOrder]);
 
   const fetchResidents = async () => {
     try {
-      const response = await api.get('/residents');
+      const backendSortBy = sortColumn === 'resident' ? 'name' : sortColumn;
+      const params = new URLSearchParams();
+      if (debouncedSearch) params.append('search', debouncedSearch);
+      if (backendSortBy) params.append('sortBy', backendSortBy);
+      if (sortOrder) params.append('sortOrder', sortOrder);
+
+      const response = await api.get(`/residents?${params.toString()}`);
       setResidents(response.data);
     } catch (error) {
       console.error('Error fetching residents:', error);
@@ -273,10 +290,28 @@ const Residents = () => {
         ) : (
             <Table 
               data={editingId && isFormOpen ? residents.filter(r => r.id !== editingId) : residents}
+              search={search}
+              onSearchChange={setSearch}
+              searchPlaceholder="Search residents..."
               type="general"
               theme="orange"
               columns={['resident', 'residence', 'phone_no', 'monthlyRate', 'actions']}
               headers={['Resident', 'Apartment', 'Phone', 'Monthly Rate', 'Actions']}
+              sortColumn={sortColumn}
+              sortOrder={sortOrder}
+              onSortChange={(col) => {
+                if (col === 'actions') return;
+                if (sortColumn === col) {
+                   if (sortOrder === 'asc') setSortOrder('desc');
+                   else if (sortOrder === 'desc') {
+                     setSortOrder('');
+                     setSortColumn('');
+                   }
+                } else {
+                   setSortColumn(col);
+                   setSortOrder('asc');
+                }
+              }}
               minWidthClass="min-w-[600px]"
               showMonthlyFeeLegend={false}
               showYearlyFeeLegend={false}

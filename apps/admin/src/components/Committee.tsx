@@ -31,6 +31,10 @@ const roles = [
 
 const Committee = () => {
   const [members, setMembers] = useState<CommitteeMember[]>([]);
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [sortColumn, setSortColumn] = useState('');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | ''>('');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
@@ -66,11 +70,22 @@ const Committee = () => {
       } catch {}
     }
     fetchMembers();
-  }, []);
+  }, [debouncedSearch, sortColumn, sortOrder]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedSearch(search), 500);
+    return () => clearTimeout(handler);
+  }, [search]);
 
   const fetchMembers = async () => {
     try {
-      const response = await api.get('/committee');
+      const backendSortBy = sortColumn === 'member' ? 'name' : sortColumn;
+      const params = new URLSearchParams();
+      if (debouncedSearch) params.append('search', debouncedSearch);
+      if (backendSortBy) params.append('sortBy', backendSortBy);
+      if (sortOrder) params.append('sortOrder', sortOrder);
+
+      const response = await api.get(`/committee?${params.toString()}`);
       setMembers(response.data);
     } catch (error) {
       console.error('Error fetching committee members:', error);
@@ -284,10 +299,28 @@ const Committee = () => {
         ) : (
             <Table 
               data={editingId && isFormOpen ? members.filter(m => m.id !== editingId) : members}
+              search={search}
+              onSearchChange={setSearch}
+              searchPlaceholder="Search committee..."
               type="general"
               theme="orange"
               columns={['member', 'role', 'residence', 'phone_no', 'actions']}
               headers={['Member', 'Role', 'Apartment', 'Phone', 'Actions']}
+              sortColumn={sortColumn}
+              sortOrder={sortOrder}
+              onSortChange={(col) => {
+                if (col === 'actions') return;
+                if (sortColumn === col) {
+                   if (sortOrder === 'asc') setSortOrder('desc');
+                   else if (sortOrder === 'desc') {
+                     setSortOrder('');
+                     setSortColumn('');
+                   }
+                } else {
+                   setSortColumn(col);
+                   setSortOrder('asc');
+                }
+              }}
               minWidthClass="min-w-[800px]"
               showMonthlyFeeLegend={false}
               showYearlyFeeLegend={false}

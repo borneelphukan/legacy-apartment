@@ -3,6 +3,9 @@ import { Input } from "./input";
 import Button from "./button";
 import LockIcon from '@mui/icons-material/Lock';
 import { StatusLight } from "./statusLight";
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import SearchIcon from '@mui/icons-material/Search';
 
 export interface Resident {
   name: string;
@@ -45,6 +48,12 @@ export interface Props {
   tight?: boolean;
   getRowClass?: (row: any) => string;
   getCellClass?: (row: any, columnIndex: number) => string;
+  sortColumn?: string;
+  sortOrder?: "asc" | "desc" | "";
+  onSortChange?: (column: string) => void;
+  search?: string;
+  onSearchChange?: (value: string) => void;
+  searchPlaceholder?: string;
 }
 
 const Table = ({
@@ -78,6 +87,12 @@ const Table = ({
   tight = false,
   getRowClass,
   getCellClass,
+  sortColumn,
+  sortOrder,
+  onSortChange,
+  search,
+  onSearchChange,
+  searchPlaceholder = "Search...",
 }: Props) => {
   const [isUnlocked, setIsUnlocked] = useState(!enableLock);
   const [password, setPassword] = useState("");
@@ -144,6 +159,21 @@ const Table = ({
         </div>
       ) : (
         <>
+          {onSearchChange && (
+            <div className="p-2 border-b border-gray-400 bg-white w-full">
+              <div className="w-full md:w-1/3">
+                <Input 
+                  id="table-search"
+                  label="Search"
+                  hideLabel
+                  placeholder={searchPlaceholder}
+                  value={search || ""}
+                  onChange={(e) => onSearchChange(e.target.value)}
+                  icon={{ left: SearchIcon }}
+                />
+              </div>
+            </div>
+          )}
           <div className="overflow-x-auto max-h-[800px] custom-scrollbar">
             <table className={`w-full text-left border-collapse ${minWidthClass}`}>
               <thead className="top-0 z-10 bg-slate-50 border-b border-gray-400">
@@ -171,16 +201,30 @@ const Table = ({
                     const headerHighlight = isSelected 
                       ? (theme === 'orange' ? 'bg-orange-100/50 text-orange-600' : 'bg-blue-100/50 text-blue-600')
                       : 'bg-slate-50 text-gray-100';
+                    
+                    const columnKey = columns[idx];
+                    const isSortable = !!onSortChange && type === 'general';
+                    const isSorted = sortColumn === columnKey;
 
                     return (
                       <th 
                         key={idx} 
-                        className={`${tight ? 'py-2 px-2' : 'py-4 px-4'} text-xs uppercase tracking-tighter font-black transition-colors ${headerHighlight} ${
+                        className={`p-3 text-xs uppercase tracking-tighter font-black transition-colors ${headerHighlight} ${
                           type === 'general' ? 'text-left' : 'text-center'
-                        } ${onHeaderClick ? "cursor-pointer hover:bg-gray-400" : ""}`}
-                        onClick={() => onHeaderClick?.(idx)}
+                        } ${(onHeaderClick || isSortable) ? "cursor-pointer hover:bg-gray-500" : ""}`}
+                        onClick={() => {
+                           if (isSortable) onSortChange(columnKey);
+                           else onHeaderClick?.(idx);
+                        }}
                       >
-                        {col}
+                        <div className="flex items-center justify-between w-full">
+                          {col}
+                          {isSorted && sortOrder !== "" && (
+                            <span className="flex items-center transition-colors text-orange-500">
+                              {sortOrder === 'desc' ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
+                            </span>
+                          )}
+                        </div>
                       </th>
                     );
                   })}

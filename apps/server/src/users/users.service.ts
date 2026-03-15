@@ -75,8 +75,20 @@ export class UsersService {
     };
   }
 
-  async findAll() {
+  async findAll(search?: string, sortBy?: string, sortOrder?: 'asc' | 'desc') {
+    const where = search ? {
+      OR: [
+        { firstName: { contains: search, mode: 'insensitive' as const } },
+        { lastName: { contains: search, mode: 'insensitive' as const } },
+        { email: { contains: search, mode: 'insensitive' as const } },
+        { role: { contains: search, mode: 'insensitive' as const } },
+      ],
+    } : {};
+
+    const orderBy: any = sortBy ? { [sortBy]: sortOrder || 'asc' } : { createdAt: 'desc' };
+
     return this.prisma.user.findMany({
+      where,
       select: {
         id: true,
         firstName: true,
@@ -85,7 +97,7 @@ export class UsersService {
         role: true,
         createdAt: true,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy,
     });
   }
 

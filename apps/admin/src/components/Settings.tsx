@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, Table, Badge, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@legacy-apartment/ui';
+import { Input, Button, Table, Badge, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@legacy-apartment/ui';
 import api from '@/lib/api';
 
 interface User {
@@ -13,6 +13,10 @@ interface User {
 
 const Settings = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [sortColumn, setSortColumn] = useState('');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | ''>('');
   const [loading, setLoading] = useState(true);
   const [isPresident, setIsPresident] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
@@ -45,14 +49,25 @@ const Settings = () => {
   }, []);
 
   useEffect(() => {
+    const handler = setTimeout(() => setDebouncedSearch(search), 500);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  useEffect(() => {
     if (isPresident) {
       fetchUsers();
     }
-  }, [isPresident]);
+  }, [isPresident, debouncedSearch, sortColumn, sortOrder]);
 
   const fetchUsers = async () => {
     try {
-      const response = await api.get('/users');
+      const backendSortBy = sortColumn === 'name' ? 'firstName' : sortColumn === 'joined' ? 'createdAt' : sortColumn;
+      const params = new URLSearchParams();
+      if (debouncedSearch) params.append('search', debouncedSearch);
+      if (backendSortBy) params.append('sortBy', backendSortBy);
+      if (sortOrder) params.append('sortOrder', sortOrder);
+
+      const response = await api.get(`/users?${params.toString()}`);
       setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -132,10 +147,28 @@ const Settings = () => {
         ) : (
             <Table 
               data={users}
+              search={search}
+              onSearchChange={setSearch}
+              searchPlaceholder="Search accounts..."
               type="general"
               theme="orange"
               columns={['name', 'email', 'role', 'joined', 'actions']}
               headers={['Name', 'Email', 'Role', 'Joined Date', 'Actions']}
+              sortColumn={sortColumn}
+              sortOrder={sortOrder}
+              onSortChange={(col) => {
+                if (col === 'actions') return;
+                if (sortColumn === col) {
+                   if (sortOrder === 'asc') setSortOrder('desc');
+                   else if (sortOrder === 'desc') {
+                     setSortOrder('');
+                     setSortColumn('');
+                   }
+                } else {
+                   setSortColumn(col);
+                   setSortOrder('asc');
+                }
+              }}
               minWidthClass="min-w-[800px]"
               tight={true}
               showMonthlyFeeLegend={false}

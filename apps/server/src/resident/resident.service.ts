@@ -11,8 +11,20 @@ export class ResidentService {
     });
   }
 
-  async findAll() {
+  async findAll(search?: string, sortBy?: string, sortOrder?: 'asc' | 'desc') {
+    const where = search ? {
+      OR: [
+        { name: { contains: search, mode: 'insensitive' as const } },
+        { residence: { contains: search, mode: 'insensitive' as const } },
+        { phone_no: { contains: search, mode: 'insensitive' as const } },
+      ],
+    } : {};
+
+    const orderBy: any = sortBy ? { [sortBy]: sortOrder || 'asc' } : { name: 'asc' };
+
     return this.prisma.resident.findMany({
+      where,
+      orderBy,
       select: {
         id: true,
         avatar: true,
@@ -35,7 +47,6 @@ export class ResidentService {
           }
         },
       },
-      orderBy: { name: 'asc' },
     });
   }
 

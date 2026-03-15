@@ -1,4 +1,4 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, Get, Delete, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus, Get, Delete, Param, ParseIntPipe, UseGuards, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Public } from '../auth/public.decorator';
 import { RolesGuard } from '../auth/roles.guard';
@@ -24,8 +24,12 @@ export class UsersController {
   @Get()
   @Roles('president')
   @UseGuards(RolesGuard)
-  findAll() {
-    return this.usersService.findAll();
+  findAll(
+    @Query('search') search?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
+  ) {
+    return this.usersService.findAll(search, sortBy, sortOrder);
   }
 
   @Delete(':id')

@@ -11,9 +11,21 @@ export class CommitteeService {
     });
   }
 
-  async findAll() {
+  async findAll(search?: string, sortBy?: string, sortOrder?: 'asc' | 'desc') {
+    const where = search ? {
+      OR: [
+        { name: { contains: search, mode: 'insensitive' as const } },
+        { residence: { contains: search, mode: 'insensitive' as const } },
+        { phone_no: { contains: search, mode: 'insensitive' as const } },
+        { role: { contains: search, mode: 'insensitive' as const } },
+      ],
+    } : {};
+
+    const orderBy: any = sortBy ? { [sortBy]: sortOrder || 'asc' } : { createdAt: 'desc' };
+
     return this.prisma.committeeMember.findMany({
-      orderBy: { createdAt: 'desc' },
+      where,
+      orderBy,
     });
   }
 
