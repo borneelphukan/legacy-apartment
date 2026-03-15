@@ -76,6 +76,7 @@ const MaintenancePay = () => {
   const [securityStartIdx, setSecurityStartIdx] = useState<number>(Math.max(0, securityYearsAll.length - 4));
   const [residents, setResidents] = useState<any[]>([]);
   const [fees, setFees] = useState({ monthlyFee: 1000, yearlyFee: 5000 });
+  const [globalPassword, setGlobalPassword] = useState("");
 
   React.useEffect(() => {
     fetchSettings();
@@ -99,6 +100,9 @@ const MaintenancePay = () => {
           monthlyFee: data.monthlyFee,
           yearlyFee: data.yearlyFee,
         });
+        if (data.frontendPassword) {
+          setGlobalPassword(data.frontendPassword);
+        }
       }
     } catch (error) {
       console.error('Error fetching settings:', error);
@@ -186,6 +190,7 @@ const MaintenancePay = () => {
               minWidthClass="min-w-[1000px]"
               enableLock
               storageKey="contributions_monthly_lock"
+              expectedPassword={globalPassword}
             />
 
             {/* Annual security fee section */}
@@ -252,6 +257,7 @@ const MaintenancePay = () => {
               className="mb-20"
               enableLock
               storageKey="contributions_yearly_lock"
+              expectedPassword={globalPassword}
             />
 
           </div>

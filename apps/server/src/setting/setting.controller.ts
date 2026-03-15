@@ -17,7 +17,7 @@ export class SettingController {
   @Roles('president')
   @UseGuards(RolesGuard)
   @Post()
-  updateSettings(@Body() data: { year?: number; monthlyFee?: number; yearlyFee?: number }) {
+  updateSettings(@Body() data: { year?: number; monthlyFee?: number; yearlyFee?: number; frontendPassword?: string }) {
     return this.settingService.updateSettings(data);
   }
 }

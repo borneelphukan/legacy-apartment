@@ -15,6 +15,7 @@ export class SettingService implements OnModuleInit {
           year: currentYear,
           monthlyFee: 1000,
           yearlyFee: 5000,
+          frontendPassword: "",
         },
       });
     }
@@ -31,13 +32,14 @@ export class SettingService implements OnModuleInit {
         year: targetYear,
         monthlyFee: 1000,
         yearlyFee: 5000,
+        frontendPassword: "",
       };
     }
 
     return setting;
   }
 
-  async updateSettings(data: { year?: number; monthlyFee?: number; yearlyFee?: number }) {
+  async updateSettings(data: { year?: number; monthlyFee?: number; yearlyFee?: number; frontendPassword?: string }) {
     const targetYear = data.year || new Date().getFullYear();
     const existing = await this.prisma.setting.findUnique({
       where: { year: targetYear },
@@ -49,6 +51,7 @@ export class SettingService implements OnModuleInit {
           year: targetYear,
           monthlyFee: data.monthlyFee || 1000,
           yearlyFee: data.yearlyFee || 5000,
+          frontendPassword: data.frontendPassword || "",
         },
       });
     }
@@ -58,6 +61,7 @@ export class SettingService implements OnModuleInit {
       data: {
         monthlyFee: data.monthlyFee !== undefined ? data.monthlyFee : undefined,
         yearlyFee: data.yearlyFee !== undefined ? data.yearlyFee : undefined,
+        frontendPassword: data.frontendPassword !== undefined ? data.frontendPassword : undefined,
       },
     });
   }

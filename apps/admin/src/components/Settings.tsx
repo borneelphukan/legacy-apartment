@@ -20,6 +20,9 @@ const Settings = () => {
   const [loading, setLoading] = useState(true);
   const [isPresident, setIsPresident] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [globalPassword, setGlobalPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [savingPassword, setSavingPassword] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     title: string;
@@ -56,8 +59,45 @@ const Settings = () => {
   useEffect(() => {
     if (isPresident) {
       fetchUsers();
+      fetchGlobalPassword();
     }
   }, [isPresident, debouncedSearch, sortColumn, sortOrder]);
+
+  const fetchGlobalPassword = async () => {
+    try {
+      const response = await api.get('/setting');
+      if (response.data && response.data.frontendPassword) {
+        setCurrentPassword(response.data.frontendPassword);
+        setGlobalPassword('');
+      }
+    } catch (error) {
+      console.error('Error fetching global password:', error);
+    }
+  };
+
+  const updateGlobalPassword = async () => {
+    setSavingPassword(true);
+    try {
+      await api.post('/setting', { frontendPassword: globalPassword });
+      setCurrentPassword(globalPassword);
+      setGlobalPassword('');
+      setAlertDialog({
+        open: true,
+        title: 'Success',
+        description: 'Frontend access password has been updated globally.',
+        type: 'success'
+      });
+    } catch (error) {
+      setAlertDialog({
+        open: true,
+        title: 'Error',
+        description: 'Failed to update frontend access password.',
+        type: 'error'
+      });
+    } finally {
+      setSavingPassword(false);
+    }
+  };
 
   const fetchUsers = async () => {
     try {
@@ -131,11 +171,47 @@ const Settings = () => {
           Account Management
         </h1>
         <p className="mt-2 text-lg text-gray-100/80 font-medium">
-          Review existing administrative users and securely remove legacy accounts.
+          Review existing administrative users and update global settings.
         </p>
       </div>
 
+      <div className="mb-12">
+        <h2 className="text-xl font-bold text-gray-900 mb-6">Global Security</h2>
+        <div className="bg-white rounded-xl border border-gray-400 p-6 max-w-2xl shadow-sm">
+          <h3 className="font-bold text-gray-900 mb-2">Frontend Access Password</h3>
+          <p className="text-sm mb-4">
+            This password is required by residents to access sensitive frontend pages such as financial records or submitting desk complaints.
+          </p>
+          {currentPassword && (
+            <div className="mb-4 text-sm font-medium text-gray-200 bg-gray-500 p-3 rounded-lg border border-gray-400">
+               Current Password: <span className="text-orange-600 font-bold ml-1">{currentPassword}</span>
+            </div>
+          )}
+          <div className="flex gap-4 items-end">
+            <div className="flex-1">
+              <Input
+                id="global-password"
+                label="Password"
+                hideLabel
+                type="password"
+                value={globalPassword}
+                onChange={(e) => setGlobalPassword(e.target.value)}
+                placeholder="Enter new access password"
+              />
+            </div>
+            <Button 
+                variant="primary" 
+                onClick={updateGlobalPassword}
+                disabled={savingPassword}
+            >
+                {savingPassword ? "Saving..." : "Update Password"}
+            </Button>
+          </div>
+        </div>
+      </div>
+
       <div className="mb-20">
+        <h2 className="text-xl font-bold text-gray-900 mb-6">Administrators</h2>
         {loading ? (
             <div className="bg-white rounded-xl border border-gray-400 p-20 text-center text-gray-100 italic">
               Loading users...

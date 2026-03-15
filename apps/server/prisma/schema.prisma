@@ -83,11 +83,12 @@ model SecurityPayment {
 }
 
 model Setting {
-  id         Int      @id @default(autoincrement())
-  monthlyFee Float    @default(1000)
-  yearlyFee  Float    @default(5000)
-  updatedAt  DateTime @updatedAt
-  year       Int      @unique
+  id               Int      @id @default(autoincrement())
+  monthlyFee       Float    @default(1000)
+  yearlyFee        Float    @default(5000)
+  frontendPassword String   @default("")
+  updatedAt        DateTime @updatedAt
+  year             Int      @unique
 
   @@map("setting")
 }

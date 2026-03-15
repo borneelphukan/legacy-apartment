@@ -41,6 +41,7 @@ export interface Props {
   showYearlyFeeLegend?: boolean;
   showMonthlyRate?: boolean;
   storageKey?: string;
+  expectedPassword?: string;
   readOnly?: boolean;
   onRowClick?: (row: any) => void;
   onHeaderClick?: (columnIndex: number) => void;
@@ -80,6 +81,7 @@ const Table = ({
   showYearlyFeeLegend = true,
   showMonthlyRate = true,
   storageKey,
+  expectedPassword = "",
   readOnly = false,
   onRowClick,
   onHeaderClick,
@@ -116,7 +118,7 @@ const Table = ({
 
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "legacy6mile") {
+    if (password === expectedPassword) {
       setIsUnlocked(true);
       if (storageKey) {
         localStorage.setItem(storageKey, "true");
