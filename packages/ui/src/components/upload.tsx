@@ -5,9 +5,7 @@ import {
   type FileRejection,
 } from "react-dropzone";
 import Button from "./button";
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import DescriptionIcon from '@mui/icons-material/Description';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { Icon } from './icon';
 
 interface UploadProps extends Omit<DropzoneOptions, "onDrop"> {
   label?: string;
@@ -103,9 +101,7 @@ const Upload = React.forwardRef<HTMLDivElement, UploadProps>(
           `.trim()}
         >
           <input {...getInputProps()} />
-          <CloudUploadIcon 
-            className={`text-5xl transition-colors ${isDragActive || !error ? "text-orange-500" : "text-red-400"}`} 
-          />
+          <Icon type="cloud_upload" className={`text-[48px] transition-colors ${isDragActive || !error ? "text-orange-500" : "text-red-400"}`} />
           <div className="text-gray-100">
             <span className="font-semibold text-orange-500 text-lg">Select File</span>
             <span className="mx-1 text-gray-200">or Drag and Drop</span>
@@ -137,7 +133,7 @@ const Upload = React.forwardRef<HTMLDivElement, UploadProps>(
               >
                 <div className="flex items-center gap-3 overflow-hidden">
                   <div className="bg-orange-500/10 text-orange-500 flex size-10 shrink-0 items-center justify-center rounded-lg">
-                    <DescriptionIcon />
+                    <Icon type="description" className="text-[20px]" />
                   </div>
                   <div className="flex min-w-0 flex-col">
                     <span className="truncate text-sm font-medium text-gray-100">
@@ -156,7 +152,7 @@ const Upload = React.forwardRef<HTMLDivElement, UploadProps>(
                     e.stopPropagation();
                     removeFile(index);
                   }}
-                  icon={{ left: <DeleteIcon className="size-5 text-gray-100 hover:text-red-400" /> }}
+                  icon={{ left: <Icon type="delete" className="text-[20px] text-gray-100 hover:text-red-400" /> }}
                 />
               </div>
             ))}

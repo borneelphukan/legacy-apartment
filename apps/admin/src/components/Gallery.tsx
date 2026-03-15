@@ -1,10 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, Input, Upload, Modal, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@legacy-apartment/ui';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
-import DescriptionIcon from '@mui/icons-material/Description';
-import CloseIcon from '@mui/icons-material/Close';
-import CollectionsIcon from '@mui/icons-material/Collections';
+import { Button, Input, Upload, Modal, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon } from '@legacy-apartment/ui';
 import api from '@/lib/api';
 
 interface GalleryPhoto {
@@ -195,7 +190,7 @@ const Gallery = () => {
         {canManage && (
           <Button 
             variant="primary"
-            icon={{ left: <AddIcon className="size-5" /> }}
+            icon={{ left: <Icon type="add" className="text-[20px]" /> }}
             onClick={() => setIsEventFormOpen(true)}
           >
             Create Event
@@ -207,7 +202,7 @@ const Gallery = () => {
         {/* Events Sidebar */}
         <div className="lg:col-span-1 space-y-4">
           <h2 className="text-sm font-black text-gray-100 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <CollectionsIcon className="size-4 text-orange-500" />
+            <Icon type="collections_bookmark" className="text-[16px] text-orange-500" />
             Events List
           </h2>
           {loading ? (
@@ -237,7 +232,7 @@ const Gallery = () => {
                         selectedEventId === event.id ? 'hover:bg-white/20 text-white' : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
                       }`}
                     >
-                      <CloseIcon className="size-4" />
+                      <Icon type="close" className="text-[16px]" />
                     </button>
                   )}
                 </div>
@@ -250,7 +245,7 @@ const Gallery = () => {
         <div className="lg:col-span-3">
           {!selectedEventId ? (
             <div className="h-full flex flex-col items-center justify-center py-24 bg-white rounded-xl">
-              <CollectionsIcon className="size-16 text-gray-300 mb-4" />
+              <Icon type="collections_bookmark" className="text-[64px] text-gray-300 mb-4" />
               <p>Select an event from the list to manage photos.</p>
             </div>
           ) : (
@@ -264,7 +259,7 @@ const Gallery = () => {
                   <Button 
                     variant="outline"
                     size="sm"
-                    icon={{ left: <AddIcon className="size-4" /> }}
+                    icon={{ left: <Icon type="add" className="text-[16px]" /> }}
                     onClick={() => setIsPhotoFormOpen(true)}
                   >
                     Add Photo
@@ -274,7 +269,7 @@ const Gallery = () => {
 
               {selectedEvent?.photos.length === 0 ? (
                 <div className="py-20 bg-white rounded-3xl border border-gray-400 text-center">
-                  <DescriptionIcon className="size-16 text-gray-300 mx-auto mb-4" />
+                  <Icon type="description" className="text-[64px] text-gray-300 mx-auto mb-4" />
                   <p>No photos added to this event yet.</p>
                 </div>
               ) : (
@@ -292,7 +287,7 @@ const Gallery = () => {
                             onClick={() => handleDeletePhoto(photo.id)}
                             className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors shadow-lg"
                           >
-                            <DeleteIcon className="size-5" />
+                            <Icon type="delete" className="text-[20px]" />
                           </button>
                         )}
                       </div>

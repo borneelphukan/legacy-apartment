@@ -19,3 +19,4 @@ export { Modal } from "./components/modal";
 export * from "./components/dialog";
 export { StatusLight } from "./components/statusLight";
 export * from "./components/avatar";
+export { Icon } from "./components/icon";

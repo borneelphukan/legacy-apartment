@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button, TextArea, Input, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@legacy-apartment/ui';
+import { Button, TextArea, Input, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, Icon } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import AddIcon from '@mui/icons-material/Add';
 import api from '@/lib/api';
 
 interface Rule {
@@ -140,7 +136,7 @@ const Rules = () => {
         {isPresident && (
           <Button 
               variant="primary"
-              icon={{ left: <AddIcon className="size-5" /> }}
+              icon={{ left: <Icon type="add" className="text-[20px]" /> }}
               onClick={() => {
                   setEditingId(null);
                   setFormData({ category: categories[0], rule: '' });
@@ -165,7 +161,7 @@ const Rules = () => {
                     className="w-full p-3 border border-gray-300 rounded-md bg-white flex items-center justify-between text-left focus:outline-none focus:border-orange-500"
                   >
                     <span>{formData.category}</span>
-                    <KeyboardArrowDownIcon className="text-gray-400 size-5" />
+                    <Icon type="keyboard_arrow_down" className="text-[20px] text-gray-400" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-[calc(100vw-3rem)] md:w-[440px]">
@@ -245,13 +241,13 @@ const Rules = () => {
                               variant="outline"
                               size="icon"
                               onClick={() => handleEdit(rule)}
-                              icon={{ left: <EditIcon className="size-5" /> }}
+                              icon={{ left: <Icon type="edit" className="text-[20px]" /> }}
                             />
                             <Button 
                               variant="destructive"
                               size="icon"
                               onClick={() => handleDelete(rule.id)}
-                              icon={{ left: <DeleteIcon className="size-5" /> }}
+                              icon={{ left: <Icon type="delete" className="text-[20px]" /> }}
                             />
                           </div>
                         )}

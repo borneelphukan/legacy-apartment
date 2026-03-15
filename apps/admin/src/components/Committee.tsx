@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Upload, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, Table, Badge, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Avatar, AvatarImage, AvatarFallback } from '@legacy-apartment/ui';
-import PersonIcon from '@mui/icons-material/Person';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
+import { Button, Input, Upload, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, Table, Badge, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Avatar, AvatarImage, AvatarFallback, Icon } from '@legacy-apartment/ui';
 import api from '@/lib/api';
 
 interface CommitteeMember {
@@ -178,7 +174,7 @@ const Committee = () => {
         {isPresident && (
           <Button 
             variant="primary"
-            icon={{ left: <AddIcon className="size-5" /> }}
+            icon={{ left: <Icon type="add" className="text-[20px]" /> }}
             onClick={() => {
                 setEditingId(null);
                 setFormData({ name: '', residence: '', phone_no: '', avatar: '', role: roles[0] });
@@ -210,7 +206,7 @@ const Committee = () => {
                   <DropdownMenuTrigger asChild>
                     <button type="button" className="w-full py-2 px-3 border border-gray-400 rounded-lg bg-white flex items-center justify-between text-left focus:outline-none focus:ring-2 focus:ring-orange-500">
                       <span className="text-sm text-gray-900">{formData.role}</span>
-                      <KeyboardArrowDownIcon className="text-gray-400 size-5" />
+                      <Icon type="keyboard_arrow_down" className="text-gray-400 text-[20px]" />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-[calc(100vw-3rem)] md:w-[440px]">
@@ -259,7 +255,7 @@ const Committee = () => {
                         className="absolute -top-3 -right-3 bg-red-200 text-white rounded-full hover:bg-red-100 transition-colors border-1 border-white"
                         title="Remove Image"
                       >
-                        <RemoveIcon className="size-2" />
+                        <Icon type="remove" className="text-[8px]" />
                       </button>
                     </div>
                   </div>
@@ -332,7 +328,7 @@ const Committee = () => {
                         <Avatar className="size-12 border border-gray-400">
                           <AvatarImage src={member.avatar || undefined} alt={member.name} />
                           <AvatarFallback className="bg-gray-300">
-                            <PersonIcon className="text-gray-400" />
+                            <Icon type="person" className="text-gray-400" />
                           </AvatarFallback>
                         </Avatar>
                         <span className="font-bold text-gray-900">{member.name}</span>

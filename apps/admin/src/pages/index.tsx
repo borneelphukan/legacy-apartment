@@ -11,7 +11,7 @@ import Committee from '@/components/Committee';
 import Settings from '@/components/Settings';
 import Sidebar from '@/components/Sidebar';
 import api from '@/lib/api';
-import MenuIcon from '@mui/icons-material/Menu';
+import { Icon } from '@legacy-apartment/ui';
 import Documents from '@/components/Documents';
 import Gallery from '@/components/Gallery';
 
@@ -109,7 +109,7 @@ const AdminDashboard = () => {
               onClick={() => setIsSidebarOpen(true)}
               className="p-2 text-gray-500 hover:text-orange-500 transition-colors"
             >
-              <MenuIcon className="size-8 text-gray-100" />
+              <Icon type="menu" className="text-[32px] text-gray-100" />
             </button>
           </div>
           {activeTab === 'dashboard' ? (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import CloseIcon from '@mui/icons-material/Close';
+import { Icon } from "./icon";
 
 interface ModalProps {
   title: string;
@@ -77,7 +77,7 @@ const Modal = ({
                   onClick={() => handleOpenChange(false)}
                   className="size-8 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors shrink-0"
                 >
-                  <CloseIcon className="text-gray-200 size-5" />
+                  <Icon type="close" className="text-gray-200 text-[20px]" />
                   <span className="sr-only">Close</span>
                 </button>
               )}

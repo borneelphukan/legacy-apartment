@@ -1,5 +1,5 @@
 import * as React from "react";
-import CloseIcon from '@mui/icons-material/Close';
+import { Icon } from './icon';
 
 const DialogContext = React.createContext<{
   open: boolean;
@@ -95,7 +95,7 @@ function DialogContent({
             onClick={() => context?.setOpen(false)}
             className="absolute top-4 right-4 size-8 flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors z-[110]"
           >
-            <CloseIcon className="size-5" />
+            <Icon type="close" className="text-[20px]" />
             <span className="sr-only">Close</span>
           </button>
         )}

@@ -17,17 +17,12 @@ import {
   DialogTitle,
   DialogDescription,
   Input,
-  DropdownMenuItem
+  DropdownMenuItem,
+  Icon
 } from '@legacy-apartment/ui';
-import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import Sidebar from '@/components/Sidebar';
 import * as XLSX from 'xlsx';
 import api from '@/lib/api';
-import MenuIcon from '@mui/icons-material/Menu';
-import DownloadIcon from '@mui/icons-material/Download';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-
 
 const months = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -228,12 +223,12 @@ const FinancePage = () => {
               onClick={() => setIsSidebarOpen(true)}
               className="p-2 text-gray-500 hover:text-orange-500 transition-colors"
             >
-              <MenuIcon className="size-8" />
+              <Icon type="menu" className="text-[32px]" />
             </button>
           </div>
           <div className="max-w-6xl mx-auto">
             <div className="mb-8 flex flex-wrap items-center gap-4">
-              <Button variant="outline" size="icon" onClick={() => router.back()} icon={{ left: <KeyboardArrowLeftIcon /> }} />
+              <Button variant="outline" size="icon" onClick={() => router.back()} icon={{ left: <Icon type="keyboard_arrow_left" className="text-[24px]" /> }} />
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Finance Management</h1>
                 <p className="text-sm md:text-base">Managing payments for <span className="text-orange-500 font-bold">{resident.name}</span> ({resident.residence})</p>
@@ -248,7 +243,7 @@ const FinancePage = () => {
                   <Button 
                     variant="outline" 
                     className="flex items-center gap-2 font-bold text-gray-900 border-gray-200"
-                    icon={{ right: <KeyboardArrowDownIcon className="size-4" /> }}
+                    icon={{ right: <Icon type="keyboard_arrow_down" className="text-[16px]" /> }}
                   >
                     {selectedYear}
                   </Button>
@@ -328,7 +323,7 @@ const FinancePage = () => {
                   variant="outline"
                   size="sm"
                   className="text-orange-600 border-orange-200 bg-orange-50 hover:bg-orange-100 hover:border-orange-400"
-                  icon={{ left: <DownloadIcon className="size-4" /> }}
+                  icon={{ left: <Icon type="download" className="text-[16px]" /> }}
                   label="Download .xlsx"
                 />
               </div>
@@ -379,7 +374,7 @@ const FinancePage = () => {
                         <DropdownMenuTrigger asChild>
                           <button className="w-24 p-1 border border-gray-400 rounded text-sm text-left flex items-center justify-between">
                             {payment?.paymentType || 'Select'}
-                            <KeyboardArrowDownIcon className="size-4 text-gray-400" />
+                            <Icon type="keyboard_arrow_down" className="text-[16px] text-gray-400" />
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="bg-white border-gray-400">
@@ -508,7 +503,7 @@ const FinancePage = () => {
                         <DropdownMenuTrigger asChild>
                           <button className="w-24 p-1 border border-gray-400 rounded text-sm text-left flex items-center justify-between">
                             {payment?.paymentType || 'Select'}
-                            <KeyboardArrowDownIcon className="size-4 text-gray-400" />
+                            <Icon type="keyboard_arrow_down" className="text-[16px] text-gray-400" />
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="bg-white border-gray-400">

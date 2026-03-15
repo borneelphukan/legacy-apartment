@@ -2,11 +2,7 @@
 import React, { useState, useEffect } from "react";
 import DefaultLayout from "@/layout/DefaultLayout";
 import Head from "next/head";
-import { Banner, Breadcrumb } from "@legacy-apartment/ui";
-import EmailIcon from "@mui/icons-material/Email";
-import PhoneIcon from "@mui/icons-material/Phone";
-import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import { Banner, Breadcrumb, Icon } from "@legacy-apartment/ui";
 import api from "@/lib/api";
 
 
@@ -118,7 +114,7 @@ const Committee = () => {
                     
                     <div className="flex space-x-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <button className="text-gray-100 hover:text-orange-500 transition-colors">
-                        <PhoneIcon className="w-5 h-5" />
+                        <Icon type="call" className="text-[20px]" />
                       </button>
                     </div>
                   </div>
@@ -156,7 +152,7 @@ const Committee = () => {
                     }`}
                     disabled={Object.keys(announcements).sort().indexOf(selectedYear) <= 0}
                   >
-                    <KeyboardArrowLeftIcon className="w-5 h-5 md:w-6 md:h-6" />
+                    <Icon type="keyboard_arrow_left" className="text-[24px]" />
                   </button>
                   <div className="text-xl md:text-2xl font-extrabold text-orange-500 min-w-[80px] text-center">{selectedYear}</div>
                   <button 
@@ -172,7 +168,7 @@ const Committee = () => {
                     }`}
                     disabled={Object.keys(announcements).sort().indexOf(selectedYear) >= Object.keys(announcements).length - 1}
                   >
-                    <KeyboardArrowRightIcon className="w-5 h-5 md:w-6 md:h-6" />
+                    <Icon type="keyboard_arrow_right" className="text-[24px]" />
                   </button>
                 </div>
               </div>

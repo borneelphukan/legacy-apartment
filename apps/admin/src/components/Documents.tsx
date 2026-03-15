@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, TextArea, Input, Upload, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@legacy-apartment/ui';
-import AddIcon from '@mui/icons-material/Add';
-import DescriptionIcon from '@mui/icons-material/Description';
-import CloseIcon from '@mui/icons-material/Close';
+import { Button, TextArea, Input, Upload, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon } from '@legacy-apartment/ui';
 import api from '@/lib/api';
 
 interface DocumentModel {
@@ -180,7 +177,7 @@ const Documents = () => {
         {canManage && (
           <Button 
               variant="primary"
-              icon={{ left: <AddIcon className="size-5" /> }}
+              icon={{ left: <Icon type="add" className="text-[20px]" /> }}
               onClick={() => {
                   setFormData({ 
                     document: '', 
@@ -272,7 +269,7 @@ const Documents = () => {
             <div className="text-center py-20 text-gray-100">Loading documents...</div>
         ) : (currentCategoryDocuments.length === 0 && !isFormOpen) ? (
             <div className="text-center py-20 px-4">
-              <DescriptionIcon className="size-16 text-gray-300 mx-auto mb-4" />
+              <Icon type="description" className="text-[64px] text-gray-300 mx-auto mb-4" />
               <p>No documents uploaded for {activeCategory} yet.</p>
             </div>
         ) : (
@@ -287,7 +284,7 @@ const Documents = () => {
                         className="flex items-center gap-3 overflow-hidden flex-1"
                       >
                         <div className="bg-orange-500/10 text-orange-500 flex size-10 shrink-0 items-center justify-center rounded-lg">
-                          <DescriptionIcon className="size-6" />
+                          <Icon type="description" className="text-[24px]" />
                         </div>
                         <div className="flex flex-col min-w-0">
                           <span className="truncate text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors">
@@ -302,7 +299,7 @@ const Documents = () => {
                           className="absolute top-2 right-2 flex items-center justify-center text-gray-400 hover:text-red-500 transition-colors"
                           title="Delete document"
                         >
-                          <CloseIcon className="size-5" />
+                          <Icon type="close" className="text-[20px]" />
                         </button>
                       )}
                     </div>
@@ -321,7 +318,7 @@ const Documents = () => {
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-400 bg-gray-50 shrink-0">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="bg-orange-500/10 text-orange-500 flex size-10 shrink-0 items-center justify-center rounded-lg">
-                  <DescriptionIcon className="size-6" />
+                  <Icon type="description" className="text-[24px]" />
                 </div>
                 <div className="flex flex-col min-w-0">
                   <h3 className="text-lg font-black text-gray-900 truncate">
@@ -352,7 +349,7 @@ const Documents = () => {
                   onClick={() => setPreviewDoc(null)}
                   className="size-10 flex items-center justify-center text-gray-100 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                 >
-                  <CloseIcon className="size-6" />
+                  <Icon type="close" className="text-[24px]" />
                 </button>
               </div>
             </div>
@@ -365,7 +362,7 @@ const Documents = () => {
                   className="w-full h-full object-contain bg-white shadow-sm border border-gray-400"
                 >
                   <div className="text-center p-8 bg-white h-full flex flex-col items-center justify-center">
-                      <DescriptionIcon className="size-16 text-gray-300 mx-auto mb-4" />
+                      <Icon type="description" className="text-[64px] text-gray-300 mx-auto mb-4" />
                       <p className="text-gray-900 font-medium">No preview available for this format.</p>
                       <a href={previewDoc.document} download={previewDoc.fileName || `document-${previewDoc.id}`} className="mt-4 text-orange-600 hover:underline">Download directly instead</a>
                   </div>

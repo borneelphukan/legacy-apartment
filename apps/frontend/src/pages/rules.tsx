@@ -2,22 +2,15 @@
 import React, { useState, useEffect } from "react";
 import DefaultLayout from "@/layout/DefaultLayout";
 import Head from "next/head";
-import { Banner, Breadcrumb, Button } from "@legacy-apartment/ui";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
-import DomainOutlinedIcon from "@mui/icons-material/DomainOutlined";
-import LocalParkingOutlinedIcon from "@mui/icons-material/LocalParkingOutlined";
-import PetsOutlinedIcon from "@mui/icons-material/PetsOutlined";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import { Banner, Breadcrumb, Button, Icon } from "@legacy-apartment/ui";
 import api from "@/lib/api";
 
 const categoryMetadata: Record<string, { icon: React.ReactNode }> = {
-  "General Rules": { icon: <InfoOutlinedIcon className="w-6 h-6" /> },
-  "Security & Visitors": { icon: <SecurityOutlinedIcon className="w-6 h-6" /> },
-  "Facilities & Amenities": { icon: <DomainOutlinedIcon className="w-6 h-6" /> },
-  "Parking Guidelines": { icon: <LocalParkingOutlinedIcon className="w-6 h-6" /> },
-  "Pet Policies": { icon: <PetsOutlinedIcon className="w-6 h-6" /> }
+  "General Rules": { icon: <Icon type="info" className="text-[24px]" /> },
+  "Security & Visitors": { icon: <Icon type="security" className="text-[24px]" /> },
+  "Facilities & Amenities": { icon: <Icon type="domain" className="text-[24px]" /> },
+  "Parking Guidelines": { icon: <Icon type="local_parking" className="text-[24px]" /> },
+  "Pet Policies": { icon: <Icon type="pets" className="text-[24px]" /> }
 };
 
 
@@ -90,9 +83,9 @@ const Rules = () => {
 
             {/* Interactive Accordion */}
             {loading ? (
-              <div className="text-center py-20 text-gray-500">Loading guidelines...</div>
+              <div className="text-center">Loading guidelines...</div>
             ) : groupedRules.length === 0 ? (
-              <div className="text-center py-20 text-gray-500 font-bold">No rules have been set yet.</div>
+              <div className="text-center py-20">No rules have been set yet.</div>
             ) : (
               <div className="space-y-4">
                 {groupedRules.map((section, index) => {
@@ -111,7 +104,7 @@ const Rules = () => {
                       className="w-full flex items-center justify-between p-5 md:p-6 text-left focus:outline-none"
                     >
                       <div className="flex items-center space-x-4">
-                        <div className={`p-2 rounded-lg transition-colors duration-300 ${isOpen ? "bg-orange-100 text-orange-600" : "bg-gray-100 text-gray-500"}`}>
+                        <div className={`p-2 rounded-lg transition-colors duration-300 ${isOpen ? "bg-orange-100 text-orange-600" : "bg-gray-400 text-gray-100"}`}>
                           {section.icon}
                         </div>
                         <h3 className={`text-lg md:text-xl font-bold transition-colors duration-300 ${isOpen ? "text-orange-600" : "text-gray-800"}`}>
@@ -119,7 +112,7 @@ const Rules = () => {
                         </h3>
                       </div>
                       <div className={`transform transition-transform duration-300 ${isOpen ? "rotate-180 text-orange-500" : "text-gray-400"}`}>
-                        <KeyboardArrowDownIcon className="w-6 h-6" />
+                        <Icon type="keyboard_arrow_down" className="text-[24px]" />
                       </div>
                     </button>
 
@@ -145,17 +138,6 @@ const Rules = () => {
               })}
             </div>
             )}
-            
-            {/* Download/Print Action (Static UI representation) */}
-            <div className="mt-12 flex justify-center">
-              <Button 
-                variant="primary" 
-                icon={{ left: <FileDownloadOutlinedIcon className="w-5 h-5 mr-2" /> }}
-              >
-                Download Rulebook PDF
-              </Button>
-            </div>
-
           </div>
         </div>
       </div>

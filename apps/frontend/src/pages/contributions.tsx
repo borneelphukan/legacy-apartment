@@ -2,12 +2,7 @@
 import React, { useState } from "react";
 import DefaultLayout from "@/layout/DefaultLayout";
 import Head from "next/head";
-import { Breadcrumb, Banner, Button, Table } from "@legacy-apartment/ui";
-import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import { ChevronRightOutlined } from "@mui/icons-material";
+import { Breadcrumb, Banner, Button, Table, Icon } from "@legacy-apartment/ui";
 import api from "@/lib/api";
 
 const currentYear = new Date().getFullYear();
@@ -164,7 +159,7 @@ const MaintenancePay = () => {
                   }`}
                   disabled={years.indexOf(selectedYear) === 0}
                 >
-                  <KeyboardArrowLeftIcon className="w-5 h-5 md:w-6 md:h-6" />
+                  <Icon type="keyboard_arrow_left" className="text-[24px]" />
                 </button>
                 <div className="text-xl md:text-2xl font-extrabold text-orange-500 min-w-[80px] text-center">{selectedYear}</div>
                 <button 
@@ -179,7 +174,7 @@ const MaintenancePay = () => {
                   }`}
                   disabled={years.indexOf(selectedYear) === years.length - 1}
                 >
-                  <KeyboardArrowRightIcon className="w-5 h-5 md:w-6 md:h-6" />
+                  <Icon type="keyboard_arrow_right" className="text-[24px]" />
                 </button>
               </div>
             </div>
@@ -241,7 +236,7 @@ const MaintenancePay = () => {
                     }`}
                     disabled={securityStartIdx === 0}
                   >
-                    <KeyboardArrowLeftIcon className="w-5 h-5 md:w-6 md:h-6" />
+                    <Icon type="keyboard_arrow_left" className="text-[24px]" />
                   </button>
                   <div className="text-xl md:text-2xl font-extrabold text-orange-500 min-w-[140px] text-center">
                     {visibleSecurityYears[0]} - {visibleSecurityYears[visibleSecurityYears.length - 1]}
@@ -257,7 +252,7 @@ const MaintenancePay = () => {
                     }`}
                     disabled={securityStartIdx >= securityYearsAll.length - 4}
                   >
-                    <KeyboardArrowRightIcon className="w-5 h-5 md:w-6 md:h-6" />
+                    <Icon type="keyboard_arrow_right" className="text-[24px]" />
                   </button>
                 </div>
               )}

@@ -3,9 +3,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import MenuIcon from "@mui/icons-material/Menu";
-import CloseIcon from "@mui/icons-material/Close";
+import { Icon } from "../components/icon";
 
 const Navbar = () => {
   const [selectedLink, setSelectedLink] = useState<string | null>(null);
@@ -232,7 +230,7 @@ const Navbar = () => {
              }}
           >
             <span>Our Society</span>
-            <KeyboardArrowDownIcon className={`w-6 h-6 transition-transform ${showMobileSocietySubNav ? "rotate-180" : ""}`} />
+            <Icon type="keyboard_arrow_down" className={`text-[24px] transition-transform ${showMobileSocietySubNav ? "rotate-180" : ""}`} />
           </button>
           
           <div className={`overflow-hidden transition-all duration-300 bg-gray-50 ${showMobileSocietySubNav ? "max-h-[500px]" : "max-h-0"}`}>
@@ -264,7 +262,7 @@ const Navbar = () => {
             }}
           >
             <span>Services</span>
-            <KeyboardArrowDownIcon className={`w-6 h-6 transition-transform ${showMobileServicesSubNav ? "rotate-180" : ""}`} />
+            <Icon type="keyboard_arrow_down" className={`text-[24px] transition-transform ${showMobileServicesSubNav ? "rotate-180" : ""}`} />
           </button>
           
           <div className={`overflow-hidden transition-all duration-300 bg-gray-50 ${showMobileServicesSubNav ? "max-h-[500px]" : "max-h-0"}`}>
@@ -301,7 +299,7 @@ const Navbar = () => {
             }}
           >
             <span>Events</span>
-            <KeyboardArrowDownIcon className={`w-6 h-6 transition-transform ${showMobileEventsSubNav ? "rotate-180" : ""}`} />
+            <Icon type="keyboard_arrow_down" className={`text-[24px] transition-transform ${showMobileEventsSubNav ? "rotate-180" : ""}`} />
           </button>
           <div className={`overflow-hidden transition-all duration-300 bg-gray-50 ${showMobileEventsSubNav ? "max-h-[500px]" : "max-h-0"}`}>
             <ul className="w-full flex flex-col">
@@ -339,9 +337,9 @@ const Navbar = () => {
           aria-label="Open Mobile Menu"
         >
           {showMobileMenu ? (
-            <CloseIcon className="h-8 w-8" />
+            <Icon type="close" className="text-[32px]" />
           ) : (
-            <MenuIcon className="h-8 w-8" />
+            <Icon type="menu" className="text-[32px]" />
           )}
         </button>
       </div>

@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Input } from "./input";
 import Button from "./button";
-import LockIcon from '@mui/icons-material/Lock';
 import { StatusLight } from "./statusLight";
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import SearchIcon from '@mui/icons-material/Search';
+import { Icon } from './icon';
 
 export interface Resident {
   name: string;
@@ -136,7 +133,7 @@ const Table = ({
       {!isUnlocked ? (
         <div className="flex flex-col items-center justify-center p-12 md:p-24 bg-slate-50/50 min-h-[400px]">
           <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center mb-6 text-grey-100 border border-gray-400">
-             <LockIcon className="size-8" />
+             <Icon type="lock" className="text-[32px]" />
           </div>
           <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-2 tracking-tight">Restricted Access</h3>
           <p className="text-grey-100 mb-8 text-center max-w-sm">Please enter the password to view the contributions data.</p>
@@ -171,7 +168,7 @@ const Table = ({
                   placeholder={searchPlaceholder}
                   value={search || ""}
                   onChange={(e) => onSearchChange(e.target.value)}
-                  icon={{ left: SearchIcon }}
+                  icon={{ left: <Icon type="search" className="text-[20px]" /> as any }}
                 />
               </div>
             </div>
@@ -200,7 +197,7 @@ const Table = ({
                               {col.label}
                               {isSorted && sortOrder !== "" && (
                                 <span className="flex items-center transition-colors text-orange-500">
-                                  {sortOrder === 'desc' ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
+                                  {sortOrder === 'desc' ? <Icon type="keyboard_arrow_down" className="text-[20px]" /> : <Icon type="keyboard_arrow_up" className="text-[20px]" />}
                                 </span>
                               )}
                             </div>
@@ -234,7 +231,7 @@ const Table = ({
                           {col}
                           {isSorted && sortOrder !== "" && (
                             <span className="flex items-center transition-colors text-orange-500">
-                              {sortOrder === 'desc' ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
+                              {sortOrder === 'desc' ? <Icon type="keyboard_arrow_down" className="text-[20px]" /> : <Icon type="keyboard_arrow_up" className="text-[20px]" />}
                             </span>
                           )}
                         </div>

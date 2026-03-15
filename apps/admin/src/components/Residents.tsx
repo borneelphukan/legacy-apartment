@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Upload, Table, Switch, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Avatar, AvatarImage, AvatarFallback } from '@legacy-apartment/ui';
+import { Button, Input, Upload, Table, Switch, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Avatar, AvatarImage, AvatarFallback, Icon } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
-import PersonIcon from '@mui/icons-material/Person';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
 import api from '@/lib/api';
 
 interface Resident {
@@ -176,7 +173,7 @@ const Residents = () => {
         {isPresident && (
           <Button 
               variant="primary"
-              icon={{ left: <AddIcon className="size-5" /> }}
+              icon={{ left: <Icon type="add" className="text-[20px]" /> }}
               onClick={() => {
                   setEditingId(null);
                   setFormData({ name: '', residence: '', phone_no: '', monthlyRate: 1000, avatar: '' });
@@ -245,7 +242,7 @@ const Residents = () => {
                         className="absolute -top-3 -right-3 bg-red-200 text-white rounded-full hover:bg-red-100 transition-colors border-1 border-white"
                         title="Remove Image"
                       >
-                        <RemoveIcon className="size-5" />
+                        <Icon type="remove" className="text-[20px]" />
                       </button>
                     </div>
                   </div>
@@ -323,7 +320,7 @@ const Residents = () => {
                         <Avatar className="size-12 border border-gray-400 shrink-0">
                           <AvatarImage src={res.avatar || undefined} alt={res.name} />
                           <AvatarFallback className="bg-gray-300">
-                            <PersonIcon className="text-gray-400" />
+                            <Icon type="person" className="text-gray-400" />
                           </AvatarFallback>
                         </Avatar>
                         <span className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors">{res.name}</span>

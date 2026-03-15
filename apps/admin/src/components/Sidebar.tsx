@@ -1,17 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import CampaignIcon from '@mui/icons-material/Campaign';
-import ApartmentIcon from '@mui/icons-material/Apartment';
-import PaymentsIcon from '@mui/icons-material/Payments';
-import GavelIcon from '@mui/icons-material/Gavel';
-import FeedbackIcon from '@mui/icons-material/Feedback';
-import LogoutIcon from '@mui/icons-material/Logout';
-import CloseIcon from '@mui/icons-material/Close';
-import PeopleIcon from '@mui/icons-material/People';
-import SettingsIcon from '@mui/icons-material/Settings';
-import DescriptionIcon from '@mui/icons-material/Description';
-import CollectionsIcon from '@mui/icons-material/Collections';
+import { Icon } from '@legacy-apartment/ui';
 
 interface SidebarProps {
   activeTab: 'dashboard' | 'announcements' | 'residents' | 'rules' | 'complaints' | 'finance' | 'committee' | 'settings' | 'documents' | 'gallery' | 'none';
@@ -43,47 +32,47 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onClose }: SidebarProps) => {
     { 
       id: 'dashboard', 
       label: 'Dashboard', 
-      icon: <DashboardIcon className="size-5" />
+      icon: <Icon type="dashboard" className="text-[20px]" />
     },
     { 
       id: 'announcements', 
       label: 'Announcements', 
-      icon: <CampaignIcon className="size-5" />
+      icon: <Icon type="campaign" className="text-[20px]" />
     },
     { 
       id: 'residents', 
       label: 'Residents', 
-      icon: <ApartmentIcon className="size-5" />
+      icon: <Icon type="apartment" className="text-[20px]" />
     },
     { 
       id: 'committee', 
       label: 'Committee', 
-      icon: <PeopleIcon className="size-5" />
+      icon: <Icon type="group" className="text-[20px]" />
     },
     { 
       id: 'finance', 
       label: 'Finance', 
-      icon: <PaymentsIcon className="size-5" />
+      icon: <Icon type="payments" className="text-[20px]" />
     },
     { 
       id: 'rules', 
       label: 'Rules', 
-      icon: <GavelIcon className="size-5" />
+      icon: <Icon type="gavel" className="text-[20px]" />
     },
     { 
       id: 'complaints', 
       label: 'Complaints', 
-      icon: <FeedbackIcon className="size-5" />
+      icon: <Icon type="feedback" className="text-[20px]" />
     },
     { 
       id: 'documents', 
       label: 'Documents', 
-      icon: <DescriptionIcon className="size-5" />
+      icon: <Icon type="description" className="text-[20px]" />
     },
     { 
       id: 'gallery', 
       label: 'Gallery', 
-      icon: <CollectionsIcon className="size-5" />
+      icon: <Icon type="collections_bookmark" className="text-[20px]" />
     },
   ];
 
@@ -117,9 +106,9 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onClose }: SidebarProps) => {
           {/* Close button for mobile */}
           <button 
             onClick={onClose}
-            className="lg:hidden p-2 text-gray-500 hover:text-orange-500 transition-colors"
+            className="lg:hidden p-2 transition-colors"
           >
-            <CloseIcon className="size-6 text-gray-100" />
+            <Icon type="close" className="text-[24px] text-gray-100" />
           </button>
         </div>
 
@@ -150,7 +139,7 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onClose }: SidebarProps) => {
                   : 'text-gray-100 hover:bg-orange-50 hover:text-orange-500'
               }`}
             >
-              <SettingsIcon className="size-5" />
+              <Icon type="settings" className="text-[20px]" />
               <span className="font-bold text-sm">Settings</span>
             </button>
           )}
@@ -158,7 +147,7 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onClose }: SidebarProps) => {
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-orange-50 transition-all duration-300 text-gray-100 hover:text-orange-500"
           >
-            <LogoutIcon className="size-5" />
+            <Icon type="logout" className="text-[20px]" />
             <span className="font-bold text-sm">Logout</span>
           </button>
         </div>

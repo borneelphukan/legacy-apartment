@@ -1,5 +1,5 @@
 import Link from "next/link";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import { Icon } from "./icon";
 import React from "react";
 
 export interface BreadcrumbItem {
@@ -41,7 +41,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
                 )
               ) : (
                 <div className="flex items-center">
-                  <KeyboardArrowRightIcon className={svgClasses} />
+                  <Icon type="keyboard_arrow_right" className={svgClasses} />
                   {item.href ? (
                     <Link href={item.href} className={activeClasses}>
                       {item.label}

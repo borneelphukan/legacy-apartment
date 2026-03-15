@@ -1,11 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import DefaultLayout from "@/layout/DefaultLayout";
 import Link from "next/link";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import { Button } from "@legacy-apartment/ui";
-import { ChevronRightOutlined } from "@mui/icons-material";
+import { Button, Icon } from "@legacy-apartment/ui";
 import api from "@/lib/api";
 
 const bannerImages = [
@@ -223,7 +219,7 @@ const Home = () => {
                     <h3 className="text-sm font-bold text-gray-800 group-hover:text-orange-500 transition-colors mb-1 line-clamp-1">
                       {ann.title}
                     </h3>
-                    <p className="text-xs text-gray-500 line-clamp-2">
+                    <p className="text-xs line-clamp-2">
                       {ann.description}
                     </p>
                   </div>
@@ -234,7 +230,7 @@ const Home = () => {
               </div>
               <div className="mt-6 pt-4 border-t border-gray-300 text-center flex justify-center">
                 <Link href="/committee" className="text-sm text-orange-500 hover:text-orange-600 font-semibold flex items-center justify-center group">
-                  View All Decisions <ChevronRightOutlined className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                  View All Decisions <Icon type="chevron_right" className="text-[16px] transform group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
             </div>
@@ -282,7 +278,7 @@ const Home = () => {
                 variant="primary" 
                 href="/contact" 
                 className="w-full sm:w-auto" 
-                icon={{ right: <ChevronRightOutlined className="w-5 h-5 text-white transform group-hover:translate-x-1 transition-transform duration-300" /> }}
+                icon={{ right: <Icon type="chevron_right" className="text-[20px] text-white transform group-hover:translate-x-1 transition-transform duration-300" /> }}
               >
                 Contact Us
               </Button>
@@ -342,7 +338,7 @@ const Home = () => {
           {/* Controls for mobile / Dots */}
           <div className="flex justify-center items-center mt-8 space-x-6 md:space-x-4">
             <button onClick={handlePrevResident} className="lg:hidden p-2 text-gray-400 hover:text-orange-500 bg-white shadow-sm rounded-full border border-gray-100 transition-colors">
-              <KeyboardArrowLeftIcon className="w-5 h-5" />
+              <Icon type="keyboard_arrow_left" className="text-[20px]" />
             </button>
             <div className="flex space-x-3">
               {residentChunks.map((_, idx) => (
@@ -354,7 +350,7 @@ const Home = () => {
               ))}
             </div>
             <button onClick={handleNextResident} className="md:hidden p-2 text-gray-400 hover:text-orange-500 bg-white shadow-sm rounded-full border border-gray-100 transition-colors">
-              <KeyboardArrowRightIcon className="w-5 h-5" />
+              <Icon type="keyboard_arrow_right" className="text-[20px]" />
             </button>
           </div>
         </div>

@@ -14,9 +14,9 @@ import {
   DialogHeader,
   DialogFooter,
   DialogTitle,
-  DialogDescription
+  DialogDescription,
+  Icon
 } from '@legacy-apartment/ui';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import api from '@/lib/api';
 
 export default function Login() {
@@ -156,7 +156,7 @@ export default function Login() {
                       <DropdownMenu className="w-full">
                         <DropdownMenuTrigger className="flex w-full items-center justify-between rounded-xl border border-gray-400 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all">
                           <span className="capitalize">{role}</span>
-                          <KeyboardArrowDownIcon/>
+                          <Icon type="keyboard_arrow_down" className="text-[20px]" />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-full min-w-[300px]">
                           {['president', 'secretary', 'treasurer', 'advisor', 'technical_advisor', 'cultural_head', 'welfare_head', 'gym_head', 'gardening', 'catering'].map((r) => (

@@ -1,9 +1,5 @@
 import { forwardRef, useState } from "react";
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { Icon } from './icon';
 import Button from "./button";
 import {
   DropdownMenu,
@@ -128,7 +124,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                     className="text-gray-100 text-sm font-medium shrink-0 flex items-center gap-1 hover:text-gray-100 transition-colors focus:outline-none"
                   >
                     {dropdown.left.value}
-                    <ArrowDropDownIcon className="size-4" />
+                    <Icon type="arrow_drop_down" className="text-[16px]" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
@@ -170,9 +166,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 tabIndex={-1}
               >
                 {showPassword ? (
-                  <VisibilityOffIcon className="size-5" />
+                  <Icon type="visibility_off" className="text-[20px]" />
                 ) : (
-                  <VisibilityIcon className="size-5" />
+                  <Icon type="visibility" className="text-[20px]" />
                 )}
               </button>
             )}
@@ -202,7 +198,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                     tabIndex={-1}
                     className="text-gray-400 hover:text-gray-100 active:text-brand-green transition-colors flex items-center justify-center h-3"
                   >
-                    <KeyboardArrowUpIcon className="size-4" />
+                    <Icon type="keyboard_arrow_up" className="text-[16px]" />
                   </button>
                   <button
                     type="button"
@@ -210,7 +206,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                     tabIndex={-1}
                     className="text-gray-300 hover:text-gray-100 active:text-brand-green transition-colors flex items-center justify-center h-3"
                   >
-                    <KeyboardArrowDownIcon className="size-4" />
+                    <Icon type="keyboard_arrow_down" className="text-[16px]" />
                   </button>
                 </div>
                 {selectedOption && (
@@ -229,7 +225,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                     className="text-gray-100 text-sm font-medium shrink-0 flex items-center gap-1 hover:text-gray-200 transition-colors focus:outline-none"
                   >
                     {dropdown.right.value}
-                    <ArrowDropDownIcon className="size-4" />
+                    <Icon type="arrow_drop_down" className="text-[16px]" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">

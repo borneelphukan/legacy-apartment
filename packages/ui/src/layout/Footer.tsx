@@ -1,9 +1,7 @@
 import React from "react";
 import contactData from "../data/contact-data.json";
 import Link from "next/link";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-import EmailIcon from "@mui/icons-material/Email";
-import PhoneIcon from "@mui/icons-material/Phone";
+import { Icon } from "../components/icon";
 
 const Footer = () => {
   return (
@@ -17,15 +15,15 @@ const Footer = () => {
             </h2>
             <div className="text-sm text-slate-400 flex flex-col space-y-3 items-center md:items-start mt-4">
               <div className="flex items-center space-x-3">
-                <LocationOnIcon fontSize="small" className="text-orange-500 flex-shrink-0" />
+                <Icon type="location_on" className="text-[20px] text-orange-500 flex-shrink-0" />
                 <span>{contactData.address}</span>
               </div>
               <div className="flex items-center space-x-3">
-                <EmailIcon fontSize="small" className="text-orange-500 flex-shrink-0" />
+                <Icon type="mail" className="text-[20px] text-orange-500 flex-shrink-0" />
                 <span>{contactData.email}</span>
               </div>
               <div className="flex items-center space-x-3">
-                <PhoneIcon fontSize="small" className="text-orange-500 flex-shrink-0" />
+                <Icon type="call" className="text-[20px] text-orange-500 flex-shrink-0" />
                 <span>{contactData.phone}</span>
               </div>
             </div>

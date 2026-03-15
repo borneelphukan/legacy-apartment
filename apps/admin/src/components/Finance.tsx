@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { 
   Button, 
@@ -7,11 +7,10 @@ import {
   DropdownMenuTrigger, 
   DropdownMenuContent, 
   DropdownMenuRadioGroup, 
-  DropdownMenuRadioItem 
+  DropdownMenuRadioItem,
+  Icon
 } from '@legacy-apartment/ui';
 import * as XLSX from 'xlsx';
-import DownloadIcon from '@mui/icons-material/Download';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import api from '@/lib/api';
 
 
@@ -259,7 +258,7 @@ const Finance = () => {
                                   className="flex items-center gap-2 font-bold text-gray-900 border border-gray-400 bg-white px-5 py-2.5 rounded-xl hover:border-orange-500 transition-all shadow-sm text-sm"
                               >
                                   {selectedYear}
-                                  <KeyboardArrowDownIcon className="size-4 text-gray-400" />
+                                  <Icon type="keyboard_arrow_down" className="text-[16px] text-gray-400" />
                               </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="bg-white border-gray-400 w-40">
@@ -281,7 +280,7 @@ const Finance = () => {
                     <Button 
                         variant="primary"
                         onClick={downloadXLSX}
-                        icon={{ left: <DownloadIcon className="size-5" /> }}
+                        icon={{ left: <Icon type="download" className="text-[20px]" /> }}
                     >
                         Download Data
                     </Button>

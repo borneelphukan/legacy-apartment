@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button, TextArea, Input, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@legacy-apartment/ui';
+import { Button, TextArea, Input, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
 import api from '@/lib/api';
 
 interface Announcement {
@@ -132,7 +129,7 @@ const Announcements = () => {
         {canManage && (
           <Button 
               variant="primary"
-              icon={{ left: <AddIcon className="size-5" /> }}
+              icon={{ left: <Icon type="add" className="text-[20px]" /> }}
               onClick={() => {
                 
                   setEditingId(null);
@@ -217,13 +214,13 @@ const Announcements = () => {
                               variant="outline"
                               size="icon"
                               onClick={() => handleEdit(ann)}
-                              icon={{ left: <EditIcon className="size-5" /> }}
+                              icon={{ left: <Icon type="edit" className="text-[20px]" /> }}
                           />
                           <Button 
                               variant="destructive"
                               size="icon"
                               onClick={() => handleDelete(ann.id)}
-                              icon={{ left: <DeleteIcon className="size-5" /> }}
+                              icon={{ left: <Icon type="delete" className="text-[20px]" /> }}
                           />
                       </div>
                     )}

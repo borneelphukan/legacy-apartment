@@ -1,10 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Button, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@legacy-apartment/ui';
+import { Button, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
-import DeleteIcon from '@mui/icons-material/Delete';
-import PersonIcon from '@mui/icons-material/Person';
-import HomeIcon from '@mui/icons-material/Home';
-import PhoneIcon from '@mui/icons-material/Phone';
 import api from '@/lib/api';
 
 interface Complaint {
@@ -121,15 +117,15 @@ const Complaints = () => {
                   <div className="flex-1 space-y-4">
                     <div className="flex flex-wrap gap-4 text-sm">
                       <div className="flex items-center gap-1.5 text-orange-600 bg-orange-50 px-3 py-1 rounded-full">
-                        <PersonIcon className="size-4" />
+                        <Icon type="person" className="text-[16px]" />
                         {item.name}
                       </div>
                       <div className="flex items-center gap-1.5 text-gray-100 bg-gray-500 px-3 py-1 rounded-full">
-                        <HomeIcon className="size-4" />
+                        <Icon type="home" className="text-[16px]" />
                         {item.apartment}
                       </div>
                       <div className="flex items-center gap-1.5 text-gray-100 bg-gray-500 px-3 py-1 rounded-full">
-                        <PhoneIcon className="size-4" />
+                        <Icon type="call" className="text-[16px]" />
                         {item.phone_no}
                       </div>
                     </div>
@@ -150,7 +146,7 @@ const Complaints = () => {
                       variant="destructive"
                       size="icon"
                       onClick={() => handleDelete(item.id)}
-                      icon={{ left: <DeleteIcon className="size-5" /> }}
+                      icon={{ left: <Icon type="delete" className="text-[20px]" /> }}
                     />
                   </div>
                 </div>

@@ -2,12 +2,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import DefaultLayout from "@/layout/DefaultLayout";
 import Head from "next/head";
-import { Banner, Breadcrumb } from "@legacy-apartment/ui";
-import CloseIcon from "@mui/icons-material/Close";
-import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import EventIcon from "@mui/icons-material/Event";
-import HistoryIcon from "@mui/icons-material/History";
+import { Banner, Breadcrumb, Icon } from "@legacy-apartment/ui";
 import api from "@/lib/api";
 
 interface Photo {
@@ -150,7 +145,7 @@ const Gallery = () => {
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-24">
-                  <EventIcon className="size-16 text-gray-300 mb-4" />
+                  <Icon type="event" className="text-[64px] text-gray-300 mb-4" />
                   <p className="text-gray-100 font-medium">No photos captured for this event yet.</p>
                 </div>
               )}
@@ -161,7 +156,7 @@ const Gallery = () => {
               <div className="sticky top-24 space-y-8">
                 <div>
                   <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-2 uppercase tracking-tight">
-                    <HistoryIcon className="text-orange-500" />
+                    <Icon type="history" className="text-orange-500 text-[24px]" />
                     Event Manager
                   </h3>
                   
@@ -237,14 +232,14 @@ const Gallery = () => {
             className="absolute top-6 right-6 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-all z-50 backdrop-blur-md"
             onClick={handleCloseModal}
           >
-            <CloseIcon className="w-8 h-8" />
+            <Icon type="close" className="text-[32px]" />
           </button>
 
           <button
             className="absolute left-4 md:left-10 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-3 md:p-4 rounded-full transition-all z-50 backdrop-blur-md transform hover:-translate-x-1"
             onClick={handlePrevPhoto}
           >
-            <KeyboardArrowLeftIcon className="w-8 h-8 md:w-10 md:h-10" />
+            <Icon type="keyboard_arrow_left" className="text-[32px] md:text-[40px]" />
           </button>
 
           <div className="relative max-w-6xl max-h-full w-full h-full flex flex-col items-center justify-center p-4">
@@ -267,7 +262,7 @@ const Gallery = () => {
             className="absolute right-4 md:right-10 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-3 md:p-4 rounded-full transition-all z-50 backdrop-blur-md transform hover:translate-x-1"
             onClick={handleNextPhoto}
           >
-            <KeyboardArrowRightIcon className="w-8 h-8 md:w-10 md:h-10" />
+            <Icon type="keyboard_arrow_right" className="text-[32px] md:text-[40px]" />
           </button>
         </div>
       )}

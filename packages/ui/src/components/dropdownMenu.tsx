@@ -1,7 +1,5 @@
 import * as React from "react";
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import CheckIcon from '@mui/icons-material/Check';
-import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import { Icon } from './icon';
 
 interface DropdownMenuContextType {
   open: boolean;
@@ -157,7 +155,7 @@ function DropdownMenuCheckboxItem({
   return (
     <DropdownMenuItem className={className} onClick={onClick} disabled={disabled} {...props}>
       <span className="flex size-3.5 items-center justify-center mr-2">
-        {checked && <CheckIcon className="size-4" />}
+        {checked && <Icon type="check" className="text-[16px]" />}
       </span>
       {children}
     </DropdownMenuItem>
@@ -185,7 +183,7 @@ function DropdownMenuRadioItem({
   return (
     <DropdownMenuItem className={className} onClick={onClick} disabled={disabled} {...props}>
       <span className="flex size-3.5 items-center justify-center mr-2">
-        {checked && <CheckIcon className="size-4" />}
+        {checked && <Icon type="check" className="text-[16px]" />}
       </span>
       {children}
     </DropdownMenuItem>
@@ -219,7 +217,7 @@ function DropdownMenuSubTrigger({
       {...props}
     >
       {children}
-      <ChevronRightIcon className="ml-auto size-4" />
+      <Icon type="chevron_right" className="ml-auto text-[16px]" />
     </div>
   );
 }
