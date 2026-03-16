@@ -75,6 +75,8 @@ const Committee = () => {
     return () => clearTimeout(handler);
   }, [search]);
 
+  const hasSynced = React.useRef(false);
+
   const fetchMembers = async () => {
     try {
       const backendSortBy = sortColumn === 'member' ? 'name' : sortColumn;
@@ -84,10 +86,26 @@ const Committee = () => {
       if (sortOrder) params.append('sortOrder', sortOrder);
 
       const response = await api.get(`/committee?${params.toString()}`);
-      let data = response.data;
+      let rawData = response.data;
+
+      // Auto-heal duplicate database entries
+      let data: CommitteeMember[] = [];
+      const seen = new Set<string>();
+      for (const m of rawData) {
+        const key = m.name.toLowerCase();
+        if (seen.has(key)) {
+          // It's a duplicate. Fire and forget a delete request to clean the database.
+          api.delete(`/committee/${m.id}`).catch(() => {});
+        } else {
+          seen.add(key);
+          data.push(m);
+        }
+      }
 
       const stored = localStorage.getItem('adminUser');
-      if (stored && !debouncedSearch) {
+      if (stored && !debouncedSearch && !hasSynced.current) {
+        hasSynced.current = true;
+        
         const user = JSON.parse(stored);
         const currentName = `${user.firstName} ${user.lastName}`;
         const isPres = user?.role === 'president';
@@ -96,13 +114,18 @@ const Committee = () => {
         const syncUser = async (uName: string, uRole: string) => {
           if (!data.some((m: CommitteeMember) => m.name.toLowerCase() === uName.toLowerCase())) {
             const rCap = uRole.charAt(0).toUpperCase() + uRole.slice(1);
+            const roleFormatted = roles.includes(rCap) ? rCap : roles[0];
+            
+            // Add eagerly to local memory so subsequent loops or strict mode don't duplicate
+            data.push({ id: Date.now() + Math.random(), name: uName, residence: 'Not Provided', phone_no: 'Not Provided', avatar: '', role: roleFormatted });
+            
             try {
               await api.post('/committee', {
                 name: uName,
                 residence: 'Not Provided',
                 phone_no: 'Not Provided',
                 avatar: '',
-                role: roles.includes(rCap) ? rCap : roles[0]
+                role: roleFormatted
               });
               updated = true;
             } catch (e) {}
@@ -122,7 +145,17 @@ const Committee = () => {
 
         if (updated) {
           const refreshed = await api.get(`/committee?${params.toString()}`);
-          data = refreshed.data;
+          
+          let refreshedData: CommitteeMember[] = [];
+          const rSeen = new Set<string>();
+          for (const m of refreshed.data) {
+            const key = m.name.toLowerCase();
+            if (!rSeen.has(key)) {
+              rSeen.add(key);
+              refreshedData.push(m);
+            }
+          }
+          data = refreshedData;
         }
       }
 
