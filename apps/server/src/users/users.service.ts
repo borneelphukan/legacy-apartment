@@ -30,6 +30,8 @@ export class UsersService {
       firstName: user.firstName,
       lastName: user.lastName,
       role: user.role,
+      residence: user.residence,
+      phone_no: user.phone_no,
     };
 
     return {
@@ -39,6 +41,8 @@ export class UsersService {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        residence: user.residence,
+        phone_no: user.phone_no,
         // @ts-ignore
         role: user.role,
       },
@@ -51,6 +55,8 @@ export class UsersService {
     lastName: string;
     email: string;
     role: string;
+    residence: string;
+    phone_no: string;
     password?: string;
   }) {
     const hashedPassword = await bcrypt.hash(data.password || process.env.DEFAULT_USER_PASSWORD || 'ChangeMe123!', 10);
@@ -69,6 +75,8 @@ export class UsersService {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        residence: user.residence,
+        phone_no: user.phone_no,
         // @ts-ignore
         role: user.role,
       },
@@ -95,6 +103,8 @@ export class UsersService {
         lastName: true,
         email: true,
         role: true,
+        residence: true,
+        phone_no: true,
         createdAt: true,
       },
       orderBy,

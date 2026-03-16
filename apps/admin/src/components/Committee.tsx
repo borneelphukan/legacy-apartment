@@ -111,19 +111,19 @@ const Committee = () => {
         const isPres = user?.role === 'president';
         let updated = false;
 
-        const syncUser = async (uName: string, uRole: string) => {
+        const syncUser = async (uName: string, uRole: string, uResidence: string, uPhone: string) => {
           if (!data.some((m: CommitteeMember) => m.name.toLowerCase() === uName.toLowerCase())) {
             const rCap = uRole.charAt(0).toUpperCase() + uRole.slice(1);
             const roleFormatted = roles.includes(rCap) ? rCap : roles[0];
             
             // Add eagerly to local memory so subsequent loops or strict mode don't duplicate
-            data.push({ id: Date.now() + Math.random(), name: uName, residence: 'Not Provided', phone_no: 'Not Provided', avatar: '', role: roleFormatted });
+            data.push({ id: Date.now() + Math.random(), name: uName, residence: uResidence || 'Not Provided', phone_no: uPhone || 'Not Provided', avatar: '', role: roleFormatted });
             
             try {
               await api.post('/committee', {
                 name: uName,
-                residence: 'Not Provided',
-                phone_no: 'Not Provided',
+                residence: uResidence || 'Not Provided',
+                phone_no: uPhone || 'Not Provided',
                 avatar: '',
                 role: roleFormatted
               });
@@ -136,11 +136,11 @@ const Committee = () => {
           try {
             const usersResp = await api.get('/users');
             for (const u of usersResp.data) {
-              await syncUser(`${u.firstName} ${u.lastName}`, u.role);
+              await syncUser(`${u.firstName} ${u.lastName}`, u.role, u.residence, u.phone_no);
             }
           } catch (e) {}
         } else {
-          await syncUser(currentName, user.role);
+          await syncUser(currentName, user.role, user.residence, user.phone_no);
         }
 
         if (updated) {
