@@ -43,6 +43,7 @@ const Committee = () => {
   const [loading, setLoading] = useState(true);
   const [avatarFiles, setAvatarFiles] = useState<File[]>([]);
   const [isPresident, setIsPresident] = useState(false);
+  const [currentUserFullName, setCurrentUserFullName] = useState('');
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     title: string;
@@ -63,6 +64,7 @@ const Committee = () => {
       try {
         const user = JSON.parse(stored);
         setIsPresident(user?.role === 'president');
+        setCurrentUserFullName(`${user.firstName} ${user.lastName}`);
       } catch {}
     }
     fetchMembers();
@@ -82,7 +84,49 @@ const Committee = () => {
       if (sortOrder) params.append('sortOrder', sortOrder);
 
       const response = await api.get(`/committee?${params.toString()}`);
-      setMembers(response.data);
+      let data = response.data;
+
+      const stored = localStorage.getItem('adminUser');
+      if (stored && !debouncedSearch) {
+        const user = JSON.parse(stored);
+        const currentName = `${user.firstName} ${user.lastName}`;
+        const isPres = user?.role === 'president';
+        let updated = false;
+
+        const syncUser = async (uName: string, uRole: string) => {
+          if (!data.some((m: CommitteeMember) => m.name.toLowerCase() === uName.toLowerCase())) {
+            const rCap = uRole.charAt(0).toUpperCase() + uRole.slice(1);
+            try {
+              await api.post('/committee', {
+                name: uName,
+                residence: 'Not Provided',
+                phone_no: 'Not Provided',
+                avatar: '',
+                role: roles.includes(rCap) ? rCap : roles[0]
+              });
+              updated = true;
+            } catch (e) {}
+          }
+        };
+
+        if (isPres) {
+          try {
+            const usersResp = await api.get('/users');
+            for (const u of usersResp.data) {
+              await syncUser(`${u.firstName} ${u.lastName}`, u.role);
+            }
+          } catch (e) {}
+        } else {
+          await syncUser(currentName, user.role);
+        }
+
+        if (updated) {
+          const refreshed = await api.get(`/committee?${params.toString()}`);
+          data = refreshed.data;
+        }
+      }
+
+      setMembers(data);
     } catch (error) {
       console.error('Error fetching committee members:', error);
     } finally {
@@ -348,7 +392,7 @@ const Committee = () => {
                             Edit
                           </Button>
                         )}
-                        {isPresident && (
+                        {isPresident && member.name.toLowerCase() !== currentUserFullName.toLowerCase() && (
                           <Button variant="destructive" size="sm" onClick={() => handleDelete(member.id)} title="Delete" >
                             Delete
                           </Button>
