@@ -24,6 +24,8 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [residence, setResidence] = useState('');
+  const [phone_no, setPhoneNo] = useState('');
   const [role, setRole] = useState('secretary');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -63,7 +65,7 @@ export default function Login() {
 
     const endpoint = isRegisterMode ? 'register' : 'login';
     const payload = isRegisterMode 
-      ? { email, password, firstName, lastName, role }
+      ? { email, password, firstName, lastName, role, residence, phone_no }
       : { email, password };
 
     try {
@@ -149,6 +151,26 @@ export default function Login() {
                         placeholder="Doe"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <Input
+                        id="residence"
+                        label="Apartment No."
+                        name="residence"
+                        required
+                        placeholder="A-101"
+                        value={residence}
+                        onChange={(e) => setResidence(e.target.value)}
+                      />
+                      <Input
+                        id="phone_no"
+                        label="Phone Number"
+                        name="phone_no"
+                        required
+                        placeholder="+91 9876543210"
+                        value={phone_no}
+                        onChange={(e) => setPhoneNo(e.target.value)}
                       />
                     </div>
                     

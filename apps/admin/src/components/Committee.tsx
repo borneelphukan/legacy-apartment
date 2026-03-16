@@ -43,6 +43,7 @@ const Committee = () => {
   const [loading, setLoading] = useState(true);
   const [avatarFiles, setAvatarFiles] = useState<File[]>([]);
   const [isPresident, setIsPresident] = useState(false);
+  const [currentUserFullName, setCurrentUserFullName] = useState('');
   const [confirmDialog, setConfirmDialog] = useState<{
     open: boolean;
     title: string;
@@ -63,6 +64,7 @@ const Committee = () => {
       try {
         const user = JSON.parse(stored);
         setIsPresident(user?.role === 'president');
+        setCurrentUserFullName(`${user.firstName} ${user.lastName}`);
       } catch {}
     }
     fetchMembers();
@@ -73,6 +75,8 @@ const Committee = () => {
     return () => clearTimeout(handler);
   }, [search]);
 
+  const hasSynced = React.useRef(false);
+
   const fetchMembers = async () => {
     try {
       const backendSortBy = sortColumn === 'member' ? 'name' : sortColumn;
@@ -82,7 +86,80 @@ const Committee = () => {
       if (sortOrder) params.append('sortOrder', sortOrder);
 
       const response = await api.get(`/committee?${params.toString()}`);
-      setMembers(response.data);
+      let rawData = response.data;
+
+      // Auto-heal duplicate database entries
+      let data: CommitteeMember[] = [];
+      const seen = new Set<string>();
+      for (const m of rawData) {
+        const key = m.name.toLowerCase();
+        if (seen.has(key)) {
+          // It's a duplicate. Fire and forget a delete request to clean the database.
+          api.delete(`/committee/${m.id}`).catch(() => {});
+        } else {
+          seen.add(key);
+          data.push(m);
+        }
+      }
+
+      const stored = localStorage.getItem('adminUser');
+      if (stored && !debouncedSearch && !hasSynced.current) {
+        hasSynced.current = true;
+        
+        const user = JSON.parse(stored);
+        const currentName = `${user.firstName} ${user.lastName}`;
+        const isPres = user?.role === 'president';
+        let updated = false;
+
+        const syncUser = async (uName: string, uRole: string, uResidence: string, uPhone: string) => {
+          if (!data.some((m: CommitteeMember) => m.name.toLowerCase() === uName.toLowerCase())) {
+            const rCap = uRole.charAt(0).toUpperCase() + uRole.slice(1);
+            const roleFormatted = roles.includes(rCap) ? rCap : roles[0];
+            
+            // Add eagerly to local memory so subsequent loops or strict mode don't duplicate
+            data.push({ id: Date.now() + Math.random(), name: uName, residence: uResidence || 'Not Provided', phone_no: uPhone || 'Not Provided', avatar: '', role: roleFormatted });
+            
+            try {
+              await api.post('/committee', {
+                name: uName,
+                residence: uResidence || 'Not Provided',
+                phone_no: uPhone || 'Not Provided',
+                avatar: '',
+                role: roleFormatted
+              });
+              updated = true;
+            } catch (e) {}
+          }
+        };
+
+        if (isPres) {
+          try {
+            const usersResp = await api.get('/users');
+            for (const u of usersResp.data) {
+              await syncUser(`${u.firstName} ${u.lastName}`, u.role, u.residence, u.phone_no);
+            }
+          } catch (e) {}
+        } else {
+          await syncUser(currentName, user.role, user.residence, user.phone_no);
+        }
+
+        if (updated) {
+          const refreshed = await api.get(`/committee?${params.toString()}`);
+          
+          let refreshedData: CommitteeMember[] = [];
+          const rSeen = new Set<string>();
+          for (const m of refreshed.data) {
+            const key = m.name.toLowerCase();
+            if (!rSeen.has(key)) {
+              rSeen.add(key);
+              refreshedData.push(m);
+            }
+          }
+          data = refreshedData;
+        }
+      }
+
+      setMembers(data);
     } catch (error) {
       console.error('Error fetching committee members:', error);
     } finally {
@@ -348,7 +425,7 @@ const Committee = () => {
                             Edit
                           </Button>
                         )}
-                        {isPresident && (
+                        {isPresident && member.name.toLowerCase() !== currentUserFullName.toLowerCase() && (
                           <Button variant="destructive" size="sm" onClick={() => handleDelete(member.id)} title="Delete" >
                             Delete
                           </Button>
