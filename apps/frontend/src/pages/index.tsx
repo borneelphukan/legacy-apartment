@@ -8,6 +8,13 @@ const bannerImages = [
   "url('/cover.webp')",
 ];
 
+const premisesImages = [
+  { src: "/images/banners/about-banner.jpeg", title: "Front Entrance" },
+  { src: "/images/banners/about-banner.jpeg", title: "Club House View" },
+  { src: "/images/banners/about-banner.jpeg", title: "Gymnasium Indoor" },
+  { src: "/images/banners/about-banner.jpeg", title: "Swimming Pool" },
+  { src: "/images/banners/about-banner.jpeg", title: "Lush Green Park" },
+];
 
 const AnimatedCounter = ({ end, duration = 2000, suffix = "" }: { end: number, duration?: number, suffix?: string }) => {
   const [count, setCount] = useState(0);
@@ -42,9 +49,12 @@ const AnimatedCounter = ({ end, duration = 2000, suffix = "" }: { end: number, d
 const Home = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentResidentIndex, setCurrentResidentIndex] = useState(0);
+  const [currentPremiseIndex, setCurrentPremiseIndex] = useState(0);
   const [itemsPerSlide, setItemsPerSlide] = useState(16);
+  const [itemsPerPremiseSlide, setItemsPerPremiseSlide] = useState(3);
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [residents, setResidents] = useState<any[]>([]);
+  const [selectedPremisePhotoIndex, setSelectedPremisePhotoIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchAnnouncements = async () => {
@@ -78,6 +88,15 @@ const Home = () => {
         }
         return prev;
       });
+
+      const newItemsPerPremiseSlide = window.innerWidth < 768 ? 1 : window.innerWidth < 1024 ? 2 : 3;
+      setItemsPerPremiseSlide(prev => {
+        if (prev !== newItemsPerPremiseSlide) {
+          setCurrentPremiseIndex(0);
+          return newItemsPerPremiseSlide;
+        }
+        return prev;
+      })
     };
     
     if (typeof window !== 'undefined') {
@@ -90,6 +109,11 @@ const Home = () => {
   const residentChunks = [];
   for (let i = 0; i < residents.length; i += itemsPerSlide) {
     residentChunks.push(residents.slice(i, i + itemsPerSlide));
+  }
+
+  const premiseChunks = [];
+  for (let i = 0; i < premisesImages.length; i += itemsPerPremiseSlide) {
+    premiseChunks.push(premisesImages.slice(i, i + itemsPerPremiseSlide));
   }
 
   useEffect(() => {
@@ -107,12 +131,52 @@ const Home = () => {
     return () => clearInterval(residentInterval);
   }, [residentChunks.length]);
 
+  useEffect(() => {
+    if (premiseChunks.length === 0) return;
+    const premiseInterval = setInterval(() => {
+      setCurrentPremiseIndex((prevIndex) => (prevIndex + 1) % premiseChunks.length);
+    }, 4500); // slightly different interval to residents
+    return () => clearInterval(premiseInterval);
+  }, [premiseChunks.length]);
+
   const handleNextResident = () => {
     setCurrentResidentIndex((prev) => (prev + 1) % residentChunks.length);
   };
 
   const handlePrevResident = () => {
     setCurrentResidentIndex((prev) => (prev - 1 + residentChunks.length) % residentChunks.length);
+  };
+
+  const handleNextPremise = () => {
+    setCurrentPremiseIndex((prev) => (prev + 1) % premiseChunks.length);
+  };
+
+  const handlePrevPremise = () => {
+    setCurrentPremiseIndex((prev) => (prev - 1 + premiseChunks.length) % premiseChunks.length);
+  };
+
+  const handleOpenPremisePhoto = (globalIndex: number) => {
+    setSelectedPremisePhotoIndex(globalIndex);
+    document.body.style.overflow = "hidden";
+  };
+
+  const handleClosePremiseModal = () => {
+    setSelectedPremisePhotoIndex(null);
+    document.body.style.overflow = "auto";
+  };
+
+  const handleNextPremisePhoto = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (selectedPremisePhotoIndex !== null) {
+      setSelectedPremisePhotoIndex((prev) => (prev! + 1) % premisesImages.length);
+    }
+  };
+
+  const handlePrevPremisePhoto = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (selectedPremisePhotoIndex !== null) {
+      setSelectedPremisePhotoIndex((prev) => (prev! - 1 + premisesImages.length) % premisesImages.length);
+    }
   };
 
   return (
@@ -179,7 +243,7 @@ const Home = () => {
                   <div className="flex flex-col">
                     <span className="text-sm md:text-base mb-1 tracking-wide">Founded</span>
                     <span className="text-4xl md:text-5xl font-bold text-gray-800">
-                      <AnimatedCounter end={2010} />
+                      2014
                     </span>
                   </div>
                   <div className="flex flex-col">
@@ -197,7 +261,7 @@ const Home = () => {
                   <div className="flex flex-col">
                     <span className="text-sm md:text-base mb-1 tracking-wide">Amenities</span>
                     <span className="text-4xl md:text-5xl font-bold text-gray-800">
-                      <AnimatedCounter end={20} suffix="+" />
+                      <AnimatedCounter end={10} suffix="+" />
                     </span>
                   </div>
                 </div>
@@ -238,7 +302,7 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Amenities Banner exactly cloned from Services.tsx */}
+      {/* Amenities Banner */}
       <section id="Amenities" className="sticky top-0 z-0 flex flex-col items-center justify-center h-[100vh] pb-[20vh] md:pb-0 w-full overflow-hidden bg-gray-900">
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/60 to-transparent -z-10"></div>
         <div className="mx-auto max-w-7xl px-6 lg:px-8 relative z-10 w-full flex justify-center">
@@ -287,8 +351,65 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Re-open the high z-index native scrolling layer so the content below gracefully overlaps the sticky banner behind it */}
-      <div className="z-10 w-full relative bg-white shadow-[0_-20px_50px_rgba(0,0,0,0.15)] flex flex-col items-center py-20 px-4 md:px-8">
+      {/* Building Premises Carousel Section */}
+      <div className="sticky top-0 z-10 flex flex-col items-center justify-center h-[100vh] pb-[10vh] md:pb-0 w-full overflow-hidden bg-gray-50 shadow-[0_-20px_50px_rgba(0,0,0,0.15)] px-4 border-b border-gray-200">
+        <div className="relative z-10 w-full flex flex-col items-center max-w-7xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-center text-gray-800 mb-4 tracking-tight">
+            Explore Our <span className="text-orange-500">Premises</span>
+          </h2>
+          <p className="text-lg max-w-2xl text-center mb-10 md:mb-12">
+            Take a glimpse into the beautiful environment, lush green spaces, and modern facilities that make our society a wonderful place to live.
+          </p>
+
+          <div className="relative w-full max-w-7xl mx-auto">
+          <div className="overflow-hidden w-full relative">
+            <div className="flex transition-transform duration-700 ease-in-out w-full" style={{ transform: `translateX(-${currentPremiseIndex * 100}%)` }}>
+              {premiseChunks.map((chunk, slideIdx) => (
+                <div key={slideIdx} className="w-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 content-center gap-4 p-4 md:p-6 min-h-[400px]">
+                  {chunk.map((img, idx) => {
+                    const globalIndex = slideIdx * itemsPerPremiseSlide + idx;
+                    return (
+                      <div 
+                        key={idx} 
+                        className="w-full h-[60vw] md:h-[35vw] lg:h-[22vw] rounded-2xl overflow-hidden shadow-lg border border-gray-400 group relative cursor-pointer"
+                        onClick={() => handleOpenPremisePhoto(globalIndex)}
+                      >
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 z-10"></div>
+                        <img src={img.src} alt={img.title} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-in-out" />
+                        <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 pointer-events-none">
+                          <p className="text-white text-sm md:text-base font-medium truncate drop-shadow-md">{img.title}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-center items-center mt-8 space-x-6 md:space-x-4">
+            <button onClick={handlePrevPremise} className="lg:hidden p-2 text-gray-400 hover:text-orange-500 bg-white shadow-sm rounded-full border border-gray-400 transition-colors">
+              <Icon type="keyboard_arrow_left" className="text-gray-100" />
+            </button>
+            <div className="flex space-x-3">
+              {premiseChunks.map((_, idx) => (
+                <button 
+                  key={idx} 
+                  onClick={() => setCurrentPremiseIndex(idx)} 
+                  className={`h-2.5 md:h-3 rounded-full transition-all duration-300 ${currentPremiseIndex === idx ? 'bg-orange-500 w-6 md:w-8' : 'w-2.5 md:w-3 bg-gray-300 hover:bg-gray-400'}`}
+                ></button>
+              ))}
+            </div>
+            <button onClick={handleNextPremise} className="lg:hidden p-2 text-gray-400 hover:text-orange-500 bg-white shadow-sm rounded-full border border-gray-400 transition-colors">
+              <Icon type="keyboard_arrow_right" className="text-gray-100" />
+            </button>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      {/* Meet Our Residents */}
+      <div className="z-20 w-full relative bg-white shadow-[0_-20px_50px_rgba(0,0,0,0.15)] flex flex-col items-center py-20 px-4 md:px-8 border-t border-gray-400">
         <h2 className="text-3xl md:text-4xl font-extrabold text-center text-gray-800 mb-4 tracking-tight">
           Meet Our <span className="text-orange-500">Residents</span>
         </h2>
@@ -311,6 +432,7 @@ const Home = () => {
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
                             alt={resident.name} 
                            />
+
                         ) : (
                           <div className="text-gray-400 font-bold text-xl">{resident.name.charAt(0)}</div>
                         )}
@@ -337,8 +459,8 @@ const Home = () => {
            
           {/* Controls for mobile / Dots */}
           <div className="flex justify-center items-center mt-8 space-x-6 md:space-x-4">
-            <button onClick={handlePrevResident} className="lg:hidden p-2 text-gray-400 hover:text-orange-500 bg-white shadow-sm rounded-full border border-gray-100 transition-colors">
-              <Icon type="keyboard_arrow_left" className="text-[20px]" />
+            <button onClick={handlePrevResident} className="lg:hidden p-2 text-gray-400 hover:text-orange-500 bg-white shadow-sm rounded-full border border-gray-400 transition-colors">
+              <Icon type="keyboard_arrow_left" className="text-gray-100" />
             </button>
             <div className="flex space-x-3">
               {residentChunks.map((_, idx) => (
@@ -349,12 +471,55 @@ const Home = () => {
                 ></button>
               ))}
             </div>
-            <button onClick={handleNextResident} className="md:hidden p-2 text-gray-400 hover:text-orange-500 bg-white shadow-sm rounded-full border border-gray-100 transition-colors">
-              <Icon type="keyboard_arrow_right" className="text-[20px]" />
+            <button onClick={handleNextResident} className="md:hidden p-2 text-gray-400 hover:text-orange-500 bg-white shadow-sm rounded-full border transition-colors">
+              <Icon type="keyboard_arrow_right" className="text-gray-100" />
             </button>
           </div>
         </div>
       </div>
+
+      {/* Lightbox / Modal for Premises */}
+      {selectedPremisePhotoIndex !== null && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm p-4 md:p-10"
+          onClick={handleClosePremiseModal}
+        >
+          <button
+            className="absolute top-6 right-6 text-white/70 hover:text-white rounded-full transition-all z-50"
+            onClick={handleClosePremiseModal}
+          >
+            <Icon type="close"/>
+          </button>
+
+          <button
+            className="absolute left-4 md:left-10 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-3 md:p-4 rounded-full transition-all z-50 backdrop-blur-md transform hover:-translate-x-1"
+            onClick={handlePrevPremisePhoto}
+          >
+            <Icon type="keyboard_arrow_left" className="text-[32px] md:text-[40px]" />
+          </button>
+
+          <div className="relative max-w-6xl max-h-full w-full h-full flex flex-col items-center justify-center p-4">
+            <img
+              src={premisesImages[selectedPremisePhotoIndex].src}
+              alt={premisesImages[selectedPremisePhotoIndex].title}
+              className="max-w-full max-h-[85vh] object-contain shadow-2xl rounded-sm animate-[zoomIn_0.3s_ease-out_forwards]"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <div className="absolute bottom-4 md:bottom-10 left-0 w-full text-center pointer-events-none z-50">
+              <p className="text-white text-xl md:text-lg font-light tracking-wide bg-black/20 inline-block px-6 py-2 rounded-full">
+                {premisesImages[selectedPremisePhotoIndex].title}
+              </p>
+            </div>
+          </div>
+
+          <button
+            className="absolute right-4 md:right-10 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 p-3 md:p-4 rounded-full transition-all z-50 backdrop-blur-md transform hover:translate-x-1"
+            onClick={handleNextPremisePhoto}
+          >
+            <Icon type="keyboard_arrow_right" className="text-[32px] md:text-[40px]" />
+          </button>
+        </div>
+      )}
     </DefaultLayout>
   );
 };
