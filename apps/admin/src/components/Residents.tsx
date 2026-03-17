@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Upload, Table, Switch, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Avatar, AvatarImage, AvatarFallback, Icon } from '@legacy-apartment/ui';
+import { Button, Input, Upload, Table, Switch, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Avatar, AvatarImage, AvatarFallback, Icon , Spinner } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
 import api from '@/lib/api';
 
@@ -278,7 +278,7 @@ const Residents = () => {
       <div className="mb-20">
         {loading ? (
             <div className="bg-white rounded-xl border border-gray-400 p-20 text-center text-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-              Loading residents...
+              <div className="flex justify-center items-center w-full"><Spinner className="size-8 text-orange-500" /></div>
             </div>
         ) : (residents.length === 0 && !isFormOpen) ? (
             <div className="text-center text-gray-100">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Upload, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, Table, Badge, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Avatar, AvatarImage, AvatarFallback, Icon } from '@legacy-apartment/ui';
+import { Button, Input, Upload, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, Table, Badge, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Avatar, AvatarImage, AvatarFallback, Icon , Spinner } from '@legacy-apartment/ui';
 import api from '@/lib/api';
 
 interface CommitteeMember {
@@ -363,7 +363,7 @@ const Committee = () => {
       <div className="mb-20">
         {loading ? (
             <div className="bg-white rounded-xl border border-gray-400 p-20 text-center text-gray-100">
-              Loading committee...
+              <div className="flex justify-center items-center w-full"><Spinner className="size-8 text-orange-500" /></div>
             </div>
         ) : members.length === 0 ? (
             <div className="text-center">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, TextArea, Input, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, Icon } from '@legacy-apartment/ui';
+import { Button, TextArea, Input, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, Icon , Spinner } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
 import api from '@/lib/api';
 
@@ -206,7 +206,7 @@ const Rules = () => {
 
       <div className="space-y-8">
         {loading ? (
-            <div className="text-center py-20 text-gray-100">Loading rules...</div>
+            <div className="text-center py-20 text-gray-100"><div className="flex justify-center items-center w-full"><Spinner className="size-8 text-orange-500" /></div></div>
         ) : (rules.length === 0 && !isFormOpen) ? (
             <p className="text-center">
                 No rules found. Add some to get started.

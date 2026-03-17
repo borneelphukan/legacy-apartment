@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import DefaultLayout from "@/layout/DefaultLayout";
 import Head from "next/head";
-import { Banner, Breadcrumb, Icon } from "@legacy-apartment/ui";
+import { Banner, Breadcrumb, Icon , Spinner } from "@legacy-apartment/ui";
 import api from "@/lib/api";
 
 
@@ -84,7 +84,7 @@ const Committee = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
               {loading ? (
-                <div className="col-span-full text-center py-20">Loading committee...</div>
+                <div className="col-span-full text-center py-20"><div className="flex justify-center items-center w-full"><Spinner className="size-8 text-orange-500" /></div></div>
               ) : committeeMembers.length === 0 ? (
                 <div className="col-span-full text-center py-20">No committee members assigned yet.</div>
               ) : (

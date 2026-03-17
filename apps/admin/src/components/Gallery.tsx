@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, Input, Upload, Modal, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon } from '@legacy-apartment/ui';
+import { Button, Input, Upload, Modal, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon , Spinner } from '@legacy-apartment/ui';
 import api from '@/lib/api';
 
 interface GalleryPhoto {
@@ -206,7 +206,7 @@ const Gallery = () => {
             Events List
           </h2>
           {loading ? (
-            <div className="p-4 bg-white rounded-xl border border-gray-400 text-gray-100 italic">Loading events...</div>
+            <div className="p-4 bg-white rounded-xl border border-gray-400 text-gray-100"><div className="flex justify-center items-center w-full"><Spinner className="size-8 text-orange-500" /></div></div>
           ) : events.length === 0 ? (
             <div className="p-4 bg-white rounded-xl border border-gray-400 text-gray-100 text-center">No events created.</div>
           ) : (
