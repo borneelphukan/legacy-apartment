@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import DefaultLayout from "@/layout/DefaultLayout";
 import Head from "next/head";
-import { Banner, Breadcrumb, Button, Icon , Spinner } from "@legacy-apartment/ui";
+import { Banner, Breadcrumb, Button, Icon, Spinner, Input } from "@legacy-apartment/ui";
 import api from "@/lib/api";
 
 const categoryMetadata: Record<string, { icon: React.ReactNode }> = {
@@ -19,19 +19,49 @@ const Rules = () => {
   const [rules, setRules] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Lock logic states
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [password, setPassword] = useState("");
+  const [globalPassword, setGlobalPassword] = useState("");
+  const [error, setError] = useState("");
+
   useEffect(() => {
-    const fetchRules = async () => {
+    const saved = localStorage.getItem('rules_lock');
+    if (saved === "true") {
+      setIsUnlocked(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
       try {
-        const response = await api.get('/rules');
-        setRules(response.data);
+        const [rulesRes, settingsRes] = await Promise.all([
+          api.get('/rules'),
+          api.get('/setting')
+        ]);
+        setRules(rulesRes.data);
+        if (settingsRes.data?.frontendPassword) {
+          setGlobalPassword(settingsRes.data.frontendPassword);
+        }
       } catch (error) {
-        console.error("Error fetching rules:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchRules();
+    fetchData();
   }, []);
+
+  const handleUnlock = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === globalPassword) {
+      setIsUnlocked(true);
+      localStorage.setItem('rules_lock', "true");
+      setError("");
+    } else {
+      setError("Incorrect password");
+    }
+  };
 
   const toggleCategory = (index: number) => {
     if (openCategoryIndex === index) {
@@ -82,7 +112,35 @@ const Rules = () => {
             </div>
 
             {/* Interactive Accordion */}
-            {loading ? (
+            {!isUnlocked ? (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-400 overflow-hidden relative">
+                <div className="flex flex-col items-center justify-center p-12 md:p-24 bg-slate-50/50 min-h-[400px]">
+                  <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center mb-6 text-gray-800 border border-gray-400">
+                    <Icon type="lock" className="text-[32px]" />
+                  </div>
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-2 tracking-tight">Restricted Access</h3>
+                  <p className="mb-8 text-center max-w-sm">Please enter the password to view the rules and regulations.</p>
+                  <form onSubmit={handleUnlock} className="flex flex-col items-center w-full max-w-sm gap-4">
+                    <Input 
+                      id="unlock-password"
+                      label="Password"
+                      hideLabel
+                      type="password" 
+                      value={password}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                      placeholder="Enter password"
+                      error={error}
+                    />
+                    <Button 
+                      type="submit"
+                      variant="primary"
+                    >
+                      Unlock
+                    </Button>
+                  </form>
+                </div>
+              </div>
+            ) : loading ? (
               <div className="text-center"><div className="flex justify-center items-center w-full"><Spinner className="size-8 text-orange-500" /></div></div>
             ) : groupedRules.length === 0 ? (
               <div className="text-center py-20">No rules have been set yet.</div>

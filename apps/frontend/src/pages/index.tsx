@@ -409,7 +409,7 @@ const Home = () => {
       </div>
 
       {/* Meet Our Residents */}
-      <div className="z-20 w-full relative bg-white shadow-[0_-20px_50px_rgba(0,0,0,0.15)] flex flex-col items-center py-20 px-4 md:px-8 border-t border-gray-400">
+      <div className="z-20 w-full relative bg-gradient-to-br from-white to-slate-300 flex flex-col items-center py-20 px-4 md:px-8 border-t border-gray-400">
         <h2 className="text-3xl md:text-4xl font-extrabold text-center text-gray-800 mb-4 tracking-tight">
           Meet Our <span className="text-orange-500">Residents</span>
         </h2>
@@ -422,9 +422,9 @@ const Home = () => {
           <div className="overflow-hidden w-full relative">
             <div className="flex transition-transform duration-700 ease-in-out w-full" style={{ transform: `translateX(-${currentResidentIndex * 100}%)` }}>
               {residentChunks.map((chunk, slideIdx) => (
-                <div key={slideIdx} className="w-full flex-shrink-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 content-start gap-4 p-4 md:p-6 bg-white min-h-[400px]">
+                <div key={slideIdx} className="w-full flex-shrink-0 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 content-start gap-4 p-4 md:p-6 bg-transparent min-h-[400px]">
                   {chunk.map((resident, idx) => (
-                    <div key={idx} className="group flex items-center p-3 md:p-4 rounded-xl transition-all duration-300 border border-gray-400">
+                    <div key={idx} className="group flex items-center p-3 md:p-4 rounded-xl transition-all duration-300 border border-gray-400 bg-white shadow-md">
                       <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0 mr-4 group-hover:border-blue-50 transition-colors bg-gray-100 flex items-center justify-center">
                         {resident.avatar || resident.image ? (
                            <img 
