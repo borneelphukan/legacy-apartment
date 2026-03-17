@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGua
 import { ResidentService } from './resident.service';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { PERMISSIONS } from '../auth/roles.config';
 import { Public } from '../auth/public.decorator';
 
 @Controller('residents')
@@ -9,7 +10,7 @@ export class ResidentController {
   constructor(private readonly residentService: ResidentService) {}
 
   @Post()
-  @Roles('president')
+  @Roles(...PERMISSIONS.CREATE_RESIDENT)
   @UseGuards(RolesGuard)
   create(@Body() createResidentDto: { avatar?: string; name: string; residence: string; phone_no: string; monthlyRate?: number }) {
     return this.residentService.create(createResidentDto);
@@ -32,14 +33,14 @@ export class ResidentController {
   }
 
   @Patch(':id')
-  @Roles('president', 'treasurer')
+  @Roles(...PERMISSIONS.UPDATE_RESIDENT)
   @UseGuards(RolesGuard)
   update(@Param('id', ParseIntPipe) id: number, @Body() updateResidentDto: { avatar?: string; name?: string; residence?: string; phone_no?: string; monthlyRate?: number }) {
     return this.residentService.update(id, updateResidentDto);
   }
 
   @Delete(':id')
-  @Roles('president')
+  @Roles(...PERMISSIONS.CREATE_RESIDENT)
   @UseGuards(RolesGuard)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.residentService.remove(id);

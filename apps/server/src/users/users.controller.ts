@@ -3,6 +3,7 @@ import { UsersService } from './users.service';
 import { Public } from '../auth/public.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { PERMISSIONS } from '../auth/roles.config';
 
 @Controller('users')
 export class UsersController {
@@ -22,7 +23,7 @@ export class UsersController {
   }
 
   @Get()
-  @Roles('president')
+  @Roles(...PERMISSIONS.READ_USERS)
   @UseGuards(RolesGuard)
   findAll(
     @Query('search') search?: string,
@@ -33,7 +34,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Roles('president')
+  @Roles(...PERMISSIONS.READ_USERS)
   @UseGuards(RolesGuard)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);

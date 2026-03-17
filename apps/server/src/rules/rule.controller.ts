@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGua
 import { RuleService } from './rule.service';
 import { Public } from '../auth/public.decorator';
 import { Roles } from '../auth/roles.decorator';
+import { PERMISSIONS } from '../auth/roles.config';
 import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('rules')
@@ -10,7 +11,7 @@ export class RuleController {
   constructor(private readonly ruleService: RuleService) {}
 
   @Post()
-  @Roles('president')
+  @Roles(...PERMISSIONS.CREATE_RULE)
   create(@Body() createRuleDto: { category: string; rule: string; icon?: string }) {
     return this.ruleService.create(createRuleDto);
   }
@@ -28,13 +29,13 @@ export class RuleController {
   }
 
   @Patch(':id')
-  @Roles('president')
+  @Roles(...PERMISSIONS.CREATE_RULE)
   update(@Param('id', ParseIntPipe) id: number, @Body() updateRuleDto: { category?: string; rule?: string; icon?: string }) {
     return this.ruleService.update(id, updateRuleDto);
   }
 
   @Delete(':id')
-  @Roles('president')
+  @Roles(...PERMISSIONS.CREATE_RULE)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.ruleService.remove(id);
   }

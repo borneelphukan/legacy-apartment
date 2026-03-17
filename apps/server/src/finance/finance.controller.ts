@@ -1,14 +1,13 @@
 import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, Query } from '@nestjs/common';
 import { FinanceService } from './finance.service';
 import { Roles } from '../auth/roles.decorator';
+import { PERMISSIONS } from '../auth/roles.config';
 import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('finance')
 export class FinanceController {
   constructor(private readonly financeService: FinanceService) {}
 
-  @Roles('president', 'treasurer')
-  @UseGuards(RolesGuard)
   @Get()
   getAllFinance(
     @Query('sortBy') sortBy?: string, 
@@ -17,14 +16,12 @@ export class FinanceController {
     return this.financeService.getAllFinance(sortBy, sortOrder);
   }
 
-  @Roles('president', 'treasurer')
-  @UseGuards(RolesGuard)
   @Get('resident/:id')
   getResidentFinance(@Param('id', ParseIntPipe) id: number) {
     return this.financeService.getResidentFinance(id);
   }
 
-  @Roles('president', 'treasurer')
+  @Roles(...PERMISSIONS.UPDATE_FINANCE)
   @UseGuards(RolesGuard)
   @Post('monthly/:id')
   updateMonthly(
@@ -34,7 +31,7 @@ export class FinanceController {
     return this.financeService.updateMonthlyPayment(id, data);
   }
 
-  @Roles('president', 'treasurer')
+  @Roles(...PERMISSIONS.UPDATE_FINANCE)
   @UseGuards(RolesGuard)
   @Post('security/:id')
   updateSecurity(
