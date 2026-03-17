@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGua
 import { CommitteeService } from './committee.service';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
+import { PERMISSIONS } from '../auth/roles.config';
 import { Public } from '../auth/public.decorator';
 
 @Controller('committee')
@@ -9,7 +10,7 @@ export class CommitteeController {
   constructor(private readonly committeeService: CommitteeService) {}
 
   @Post()
-  @Roles('president')
+  @Roles(...PERMISSIONS.CREATE_COMMITTEE)
   @UseGuards(RolesGuard)
   create(@Body() data: { avatar?: string; name: string; residence: string; phone_no: string; role: string }) {
     return this.committeeService.create(data);
@@ -32,14 +33,14 @@ export class CommitteeController {
   }
 
   @Patch(':id')
-  @Roles('president')
+  @Roles(...PERMISSIONS.CREATE_COMMITTEE)
   @UseGuards(RolesGuard)
   update(@Param('id', ParseIntPipe) id: number, @Body() data: { avatar?: string; name?: string; residence?: string; phone_no?: string; role?: string }) {
     return this.committeeService.update(id, data);
   }
 
   @Delete(':id')
-  @Roles('president')
+  @Roles(...PERMISSIONS.CREATE_COMMITTEE)
   @UseGuards(RolesGuard)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.committeeService.remove(id);

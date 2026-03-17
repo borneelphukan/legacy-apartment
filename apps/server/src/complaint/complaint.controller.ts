@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Delete, Param, ParseIntPipe, UseGuards } f
 import { ComplaintService } from './complaint.service';
 import { Public } from '../auth/public.decorator';
 import { Roles } from '../auth/roles.decorator';
+import { PERMISSIONS } from '../auth/roles.config';
 import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('complaints')
@@ -14,14 +15,14 @@ export class ComplaintController {
     return this.complaintService.create(createComplaintDto);
   }
 
-  @Roles('president', 'secretary')
+  @Roles(...PERMISSIONS.READ_COMPLAINT)
   @UseGuards(RolesGuard)
   @Get()
   findAll() {
     return this.complaintService.findAll();
   }
 
-  @Roles('president', 'secretary')
+  @Roles(...PERMISSIONS.READ_COMPLAINT)
   @UseGuards(RolesGuard)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {

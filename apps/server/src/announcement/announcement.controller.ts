@@ -2,13 +2,14 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGua
 import { AnnouncementService } from './announcement.service';
 import { Public } from '../auth/public.decorator';
 import { Roles } from '../auth/roles.decorator';
+import { PERMISSIONS } from '../auth/roles.config';
 import { RolesGuard } from '../auth/roles.guard';
 
 @Controller('announcements')
 export class AnnouncementController {
   constructor(private readonly announcementService: AnnouncementService) {}
 
-  @Roles('president', 'secretary')
+  @Roles(...PERMISSIONS.CREATE_ANNOUNCEMENT)
   @UseGuards(RolesGuard)
   @Post()
   create(@Body() createAnnouncementDto: { title: string; description: string; date?: string }) {
@@ -30,7 +31,7 @@ export class AnnouncementController {
     return this.announcementService.findOne(id);
   }
 
-  @Roles('president', 'secretary')
+  @Roles(...PERMISSIONS.CREATE_ANNOUNCEMENT)
   @UseGuards(RolesGuard)
   @Patch(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() updateAnnouncementDto: { title?: string; description?: string; date?: string }) {
@@ -40,7 +41,7 @@ export class AnnouncementController {
     });
   }
 
-  @Roles('president', 'secretary')
+  @Roles(...PERMISSIONS.CREATE_ANNOUNCEMENT)
   @UseGuards(RolesGuard)
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {

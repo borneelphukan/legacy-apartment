@@ -237,7 +237,7 @@ const Finance = () => {
     };
 
     const totalExpectedCurrentMonth = financeData.reduce((sum, res) => sum + (res.monthlyRate || fees.monthlyFee), 0);
-    const isReadOnly = true;
+    const isReadOnly = !canEditFinance;
 
     return (
         <div className="w-full pb-20">
