@@ -19,7 +19,7 @@ import {
   Input,
   DropdownMenuItem,
   Icon
-} from '@legacy-apartment/ui';
+, Spinner } from '@legacy-apartment/ui';
 import Sidebar from '@/components/Sidebar';
 import * as XLSX from 'xlsx';
 import api from '@/lib/api';
@@ -197,7 +197,7 @@ const FinancePage = () => {
     }
   };
 
-  if (loading) return <div className="p-12 text-center">Loading...</div>;
+  if (loading) return <div className="p-12 text-center"><div className="flex justify-center items-center w-full"><Spinner className="size-8 text-orange-500" /></div></div>;
   if (!resident) return <div className="p-12 text-center">Resident not found</div>;
 
   return (

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import DefaultLayout from "@/layout/DefaultLayout";
 import Head from "next/head";
-import { Banner, Breadcrumb, Button, Icon } from "@legacy-apartment/ui";
+import { Banner, Breadcrumb, Button, Icon , Spinner } from "@legacy-apartment/ui";
 import api from "@/lib/api";
 
 const categoryMetadata: Record<string, { icon: React.ReactNode }> = {
@@ -83,7 +83,7 @@ const Rules = () => {
 
             {/* Interactive Accordion */}
             {loading ? (
-              <div className="text-center">Loading guidelines...</div>
+              <div className="text-center"><div className="flex justify-center items-center w-full"><Spinner className="size-8 text-orange-500" /></div></div>
             ) : groupedRules.length === 0 ? (
               <div className="text-center py-20">No rules have been set yet.</div>
             ) : (

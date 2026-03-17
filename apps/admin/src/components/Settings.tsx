@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Input, Button, Table, Badge, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@legacy-apartment/ui';
+import { Input, Button, Table, Badge, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription , Spinner } from '@legacy-apartment/ui';
 import api from '@/lib/api';
 
 interface User {
@@ -213,11 +213,11 @@ const Settings = () => {
       <div className="mb-20">
         <h2 className="text-xl font-bold text-gray-900 mb-6">Administrators</h2>
         {loading ? (
-            <div className="bg-white rounded-xl border border-gray-400 p-20 text-center text-gray-100 italic">
-              Loading users...
+            <div className="bg-white rounded-xl border border-gray-400 p-20 text-center text-gray-100">
+              <div className="flex justify-center items-center w-full"><Spinner className="size-8 text-orange-500" /></div>
             </div>
         ) : users.length === 0 ? (
-            <div className="bg-white rounded-xl border border-gray-400 p-20 text-center text-gray-100 italic">
+            <div className="bg-white rounded-xl border border-gray-400 p-20 text-center text-gray-100">
                 No users found.
             </div>
         ) : (

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon } from '@legacy-apartment/ui';
+import { Button, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon , Spinner } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
 import api from '@/lib/api';
 
@@ -57,12 +57,6 @@ const Complaints = () => {
       onConfirm: async () => {
         try {
           await api.delete(`/complaints/${id}`);
-          setAlertDialog({
-            open: true,
-            title: 'Deleted!',
-            description: 'Complaint has been removed.',
-            type: 'success'
-          });
           fetchComplaints();
         } catch (error) {
           setAlertDialog({
@@ -101,7 +95,7 @@ const Complaints = () => {
 
       <div className="space-y-6 pb-20">
         {loading ? (
-          <div className="text-center py-20 text-gray-100">Loading complaints...</div>
+          <div className="text-center py-20 text-gray-100"><div className="flex justify-center items-center w-full"><Spinner className="size-8 text-orange-500" /></div></div>
         ) : complaints.length === 0 ? (
           <p className="text-center">
            No complaints found

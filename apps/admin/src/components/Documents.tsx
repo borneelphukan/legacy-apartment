@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, TextArea, Input, Upload, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon } from '@legacy-apartment/ui';
+import { Button, TextArea, Input, Upload, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon , Spinner } from '@legacy-apartment/ui';
 import api from '@/lib/api';
 
 interface DocumentModel {
@@ -266,7 +266,7 @@ const Documents = () => {
 
       <div className="space-y-12">
         {loading ? (
-            <div className="text-center py-20 text-gray-100">Loading documents...</div>
+            <div className="text-center py-20 text-gray-100"><div className="flex justify-center items-center w-full"><Spinner className="size-8 text-orange-500" /></div></div>
         ) : (currentCategoryDocuments.length === 0 && !isFormOpen) ? (
             <div className="text-center py-20 px-4">
               <Icon type="description" className="text-[64px] text-gray-300 mx-auto mb-4" />

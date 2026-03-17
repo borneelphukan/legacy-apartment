@@ -9,7 +9,7 @@ import {
   DropdownMenuRadioGroup, 
   DropdownMenuRadioItem,
   Icon
-} from '@legacy-apartment/ui';
+ } from '@legacy-apartment/ui';
 import * as XLSX from 'xlsx';
 import api from '@/lib/api';
 

@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import DefaultLayout from "@/layout/DefaultLayout";
 import Head from "next/head";
-import { Banner, Breadcrumb, Icon } from "@legacy-apartment/ui";
+import { Banner, Breadcrumb, Icon , Spinner } from "@legacy-apartment/ui";
 import api from "@/lib/api";
 
 interface Photo {
@@ -118,7 +118,7 @@ const Gallery = () => {
 
               {loading ? (
                 <div className="flex justify-center py-24">
-                  <div className="animate-pulse text-gray-100 font-medium">Loading memories...</div>
+                  <div className="animate-pulse text-gray-100 font-medium"><div className="flex justify-center items-center w-full"><Spinner className="size-8 text-orange-500" /></div></div>
                 </div>
               ) : filteredPhotos.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4 auto-rows-[200px] md:auto-rows-[250px]">
