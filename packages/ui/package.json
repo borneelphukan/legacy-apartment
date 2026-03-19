@@ -5,6 +5,7 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "dependencies": {
+    "embla-carousel-react": "^8.6.0",
     "react-dropzone": "^14.4.1",
     "react-icons": "^4.10.1"
   },
