@@ -102,13 +102,32 @@ const Rules = () => {
 
           <div className="max-w-4xl mx-auto px-6 md:px-12 mt-10">
             {/* Header Section */}
-            <div className="text-center mb-12">
+            <div className="text-center mb-8">
               <h2 className="text-3xl md:text-5xl font-extrabold text-black mb-4 tracking-tight">
                 Society <span className="text-orange-500">Guidelines</span>
               </h2>
-              <p className="text-gray-600 md:text-lg">
+              <p className="text-gray-600 md:text-lg mb-6">
                 The foundation of our harmonious lifestyle. We invite you to explore the guidelines designed to foster mutual respect, ensure unparalleled safety, and nurture a vibrant quality of life for all residents.
               </p>
+            </div>
+
+            {/* View PDF Section */}
+            <div className="flex justify-center mb-12">
+              <Button
+                href="/legacy-registration-certificate.pdf"
+                target="_blank"
+                variant="outline"
+                className="hover:!border-orange-500 bg-white"
+                icon={{ 
+                  left: (
+                    <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center group-hover:bg-red-300 transition-colors">
+                      <Icon type="picture_as_pdf" className="text-red-500 text-[18px]" />
+                    </div>
+                  ) 
+                }}
+              >
+                View Registration Certificate
+              </Button>
             </div>
 
             {/* Interactive Accordion */}

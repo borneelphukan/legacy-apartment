@@ -13,11 +13,11 @@ interface Rule {
 
 
 const categories = [
-  "General Rules",
-  "Security & Visitors",
-  "Facilities & Amenities",
-  "Parking Guidelines",
-  "Pet Policies"
+  "Housing Society by law in India",
+  "Eligibility of Tenants in Housing Society",
+  "Duty of Associated Member",
+  "Formation of Society",
+  "Pet & Dog"
 ];
 
 const Rules = () => {
