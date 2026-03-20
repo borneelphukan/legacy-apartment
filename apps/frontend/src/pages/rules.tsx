@@ -6,11 +6,16 @@ import { Banner, Breadcrumb, Button, Icon, Spinner, Input } from "@legacy-apartm
 import api from "@/lib/api";
 
 const categoryMetadata: Record<string, { icon: React.ReactNode }> = {
-  "General Rules": { icon: <Icon type="info" className="text-[24px]" /> },
-  "Security & Visitors": { icon: <Icon type="security" className="text-[24px]" /> },
-  "Facilities & Amenities": { icon: <Icon type="domain" className="text-[24px]" /> },
-  "Parking Guidelines": { icon: <Icon type="local_parking" className="text-[24px]" /> },
-  "Pet Policies": { icon: <Icon type="pets" className="text-[24px]" /> }
+  "General Rules": { icon: <Icon type="info"/> },
+  "Security & Visitors": { icon: <Icon type="security"/> },
+  "Facilities & Amenities": { icon: <Icon type="domain"/> },
+  "Parking Guidelines": { icon: <Icon type="local_parking"/> },
+  "Pet Policies": { icon: <Icon type="pets"/> },
+  "Housing Society by law in India": { icon: <Icon type="account_balance"/> },
+  "Eligibility of Tenants in Housing Society": { icon: <Icon type="how_to_reg"/> },
+  "Duty of Associated Member": { icon: <Icon type="assignment_ind"/> },
+  "Formation of Society": { icon: <Icon type="group_add"/> },
+  "Pet & Dog": { icon: <Icon type="pets"/> }
 };
 
 
@@ -72,10 +77,12 @@ const Rules = () => {
   };
 
   // Group rules by category
-  const groupedRules = Object.keys(categoryMetadata).map((category) => {
+  const uniqueCategories = Array.from(new Set(rules.map((r) => r.category)));
+
+  const groupedRules = uniqueCategories.map((category) => {
     return {
-      category,
-      icon: categoryMetadata[category].icon,
+      category: category as string,
+      icon: categoryMetadata[category as string]?.icon || <Icon type="info"/>,
       rules: rules
         .filter((r) => r.category === category)
         .flatMap((r) => r.rule.split('\n'))
@@ -171,9 +178,7 @@ const Rules = () => {
                   return (
                   <div 
                     key={index} 
-                    className={`bg-white rounded-2xl border transition-all duration-300 overflow-hidden ${
-                      isOpen ? "border-orange-500 shadow-lg shadow-orange-500/10" : "border-gray-200 shadow-sm hover:border-orange-300 hover:shadow-md"
-                    }`}
+                    className={`bg-white rounded-2xl border border-gray-500 transition-all duration-300 overflow-hidden`}
                   >
                     {/* Accordion Header / Trigger */}
                     <button
@@ -188,8 +193,8 @@ const Rules = () => {
                           {section.category}
                         </h3>
                       </div>
-                      <div className={`transform transition-transform duration-300 ${isOpen ? "rotate-180 text-orange-500" : "text-gray-400"}`}>
-                        <Icon type="keyboard_arrow_down" className="text-[24px]" />
+                      <div className={`transform transition-transform duration-300 ${isOpen ? "rotate-180 text-orange-500" : "text-orange-500"}`}>
+                        <Icon type="keyboard_arrow_down" />
                       </div>
                     </button>
 
