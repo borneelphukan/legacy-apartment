@@ -101,6 +101,22 @@ const Rules = () => {
     setIsFormOpen(true);
   };
 
+  const handleCategoryChange = (cat: string) => {
+    const existingRule = rules.find(r => r.category === cat);
+    if (existingRule) {
+      setEditingId(existingRule.id);
+      setFormData({ category: cat, rule: existingRule.rule });
+    } else {
+      setEditingId(null);
+      setFormData({ category: cat, rule: '' });
+    }
+  };
+
+  const isRuleEmpty = !formData.rule.trim();
+  const existingRule = rules.find(r => r.id === editingId);
+  const isRuleUnchanged = editingId && existingRule ? formData.rule === existingRule.rule : false;
+  const isSaveDisabled = isRuleEmpty || isRuleUnchanged;
+
   const handleDelete = async (id: number) => {
     setConfirmDialog({
       open: true,
@@ -138,8 +154,7 @@ const Rules = () => {
               variant="primary"
               icon={{ left: <Icon type="add" className="text-[20px]" /> }}
               onClick={() => {
-                  setEditingId(null);
-                  setFormData({ category: categories[0], rule: '' });
+                  handleCategoryChange(categories[0]);
                   setIsFormOpen(true);
               }}
           >
@@ -170,7 +185,7 @@ const Rules = () => {
                       <DropdownMenuRadioItem 
                         key={cat} 
                         checked={formData.category === cat}
-                        onClick={() => setFormData({...formData, category: cat})}
+                        onClick={() => handleCategoryChange(cat)}
                       >
                         {cat}
                       </DropdownMenuRadioItem>
@@ -189,7 +204,7 @@ const Rules = () => {
               placeholder="Enter one rule per line."
             />
             <div className="flex gap-4">
-              <Button variant="primary" type="submit">
+              <Button variant="primary" type="submit" disabled={isSaveDisabled}>
                 {editingId ? 'Update' : 'Save Rule'}
               </Button>
               <Button 
