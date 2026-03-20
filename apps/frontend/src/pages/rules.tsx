@@ -20,7 +20,7 @@ const categoryMetadata: Record<string, { icon: React.ReactNode }> = {
 
 
 const Rules = () => {
-  const [openCategoryIndex, setOpenCategoryIndex] = useState<number | null>(0); // First one open by default
+  const [openCategoryIndices, setOpenCategoryIndices] = useState<number[]>([0]); // First one open by default
   const [rules, setRules] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -69,11 +69,9 @@ const Rules = () => {
   };
 
   const toggleCategory = (index: number) => {
-    if (openCategoryIndex === index) {
-      setOpenCategoryIndex(null); // Close if already open
-    } else {
-      setOpenCategoryIndex(index);
-    }
+    setOpenCategoryIndices(prev => 
+      prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]
+    );
   };
 
   // Group rules by category
@@ -173,7 +171,7 @@ const Rules = () => {
             ) : (
               <div className="space-y-4">
                 {groupedRules.map((section, index) => {
-                  const isOpen = openCategoryIndex === index;
+                  const isOpen = openCategoryIndices.includes(index);
                   
                   return (
                   <div 

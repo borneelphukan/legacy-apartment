@@ -62,10 +62,10 @@ const TiptapEditor = ({ value, onChange }: { value: string, onChange: (val: stri
   }
 
   return (
-    <div className="border border-gray-300 rounded-md bg-white">
-      <div className="flex gap-2 p-2 border-b border-gray-300 bg-gray-50 flex-wrap items-center">
+    <div className="border border-gray-400 rounded-md bg-white">
+      <div className="flex gap-2 p-2 border-b border-gray-400 bg-gray-50 flex-wrap items-center">
         {/* Text Alignments */}
-        <div className="flex gap-2 border-r border-gray-300 pr-2">
+        <div className="flex gap-2 border-r border-gray-400 pr-2">
           <Button variant={editor.isActive({ textAlign: 'left' }) ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().setTextAlign('left').run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive({ textAlign: 'left' }) ? 'bg-white hover:bg-gray-400 ' : ''}`} title="Align Left">
             <Icon type="format_align_left" className='m-2'/>
           </Button>
@@ -81,7 +81,7 @@ const TiptapEditor = ({ value, onChange }: { value: string, onChange: (val: stri
         </div>
 
         {/* Formatting */}
-        <div className="flex gap-1 border-r border-gray-300 pr-2">
+        <div className="flex gap-1 border-r border-gray-400 pr-2">
           <Button variant={editor.isActive('bold') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('bold') ? 'bg-white hover:bg-gray-400' : ''}`} title="Bold">
             <Icon type="format_bold" className='m-2'/>
           </Button>
@@ -261,7 +261,7 @@ const Rules = () => {
                 <DropdownMenuTrigger asChild>
                   <button 
                     type="button"
-                    className="w-full p-3 border border-gray-300 rounded-md bg-white flex items-center justify-between text-left focus:outline-none focus:border-orange-500"
+                    className="w-full p-3 border border-gray-400 rounded-md bg-white flex items-center justify-between text-left focus:outline-none focus:border-orange-500"
                   >
                     <span>{formData.category}</span>
                     <Icon type="keyboard_arrow_down" className="text-[20px] text-gray-400" />
@@ -320,14 +320,14 @@ const Rules = () => {
 
               return (
                 <div key={category} className="space-y-4">
-                  <h2 className="text-xl font-black text-orange-500 uppercase tracking-tighter border-b border-gray-200 pb-2">
+                  <h2 className="text-xl font-black text-orange-500 uppercase tracking-tighter border-b border-gray-400 pb-2">
                     {category}
                   </h2>
                   <div className="grid grid-cols-1 gap-4">
                     {categoryRules.map((rule) => (
-                      <div key={rule.id} className="bg-white p-6 rounded-md border border-gray-500 flex justify-between items-center gap-6">
-                        <div className="flex-1">
-                          <div className="space-y-2">
+                      <div key={rule.id} className="bg-white p-6 rounded-md border border-gray-500 flex flex-col md:flex-row justify-between items-start gap-6 relative">
+                        <div className="flex-1 w-full overflow-hidden">
+                          <div className="space-y-4">
                               {/<[a-z][\s\S]*>/i.test(rule.rule) ? (
                                 <div dangerouslySetInnerHTML={{ __html: rule.rule }} className="[&>p]:my-2 [&>ul]:list-disc [&>ul]:ml-6 [&>ol]:list-decimal [&>ol]:ml-6 [&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mt-6 [&>h2]:text-xl [&>h2]:font-bold [&>h2]:mt-5 [&>h3]:text-lg [&>h3]:font-bold [&>h3]:mt-4 [&>strong]:font-bold" />
                               ) : (
@@ -344,19 +344,21 @@ const Rules = () => {
                           </div>
                         </div>
                         {isPresident && (
-                          <div className="flex gap-3 shrink-0">
+                          <div className="flex gap-3 shrink-0 self-end md:self-start">
                             <Button 
                               variant="outline"
-                              size="icon"
+                              size="sm"
                               onClick={() => handleEdit(rule)}
-                              icon={{ left: <Icon type="edit" className="text-[20px]" /> }}
-                            />
+                            >
+                              Edit
+                            </Button>
                             <Button 
                               variant="destructive"
-                              size="icon"
+                              size="sm"
                               onClick={() => handleDelete(rule.id)}
-                              icon={{ left: <Icon type="delete" className="text-[20px]" /> }}
-                            />
+                            >
+                              Delete
+                            </Button>
                           </div>
                         )}
                       </div>
