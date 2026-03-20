@@ -107,7 +107,7 @@ const Rules = () => {
           <Banner title="Rules & Regulations" subtitle="Our Policies" bgClass="rules-cover" theme="light" />
           <Breadcrumb items={[{ label: "Our Society" }, { label: "Rules & Regulations" }]} />
 
-          <div className="max-w-4xl mx-auto px-6 md:px-12 mt-10">
+          <div className="max-w-6xl mx-auto px-6 md:px-12 mt-10">
             {/* Header Section */}
             <div className="text-center mb-8">
               <h2 className="text-3xl md:text-5xl font-extrabold text-black mb-4 tracking-tight">
@@ -200,19 +200,27 @@ const Rules = () => {
 
                     {/* Accordion Content */}
                     <div 
-                      className={`transition-all duration-500 ease-in-out ${
-                        isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+                      className={`grid transition-all duration-500 ease-in-out ${
+                        isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                       }`}
                     >
-                      <div className="px-6 pb-6 md:px-20">
-                        <ul className="space-y-3">
-                          {section.rules.map((rule, ruleIdx) => (
-                            <li key={ruleIdx} className="flex items-start">
-                              <span className="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-orange-400 mr-3"></span>
-                              <span className="text-gray-600 leading-relaxed">{rule}</span>
-                            </li>
-                          ))}
-                        </ul>
+                      <div className="overflow-hidden">
+                        <div className="px-6 pb-6 md:px-20">
+                          <div className="space-y-3">
+                              {/<[a-z][\s\S]*>/i.test(section.rules.join('\n')) ? (
+                                <div dangerouslySetInnerHTML={{ __html: section.rules.join('\n') }} className="[&>p]:my-2 [&>ul]:list-disc [&>ul]:ml-6 [&>ol]:list-decimal [&>ol]:ml-6 [&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mt-6 [&>h2]:text-xl [&>h2]:font-bold [&>h2]:mt-5 [&>h3]:text-lg [&>h3]:font-bold [&>h3]:mt-4 [&>strong]:font-bold text-gray-600 leading-relaxed font-medium" />
+                              ) : (
+                                section.rules.map((rule, ruleIdx) => {
+                                  return (
+                                    <div key={ruleIdx} className="flex items-start">
+                                      <span className="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-orange-400 mr-3"></span>
+                                      <span className="text-gray-600 leading-relaxed">{rule}</span>
+                                    </div>
+                                  );
+                                })
+                              )}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

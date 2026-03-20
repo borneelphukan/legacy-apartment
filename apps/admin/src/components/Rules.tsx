@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Button, TextArea, Input, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, Icon , Spinner } from '@legacy-apartment/ui';
+import { Button, Input, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, Icon , Spinner } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
 import api from '@/lib/api';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import TextAlign from '@tiptap/extension-text-align';
 
 interface Rule {
   id: number;
@@ -19,6 +23,90 @@ const categories = [
   "Formation of Society",
   "Pet & Dog"
 ];
+
+const TiptapEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+  const [activeStates, setActiveStates] = useState(0);
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Underline,
+      TextAlign.configure({ types: ['heading', 'paragraph'] })
+    ],
+    content: value,
+    immediatelyRender: false,
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML());
+    },
+    onSelectionUpdate: () => {
+      setActiveStates(prev => prev + 1);
+    },
+    onTransaction: () => {
+      setActiveStates(prev => prev + 1);
+    },
+    editorProps: {
+      attributes: {
+        class: '[&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_p]:my-2 m-2 focus:outline-none min-h-[150px] p-2'
+      }
+    }
+  });
+
+  useEffect(() => {
+    if (editor && editor.getHTML() !== value) {
+      editor.commands.setContent(value);
+    }
+  }, [value, editor]);
+
+  if (!editor) {
+    return null;
+  }
+
+  return (
+    <div className="border border-gray-300 rounded-md bg-white">
+      <div className="flex gap-2 p-2 border-b border-gray-300 bg-gray-50 flex-wrap items-center">
+        {/* Text Alignments */}
+        <div className="flex gap-2 border-r border-gray-300 pr-2">
+          <Button variant={editor.isActive({ textAlign: 'left' }) ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().setTextAlign('left').run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive({ textAlign: 'left' }) ? 'bg-white hover:bg-gray-400 ' : ''}`} title="Align Left">
+            <Icon type="format_align_left" className='m-2'/>
+          </Button>
+          <Button variant={editor.isActive({ textAlign: 'center' }) ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().setTextAlign('center').run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive({ textAlign: 'center' }) ? 'bg-white hover:bg-gray-400' : ''}`} title="Align Center">
+            <Icon type="format_align_center" className='m-2'/>
+          </Button>
+          <Button variant={editor.isActive({ textAlign: 'right' }) ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().setTextAlign('right').run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive({ textAlign: 'right' }) ? 'bg-white hover:bg-gray-400' : ''}`} title="Align Right">
+            <Icon type="format_align_right" className='m-2'/>
+          </Button>
+          <Button variant={editor.isActive({ textAlign: 'justify' }) ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().setTextAlign('justify').run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive({ textAlign: 'justify' }) ? 'bg-white hover:bg-gray-400' : ''}`} title="Align Justify">
+            <Icon type="format_align_justify" className='m-2'/>
+          </Button>
+        </div>
+
+        {/* Formatting */}
+        <div className="flex gap-1 border-r border-gray-300 pr-2">
+          <Button variant={editor.isActive('bold') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('bold') ? 'bg-white hover:bg-gray-400' : ''}`} title="Bold">
+            <Icon type="format_bold" className='m-2'/>
+          </Button>
+          <Button variant={editor.isActive('italic') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('italic') ? 'bg-white hover:bg-gray-400' : ''}`} title="Italic">
+            <Icon type="format_italic" className='m-2'/>
+          </Button>
+          <Button variant={editor.isActive('underline') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleUnderline().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('underline') ? 'bg-white hover:bg-gray-400' : ''}`} title="Underline">
+            <Icon type="format_underlined" className='m-2'/>
+          </Button>
+        </div>
+
+        {/* Lists */}
+        <div className="flex gap-1">
+          <Button variant={editor.isActive('bulletList') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('bulletList') ? 'bg-white hover:bg-gray-400' : ''}`} title="Bullet List">
+            <Icon type="format_list_bulleted" className='m-2' />
+          </Button>
+          <Button variant={editor.isActive('orderedList') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('orderedList') ? 'bg-white hover:bg-gray-400' : ''}`} title="Numbered List">
+            <Icon type="format_list_numbered" className='m-2'/>
+          </Button>
+        </div>
+      </div>
+      <EditorContent editor={editor} className="min-h-[150px]" />
+    </div>
+  );
+};
 
 const Rules = () => {
   const [rules, setRules] = useState<Rule[]>([]);
@@ -112,7 +200,7 @@ const Rules = () => {
     }
   };
 
-  const isRuleEmpty = !formData.rule.trim();
+  const isRuleEmpty = !formData.rule || formData.rule === '<p><br></p>' || formData.rule === '<p></p>';
   const existingRule = rules.find(r => r.id === editingId);
   const isRuleUnchanged = editingId && existingRule ? formData.rule === existingRule.rule : false;
   const isSaveDisabled = isRuleEmpty || isRuleUnchanged;
@@ -194,15 +282,13 @@ const Rules = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <TextArea 
-              id="rule"
-              label="Rule Content"
-              required
-              rows={6}
-              value={formData.rule}
-              onChange={(e) => setFormData({...formData, rule: e.target.value})}
-              placeholder="Enter one rule per line."
-            />
+            <div className="flex flex-col gap-2 mb-8">
+              <label className="text-sm font-bold mt-2">Rule Content</label>
+              <TiptapEditor 
+                value={formData.rule}
+                onChange={(val) => setFormData({...formData, rule: val})}
+              />
+            </div>
             <div className="flex gap-4">
               <Button variant="primary" type="submit" disabled={isSaveDisabled}>
                 {editingId ? 'Update' : 'Save Rule'}
@@ -241,14 +327,21 @@ const Rules = () => {
                     {categoryRules.map((rule) => (
                       <div key={rule.id} className="bg-white p-6 rounded-md border border-gray-500 flex justify-between items-center gap-6">
                         <div className="flex-1">
-                          <ul className="space-y-2">
-                            {rule.rule.split('\n').filter(line => line.trim()).map((line, idx) => (
-                              <li key={idx} className="flex items-start">
-                                <span className="flex-shrink-0 w-1.5 h-1.5 mt-1.5 rounded-full bg-orange-500 mr-2"></span>
-                                <span className="text-sm leading-relaxed">{line.trim()}</span>
-                              </li>
-                            ))}
-                          </ul>
+                          <div className="space-y-2">
+                              {/<[a-z][\s\S]*>/i.test(rule.rule) ? (
+                                <div dangerouslySetInnerHTML={{ __html: rule.rule }} className="[&>p]:my-2 [&>ul]:list-disc [&>ul]:ml-6 [&>ol]:list-decimal [&>ol]:ml-6 [&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mt-6 [&>h2]:text-xl [&>h2]:font-bold [&>h2]:mt-5 [&>h3]:text-lg [&>h3]:font-bold [&>h3]:mt-4 [&>strong]:font-bold" />
+                              ) : (
+                                rule.rule.split('\n').filter(line => line.trim()).map((line, idx) => {
+                                    let content = line.trim();
+                                    return (
+                                      <div key={idx} className="flex items-start">
+                                        <span className="flex-shrink-0 w-1.5 h-1.5 mt-1.5 rounded-full bg-orange-500 mr-2"></span>
+                                        <span className="text-sm leading-relaxed">{content}</span>
+                                      </div>
+                                    );
+                                })
+                              )}
+                          </div>
                         </div>
                         {isPresident && (
                           <div className="flex gap-3 shrink-0">
