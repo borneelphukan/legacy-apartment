@@ -9,11 +9,10 @@ const bannerImages = [
 ];
 
 const premisesImages = [
-  { src: "/images/banners/about-banner.jpeg", title: "Front Entrance" },
-  { src: "/images/banners/about-banner.jpeg", title: "Club House View" },
-  { src: "/images/banners/about-banner.jpeg", title: "Gymnasium Indoor" },
-  { src: "/images/banners/about-banner.jpeg", title: "Swimming Pool" },
-  { src: "/images/banners/about-banner.jpeg", title: "Lush Green Park" },
+  { src: "/images/apartment/front_view.png", title: "Front view of our Apartment" },
+  { src: "/images/apartment/front_view_2.png", title: "View of our Apartment" },
+  { src: "/images/apartment/view_from_top.png", title: "View from Top" },
+  { src: "/images/apartment/committee.jpeg", title: "Our Committee Members" },
 ];
 
 const AnimatedCounter = ({ end, duration = 2000, suffix = "" }: { end: number, duration?: number, suffix?: string }) => {
