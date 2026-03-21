@@ -205,6 +205,44 @@ const Rules = () => {
   const isRuleUnchanged = editingId && existingRule ? formData.rule === existingRule.rule : false;
   const isSaveDisabled = isRuleEmpty || isRuleUnchanged;
 
+  const renderForm = (isCreating: boolean) => (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-bold">Category</label>
+        <Input 
+          id="category"
+          value={formData.category}
+          onChange={(e) => setFormData({...formData, category: e.target.value})}
+          placeholder="Enter category name"
+          hideLabel
+          label="Category"
+        />
+      </div>
+      <div className="flex flex-col gap-2 mb-8">
+        <label className="text-sm font-bold mt-2">Rule Content</label>
+        <TiptapEditor 
+          value={formData.rule}
+          onChange={(val) => setFormData({...formData, rule: val})}
+        />
+      </div>
+      <div className="flex gap-4">
+        <Button variant="primary" type="submit" disabled={isSaveDisabled}>
+          {isCreating ? 'Save Rule' : 'Update'}
+        </Button>
+        <Button 
+          variant="outline"
+          type="button" 
+          onClick={() => {
+            setIsFormOpen(false);
+            setEditingId(null);
+          }}
+        >
+          Cancel
+        </Button>
+      </div>
+    </form>
+  );
+
   const handleDelete = async (id: number) => {
     setConfirmDialog({
       open: true,
@@ -253,41 +291,10 @@ const Rules = () => {
         )}
       </div>
 
-      {isFormOpen && (
+      {isFormOpen && !editingId && (
         <div className="mb-12 bg-white p-8 rounded-md border border-gray-500 overflow-hidden relative">
-          <h2 className="text-2xl font-bold mb-6">{editingId ? 'Edit' : 'Create'} Rule</h2>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-bold">Category</label>
-              <Input 
-                id="category"
-                value={formData.category}
-                onChange={(e) => setFormData({...formData, category: e.target.value})}
-                placeholder="Enter category name"
-                hideLabel
-                label="Category"
-              />
-            </div>
-            <div className="flex flex-col gap-2 mb-8">
-              <label className="text-sm font-bold mt-2">Rule Content</label>
-              <TiptapEditor 
-                value={formData.rule}
-                onChange={(val) => setFormData({...formData, rule: val})}
-              />
-            </div>
-            <div className="flex gap-4">
-              <Button variant="primary" type="submit" disabled={isSaveDisabled}>
-                {editingId ? 'Update' : 'Save Rule'}
-              </Button>
-              <Button 
-                variant="outline"
-                type="button" 
-                onClick={() => setIsFormOpen(false)}
-              >
-                Cancel
-              </Button>
-            </div>
-          </form>
+          <h2 className="text-2xl font-bold mb-6">Create Rule</h2>
+          {renderForm(true)}
         </div>
       )}
 
@@ -300,8 +307,7 @@ const Rules = () => {
             </p>
         ) : (
             Array.from(new Set(rules.map((r) => r.category))).map(category => {
-              const currentRules = (editingId && isFormOpen ? rules.filter(r => r.id !== editingId) : rules);
-              const categoryRules = currentRules.filter(r => r.category === category);
+              const categoryRules = rules.filter(r => r.category === category);
               if (categoryRules.length === 0) return null;
 
               return (
@@ -310,7 +316,16 @@ const Rules = () => {
                     {category}
                   </h2>
                   <div className="grid grid-cols-1 gap-4">
-                    {categoryRules.map((rule) => (
+                    {categoryRules.map((rule) => {
+                      if (editingId === rule.id && isFormOpen) {
+                        return (
+                          <div key={rule.id} className="bg-white p-6 rounded-md border border-gray-500 flex flex-col gap-6 relative">
+                            <h2 className="text-xl font-bold mb-2">Edit Rule</h2>
+                            {renderForm(false)}
+                          </div>
+                        );
+                      }
+                      return (
                       <div key={rule.id} className="bg-white p-6 rounded-md border border-gray-500 flex flex-col md:flex-row justify-between items-start gap-6 relative">
                         <div className="flex-1 w-full overflow-hidden">
                           <div className="space-y-4">
@@ -348,7 +363,7 @@ const Rules = () => {
                           </div>
                         )}
                       </div>
-                    ))}
+                    )})}
                   </div>
                 </div>
               );

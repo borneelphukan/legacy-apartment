@@ -240,9 +240,15 @@ importers:
 
   apps/frontend:
     dependencies:
+      '@legacy-apartment/shared':
+        specifier: '*'
+        version: link:../../packages/shared
       '@legacy-apartment/ui':
-        specifier: workspace:*
+        specifier: '*'
         version: link:../../packages/ui
+      '@tabler/icons-react':
+        specifier: ^3.28.0
+        version: 3.40.0(react@19.2.4)
       axios:
         specifier: ^1.8.4
         version: 1.13.6
@@ -2812,6 +2818,19 @@ packages:
     dependencies:
       defer-to-connect: 2.0.1
     dev: true
+
+  /@tabler/icons-react@3.40.0(react@19.2.4):
+    resolution: {integrity: sha512-oO5+6QCnna4a//mYubx4euZfECtzQZFDGsDMIdzZUhbdyBCT+3bRVFBPueGIcemWld4Vb/0UQ39C/cmGfGylAg==}
+    peerDependencies:
+      react: '>= 16'
+    dependencies:
+      '@tabler/icons': 3.40.0
+      react: 19.2.4
+    dev: false
+
+  /@tabler/icons@3.40.0:
+    resolution: {integrity: sha512-V/Q4VgNPKubRTiLdmWjV/zscYcj5IIk+euicUtaVVqF6luSC9rDngYWgST5/yh3Mrg/mYUwRv1YVTk71Jp0twQ==}
+    dev: false
 
   /@tailwindcss/node@4.2.1:
     resolution: {integrity: sha512-jlx6sLk4EOwO6hHe1oCGm1Q4AN/s0rSrTTPBGPM0/RQ6Uylwq17FuU8IeJJKEjtc6K6O07zsvP+gDO6MMWo7pg==}
