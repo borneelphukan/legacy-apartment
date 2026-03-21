@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, Icon , Spinner } from '@legacy-apartment/ui';
+import { Button, Input, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon , Spinner } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
 import api from '@/lib/api';
+import { ruleSchema } from '@legacy-apartment/shared';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -16,13 +17,7 @@ interface Rule {
 }
 
 
-const categories = [
-  "Housing Society by law in India",
-  "Eligibility of Tenants in Housing Society",
-  "Duty of Associated Member",
-  "Formation of Society",
-  "Pet & Dog"
-];
+
 
 const TiptapEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
   const [activeStates, setActiveStates] = useState(0);
@@ -113,9 +108,10 @@ const Rules = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
-    category: categories[0],
+    category: '',
     rule: '',
   });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [isPresident, setIsPresident] = useState(false);
   const router = useRouter();
@@ -160,6 +156,18 @@ const Rules = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormErrors({});
+
+    const result = ruleSchema.safeParse(formData);
+    if (!result.success) {
+      setAlertDialog({
+        open: true,
+        title: 'Validation Error',
+        description: 'Please ensure all rule details are filled out correctly.',
+        type: 'error'
+      });
+      return;
+    }
 
     try {
       const response = editingId 
@@ -168,7 +176,7 @@ const Rules = () => {
 
       setIsFormOpen(false);
       setEditingId(null);
-      setFormData({ category: categories[0], rule: '' });
+      setFormData({ category: '', rule: '' });
       fetchRules();
     } catch (error: any) {
       setAlertDialog({
@@ -181,6 +189,7 @@ const Rules = () => {
   };
 
   const handleEdit = (rule: Rule) => {
+    setFormErrors({});
     setEditingId(rule.id);
     setFormData({
       category: rule.category,
@@ -189,16 +198,7 @@ const Rules = () => {
     setIsFormOpen(true);
   };
 
-  const handleCategoryChange = (cat: string) => {
-    const existingRule = rules.find(r => r.category === cat);
-    if (existingRule) {
-      setEditingId(existingRule.id);
-      setFormData({ category: cat, rule: existingRule.rule });
-    } else {
-      setEditingId(null);
-      setFormData({ category: cat, rule: '' });
-    }
-  };
+
 
   const isRuleEmpty = !formData.rule || formData.rule === '<p><br></p>' || formData.rule === '<p></p>';
   const existingRule = rules.find(r => r.id === editingId);
@@ -242,7 +242,9 @@ const Rules = () => {
               variant="primary"
               icon={{ left: <Icon type="add" className="text-[20px]" /> }}
               onClick={() => {
-                  handleCategoryChange(categories[0]);
+                  setFormErrors({});
+                  setEditingId(null);
+                  setFormData({ category: '', rule: '' });
                   setIsFormOpen(true);
               }}
           >
@@ -257,30 +259,14 @@ const Rules = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="flex flex-col gap-2">
               <label className="text-sm font-bold">Category</label>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button 
-                    type="button"
-                    className="w-full p-3 border border-gray-400 rounded-md bg-white flex items-center justify-between text-left focus:outline-none focus:border-orange-500"
-                  >
-                    <span>{formData.category}</span>
-                    <Icon type="keyboard_arrow_down" className="text-[20px] text-gray-400" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-[calc(100vw-3rem)] md:w-[440px]">
-                  <DropdownMenuRadioGroup>
-                    {categories.map(cat => (
-                      <DropdownMenuRadioItem 
-                        key={cat} 
-                        checked={formData.category === cat}
-                        onClick={() => handleCategoryChange(cat)}
-                      >
-                        {cat}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Input 
+                id="category"
+                value={formData.category}
+                onChange={(e) => setFormData({...formData, category: e.target.value})}
+                placeholder="Enter category name"
+                hideLabel
+                label="Category"
+              />
             </div>
             <div className="flex flex-col gap-2 mb-8">
               <label className="text-sm font-bold mt-2">Rule Content</label>
@@ -313,7 +299,7 @@ const Rules = () => {
                 No rules found. Add some to get started.
             </p>
         ) : (
-            categories.map(category => {
+            Array.from(new Set(rules.map((r) => r.category))).map(category => {
               const currentRules = (editingId && isFormOpen ? rules.filter(r => r.id !== editingId) : rules);
               const categoryRules = currentRules.filter(r => r.category === category);
               if (categoryRules.length === 0) return null;

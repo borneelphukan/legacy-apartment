@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button, Input, Upload, Modal, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon , Spinner } from '@legacy-apartment/ui';
 import api from '@/lib/api';
+import { eventSchema, photoSchema } from '@legacy-apartment/shared';
 
 interface GalleryPhoto {
   id: number;
@@ -36,6 +37,8 @@ const Gallery = () => {
     alt: '',
     className: 'col-span-1 row-span-1',
   });
+
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const [uploadFiles, setUploadFiles] = useState<File[]>([]);
   
@@ -77,6 +80,19 @@ const Gallery = () => {
 
   const handleCreateEvent = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormErrors({});
+    const result = eventSchema.safeParse(eventData);
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.issues.forEach((err: any) => {
+        if (err.path[0]) {
+          errors[err.path[0].toString()] = err.message;
+        }
+      });
+      setFormErrors(errors);
+      return;
+    }
+
     try {
       const year = new Date(eventData.date).getFullYear();
       await api.post('/gallery/events', { ...eventData, year });
@@ -132,7 +148,19 @@ const Gallery = () => {
 
   const handleAddPhoto = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedEventId || !photoData.src) return;
+    setFormErrors({});
+    if (!selectedEventId) return;
+
+    const result = photoSchema.safeParse(photoData);
+    if (!result.success) {
+      setAlertDialog({
+        open: true,
+        title: 'Validation Error',
+        description: result.error.issues[0].message,
+        type: 'error',
+      });
+      return;
+    }
 
     try {
       await api.post('/gallery/photos', {
@@ -191,7 +219,10 @@ const Gallery = () => {
           <Button 
             variant="primary"
             icon={{ left: <Icon type="add" className="text-[20px]" /> }}
-            onClick={() => setIsEventFormOpen(true)}
+            onClick={() => {
+              setFormErrors({});
+              setIsEventFormOpen(true);
+            }}
           >
             Create Event
           </Button>
@@ -321,6 +352,7 @@ const Gallery = () => {
                 value={eventData.name}
                 onChange={(e) => setEventData({...eventData, name: e.target.value})}
                 placeholder="e.g. Bihu Celebration 2025"
+                error={formErrors.name}
               />
               <div className="grid grid-cols-1">
                 <Input 
@@ -333,6 +365,7 @@ const Gallery = () => {
                     const date = e.target.value;
                     setEventData({...eventData, date});
                   }}
+                  error={formErrors.date}
                 />
               </div>
             </form>

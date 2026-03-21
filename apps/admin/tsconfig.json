@@ -29,6 +29,9 @@
       ],
       "@legacy-apartment/ui": [
         "../../packages/ui/src"
+      ],
+      "@legacy-apartment/shared": [
+        "../../packages/shared/src"
       ]
     }
   },

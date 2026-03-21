@@ -22,7 +22,7 @@ const DetailsStack = () => {
           <ContactCard
             icon="Phone"
             title="Let's Talk"
-            address="+91 96 552 222 22"
+            address="+91 94356 480 72"
           />
         </div>
       </div>

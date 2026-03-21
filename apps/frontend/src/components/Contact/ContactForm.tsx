@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import emailjs from "emailjs-com";
+import { contactSchema } from '@legacy-apartment/shared';
 import { Button, Input, TextArea } from "@legacy-apartment/ui";
 
 const ContactForm = () => {
@@ -19,18 +20,9 @@ const ContactForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.email ||
-      !formData.message
-    ) {
-      toast.error("Please fill out all fields.");
-      return;
-    }
-
-    if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      toast.error("Please enter a valid email address.");
+    const result = contactSchema.safeParse(formData);
+    if (!result.success) {
+      toast.error(result.error.issues[0].message);
       return;
     }
 

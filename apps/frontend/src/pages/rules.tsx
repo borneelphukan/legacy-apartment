@@ -4,6 +4,8 @@ import DefaultLayout from "@/layout/DefaultLayout";
 import Head from "next/head";
 import { Banner, Breadcrumb, Button, Icon, Spinner, Input } from "@legacy-apartment/ui";
 import api from "@/lib/api";
+import Router from 'next/router';
+import { unlockSchema } from '@legacy-apartment/shared';
 
 const categoryMetadata: Record<string, { icon: React.ReactNode }> = {
   "General Rules": { icon: <Icon type="info"/> },
@@ -57,8 +59,15 @@ const Rules = () => {
     fetchData();
   }, []);
 
+
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
+    const result = unlockSchema.safeParse({ password });
+    if (!result.success) {
+      setError(result.error.issues[0].message);
+      return;
+    }
+
     if (password === globalPassword) {
       setIsUnlocked(true);
       localStorage.setItem('rules_lock', "true");

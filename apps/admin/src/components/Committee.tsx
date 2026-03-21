@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Input, Upload, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, Table, Badge, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Avatar, AvatarImage, AvatarFallback, Icon , Spinner } from '@legacy-apartment/ui';
 import api from '@/lib/api';
+import { committeeSchema } from '@legacy-apartment/shared';
 
 interface CommitteeMember {
   id: number;
@@ -40,6 +41,7 @@ const Committee = () => {
     avatar: '',
     role: roles[0],
   });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [avatarFiles, setAvatarFiles] = useState<File[]>([]);
   const [isPresident, setIsPresident] = useState(false);
@@ -183,6 +185,20 @@ const Committee = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormErrors({});
+
+    const result = committeeSchema.safeParse(formData);
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.issues.forEach((err: any) => {
+        if (err.path[0]) {
+          errors[err.path[0].toString()] = err.message;
+        }
+      });
+      setFormErrors(errors);
+      return;
+    }
+
     try {
       const response = editingId 
         ? await api.patch(`/committee/${editingId}`, formData)
@@ -204,6 +220,7 @@ const Committee = () => {
   };
 
   const handleEdit = (member: CommitteeMember) => {
+    setFormErrors({});
     setEditingId(member.id);
     setFormData({
       name: member.name,
@@ -253,6 +270,7 @@ const Committee = () => {
             variant="primary"
             icon={{ left: <Icon type="add" className="text-[20px]" /> }}
             onClick={() => {
+                setFormErrors({});
                 setEditingId(null);
                 setFormData({ name: '', residence: '', phone_no: '', avatar: '', role: roles[0] });
                 setAvatarFiles([]);
@@ -276,6 +294,7 @@ const Committee = () => {
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 placeholder="Enter member name"
+                error={formErrors.name}
               />
               <div className="flex flex-col gap-1.5 group/select">
                 <label className="text-gray-100 font-medium text-sm">Role</label>
@@ -308,6 +327,7 @@ const Committee = () => {
                 value={formData.residence}
                 onChange={(e) => setFormData({...formData, residence: e.target.value})}
                 placeholder="Enter flat no."
+                error={formErrors.residence}
               />
               <Input 
                 id="phone_no"
@@ -316,6 +336,7 @@ const Committee = () => {
                 value={formData.phone_no}
                 onChange={(e) => setFormData({...formData, phone_no: e.target.value})}
                 placeholder="Enter phone number"
+                error={formErrors.phone_no}
               />
               <div className="md:col-span-2">
                 {formData.avatar ? (

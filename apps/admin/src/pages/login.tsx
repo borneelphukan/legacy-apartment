@@ -18,6 +18,7 @@ import {
   Icon
 } from '@legacy-apartment/ui';
 import api from '@/lib/api';
+import { loginSchema, registerSchema } from '@legacy-apartment/shared';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -29,6 +30,7 @@ export default function Login() {
   const [role, setRole] = useState('secretary');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const router = useRouter();
   const [alertDialog, setAlertDialog] = useState<{
     open: boolean;
@@ -40,33 +42,29 @@ export default function Login() {
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormErrors({});
 
-    if (!email || !password) {
-      setAlertDialog({
-        open: true,
-        title: 'Validation Error',
-        description: 'Please enter both email and password',
-        type: 'error'
-      });
-      return;
-    }
+    const payload = isRegisterMode 
+      ? { email, password, firstName, lastName, role, residence, phone_no }
+      : { email, password };
 
-    if (isRegisterMode && (!firstName || !lastName)) {
-      setAlertDialog({
-        open: true,
-        title: 'Validation Error',
-        description: 'Please fill in all required fields',
-        type: 'error'
+    const schema = isRegisterMode ? registerSchema : loginSchema;
+    const result = schema.safeParse(payload);
+
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.issues.forEach((err: any) => {
+        if (err.path[0]) {
+          errors[err.path[0].toString()] = err.message;
+        }
       });
+      setFormErrors(errors);
       return;
     }
 
     setIsSubmitting(true);
 
     const endpoint = isRegisterMode ? 'register' : 'login';
-    const payload = isRegisterMode 
-      ? { email, password, firstName, lastName, role, residence, phone_no }
-      : { email, password };
 
     try {
       const response = await api.post(`/users/${endpoint}`, payload);
@@ -142,6 +140,7 @@ export default function Login() {
                         placeholder="John"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
+                        error={formErrors.firstName}
                       />
                       <Input
                         id="lastName"
@@ -151,6 +150,7 @@ export default function Login() {
                         placeholder="Doe"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
+                        error={formErrors.lastName}
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -162,6 +162,7 @@ export default function Login() {
                         placeholder="A-101"
                         value={residence}
                         onChange={(e) => setResidence(e.target.value)}
+                        error={formErrors.residence}
                       />
                       <Input
                         id="phone_no"
@@ -171,6 +172,7 @@ export default function Login() {
                         placeholder="+91 9876543210"
                         value={phone_no}
                         onChange={(e) => setPhoneNo(e.target.value)}
+                        error={formErrors.phone_no}
                       />
                     </div>
                     
@@ -204,6 +206,7 @@ export default function Login() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  error={formErrors.email}
                 />
                 <Input
                   id="password"
@@ -213,6 +216,7 @@ export default function Login() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  error={formErrors.password}
                 />
               </div>
 

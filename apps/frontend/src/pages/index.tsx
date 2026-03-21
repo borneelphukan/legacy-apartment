@@ -200,7 +200,7 @@ const Home = () => {
         
 
           <h1 className="text-center text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-[#e2e4e9] uppercase tracking-tighter leading-none mb-10 w-full drop-shadow-2xl">
-            The Legacy Housing Society
+            Legacy Resident Society
           </h1>
           
           <div className="text-center max-w-3xl mx-auto flex flex-col items-center">

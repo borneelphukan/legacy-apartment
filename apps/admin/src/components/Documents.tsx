@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, TextArea, Input, Upload, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon , Spinner } from '@legacy-apartment/ui';
 import api from '@/lib/api';
+import { documentSchema } from '@legacy-apartment/shared';
 
 interface DocumentModel {
   id: number;
@@ -35,6 +36,7 @@ const Documents = () => {
     description: '',
     category: CATEGORIES[0]
   });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   
   const [uploadFiles, setUploadFiles] = useState<File[]>([]);
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -94,6 +96,20 @@ const Documents = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormErrors({});
+
+    const result = documentSchema.safeParse(formData);
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.issues.forEach((err: any) => {
+        if (err.path[0]) {
+          errors[err.path[0].toString()] = err.message;
+        }
+      });
+      setFormErrors(errors);
+      return;
+    }
+
     if (!formData.document) {
       setAlertDialog({
         open: true,
@@ -179,6 +195,7 @@ const Documents = () => {
               variant="primary"
               icon={{ left: <Icon type="add" className="text-[20px]" /> }}
               onClick={() => {
+                  setFormErrors({});
                   setFormData({ 
                     document: '', 
                     fileName: '',
@@ -239,6 +256,7 @@ const Documents = () => {
               type="date" 
               value={formData.date}
               onChange={(e) => setFormData({...formData, date: e.target.value})}
+              error={formErrors.date}
             />
             <TextArea 
               id="description"
@@ -247,6 +265,7 @@ const Documents = () => {
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
               placeholder="Provide context for this document..."
+              error={formErrors.description}
             />
             <div className="flex gap-4 pt-2">
               <Button variant="primary" type="submit">

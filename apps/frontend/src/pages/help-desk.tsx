@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from "react";
 import DefaultLayout from "@/layout/DefaultLayout";
 import Head from "next/head";
-import { Banner, Breadcrumb, Button, Input, TextArea, Icon } from "@legacy-apartment/ui";
+import { Banner, Breadcrumb, Button, Input, TextArea, Icon, Spinner } from "@legacy-apartment/ui";
 import api from "@/lib/api";
+import { helpDeskSchema, unlockSchema } from '@legacy-apartment/shared';
 
 
 const HelpDesk = () => {
@@ -13,6 +14,7 @@ const HelpDesk = () => {
     phone_no: "",
     complaint: "",
   });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
@@ -39,6 +41,12 @@ const HelpDesk = () => {
 
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
+    const result = unlockSchema.safeParse({ password });
+    if (!result.success) {
+      setError(result.error.issues[0].message);
+      return;
+    }
+    
     if (password === globalPassword) {
       setIsUnlocked(true);
       localStorage.setItem("helpdesk_lock", "true");
@@ -50,6 +58,20 @@ const HelpDesk = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormErrors({});
+    
+    const result = helpDeskSchema.safeParse(formData);
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.issues.forEach((err: any) => {
+        if (err.path[0]) {
+          errors[err.path[0].toString()] = err.message;
+        }
+      });
+      setFormErrors(errors);
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -177,6 +199,7 @@ const HelpDesk = () => {
                         value={formData.name}
                         onChange={(e) => setFormData({...formData, name: e.target.value})}
                         placeholder="John Doe"
+                        error={formErrors.name}
                       />
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -186,6 +209,7 @@ const HelpDesk = () => {
                           required
                           value={formData.apartment}
                           onChange={(e) => setFormData({...formData, apartment: e.target.value})}
+                          error={formErrors.apartment}
                         />
                         <Input 
                           id="phone_no"
@@ -194,6 +218,7 @@ const HelpDesk = () => {
                           type="tel"
                           value={formData.phone_no}
                           onChange={(e) => setFormData({...formData, phone_no: e.target.value})}
+                          error={formErrors.phone_no}
                         />
                       </div>
 
@@ -205,6 +230,7 @@ const HelpDesk = () => {
                         className="border border-gray-400 text-gray-100"
                         value={formData.complaint}
                         onChange={(e) => setFormData({...formData, complaint: e.target.value})}
+                        error={formErrors.complaint}
                       />
 
                       <Button 

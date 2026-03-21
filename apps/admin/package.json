@@ -58,7 +58,8 @@
     "react-switch": "^7.1.0",
     "remark-gfm": "^4.0.1",
     "sweetalert2": "^11.17.2",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

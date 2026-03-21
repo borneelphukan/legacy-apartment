@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Upload, Table, Switch, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Avatar, AvatarImage, AvatarFallback, Icon , Spinner } from '@legacy-apartment/ui';
+import { Button, Input, Table, Badge, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon , Spinner, Upload, Avatar, AvatarImage, AvatarFallback } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
 import api from '@/lib/api';
+import { residentSchema } from '@legacy-apartment/shared';
 
 interface Resident {
   id: number;
@@ -28,6 +29,7 @@ const Residents = () => {
     monthlyRate: 1000,
     avatar: '',
   });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [avatarFiles, setAvatarFiles] = useState<File[]>([]);
   const [isPresident, setIsPresident] = useState(false);
@@ -100,6 +102,19 @@ const Residents = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormErrors({});
+    
+    const result = residentSchema.safeParse(formData);
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.issues.forEach((err: any) => {
+        if (err.path[0]) {
+          errors[err.path[0].toString()] = err.message;
+        }
+      });
+      setFormErrors(errors);
+      return;
+    }
     
     const body = {
       ...formData
@@ -126,6 +141,7 @@ const Residents = () => {
   };
 
   const handleEdit = (res: Resident) => {
+    setFormErrors({});
     setEditingId(res.id);
     setFormData({
       name: res.name,
@@ -175,6 +191,7 @@ const Residents = () => {
               variant="primary"
               icon={{ left: <Icon type="add" className="text-[20px]" /> }}
               onClick={() => {
+                  setFormErrors({});
                   setEditingId(null);
                   setFormData({ name: '', residence: '', phone_no: '', monthlyRate: 1000, avatar: '' });
                   setAvatarFiles([]);
@@ -199,6 +216,7 @@ const Residents = () => {
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 placeholder="Enter resident full name"
+                error={formErrors.name}
               />
               <Input 
                 id="residence"
@@ -208,6 +226,7 @@ const Residents = () => {
                 value={formData.residence}
                 onChange={(e) => setFormData({...formData, residence: e.target.value})}
                 placeholder="Enter flat no."
+                error={formErrors.residence}
               />
               <Input 
                 id="phone_no"
@@ -217,6 +236,7 @@ const Residents = () => {
                 value={formData.phone_no}
                 onChange={(e) => setFormData({...formData, phone_no: e.target.value})}
                 placeholder="Enter phone number"
+                error={formErrors.phone_no}
               />
               <Input 
                 id="monthlyRate"
@@ -226,6 +246,7 @@ const Residents = () => {
                 value={formData.monthlyRate}
                 onChange={(e) => setFormData({...formData, monthlyRate: parseFloat(e.target.value) || 0})}
                 placeholder="Enter monthly rate"
+                error={formErrors.monthlyRate}
               />
               <div className="md:col-span-2">
                 {formData.avatar ? (

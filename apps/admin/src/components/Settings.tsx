@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Input, Button, Table, Badge, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription , Spinner } from '@legacy-apartment/ui';
 import api from '@/lib/api';
+import { pwdSchema } from '@legacy-apartment/shared';
 
 interface User {
   id: number;
@@ -76,6 +77,17 @@ const Settings = () => {
   };
 
   const updateGlobalPassword = async () => {
+    const result = pwdSchema.safeParse({ password: globalPassword });
+    if (!result.success) {
+      setAlertDialog({
+        open: true,
+        title: 'Validation Error',
+        description: result.error.issues[0].message,
+        type: 'error'
+      });
+      return;
+    }
+
     setSavingPassword(true);
     try {
       await api.post('/setting', { frontendPassword: globalPassword });

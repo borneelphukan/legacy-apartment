@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, TextArea, Input, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon , Spinner } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
 import api from '@/lib/api';
+import { announcementSchema } from '@legacy-apartment/shared';
 
 interface Announcement {
   id: number;
@@ -20,6 +21,7 @@ const Announcements = () => {
     description: '',
     date: new Date().toISOString().split('T')[0],
   });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [canManage, setCanManage] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -64,6 +66,19 @@ const Announcements = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormErrors({});
+
+    const result = announcementSchema.safeParse(formData);
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      result.error.issues.forEach((err: any) => {
+        if (err.path[0]) {
+          errors[err.path[0].toString()] = err.message;
+        }
+      });
+      setFormErrors(errors);
+      return;
+    }
 
     try {
       const response = editingId 
@@ -85,6 +100,7 @@ const Announcements = () => {
   };
 
   const handleEdit = (ann: Announcement) => {
+    setFormErrors({});
     setEditingId(ann.id);
     setFormData({
       title: ann.title,
@@ -132,6 +148,7 @@ const Announcements = () => {
               icon={{ left: <Icon type="add" className="text-[20px]" /> }}
               onClick={() => {
                 
+                  setFormErrors({});
                   setEditingId(null);
                   setFormData({ title: '', description: '', date: new Date().toISOString().split('T')[0] });
                   setIsFormOpen(true);
@@ -155,6 +172,7 @@ const Announcements = () => {
               value={formData.title}
               onChange={(e) => setFormData({...formData, title: e.target.value})}
               placeholder="Enter announcement title"
+              error={formErrors.title}
             />
             <Input 
               id="date"
@@ -163,6 +181,7 @@ const Announcements = () => {
               type="date" 
               value={formData.date}
               onChange={(e) => setFormData({...formData, date: e.target.value})}
+              error={formErrors.date}
             />
             <TextArea 
               id="description"
@@ -172,6 +191,7 @@ const Announcements = () => {
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
               placeholder="Provide details about the announcement..."
+              error={formErrors.description}
             />
             <div className="flex gap-4">
               <Button variant="primary" type="submit">
