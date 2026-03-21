@@ -13,6 +13,8 @@ const premisesImages = [
   { src: "/images/apartment/front_view_2.png", title: "View of our Apartment" },
   { src: "/images/apartment/view_from_top.png", title: "View from Top" },
   { src: "/images/apartment/committee.jpeg", title: "Our Committee Members" },
+  { src: "/images/apartment/sign.jpeg", title: "Entrance of our Society"},
+  { src: "/images/apartment/main.png", title: "Main Building"},
 ];
 
 const AnimatedCounter = ({ end, duration = 2000, suffix = "" }: { end: number, duration?: number, suffix?: string }) => {
