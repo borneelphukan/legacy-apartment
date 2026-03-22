@@ -17,6 +17,26 @@ export class DocumentController {
   }
 
   @Public()
+  @Get('categories')
+  getCategories() {
+    return this.documentService.getCategories();
+  }
+
+  @Roles(...PERMISSIONS.CREATE_DOCUMENT)
+  @UseGuards(RolesGuard)
+  @Post('categories')
+  createCategory(@Body() body: { name: string }) {
+    return this.documentService.createCategory(body.name);
+  }
+
+  @Roles(...PERMISSIONS.CREATE_DOCUMENT)
+  @UseGuards(RolesGuard)
+  @Delete('categories/:id')
+  removeCategory(@Param('id', ParseIntPipe) id: number) {
+    return this.documentService.removeCategory(id);
+  }
+
+  @Public()
   @Get()
   findAll() {
     return this.documentService.findAll();

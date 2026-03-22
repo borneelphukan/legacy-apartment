@@ -144,6 +144,15 @@ model Document {
   @@map("document")
 }
 
+model DocumentCategory {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("document_category")
+}
+
 model GalleryEvent {
   id        Int            @id @default(autoincrement())
   name      String

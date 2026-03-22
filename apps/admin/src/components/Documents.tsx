@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, TextArea, Input, Upload, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon , Spinner } from '@legacy-apartment/ui';
+import { Button, TextArea, Input, Upload, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon , Spinner, Modal } from '@legacy-apartment/ui';
 import api from '@/lib/api';
 import { documentSchema } from '@legacy-apartment/shared';
 
@@ -12,19 +12,18 @@ interface DocumentModel {
   category: string;
 }
 
-const CATEGORIES = [
-  'Elevator Maintenance',
-  'Generator Maintenance',
-  'Water Pump Maintenance',
-  'Fire Extinguisher Maintenance',
-  'Insurance',
-  'Khazna'
-];
+interface DocumentCategory {
+  id: number;
+  name: string;
+}
 
 const Documents = () => {
   const [documents, setDocuments] = useState<DocumentModel[]>([]);
-  const [activeCategory, setActiveCategory] = useState(CATEGORIES[0]);
+  const [categories, setCategories] = useState<DocumentCategory[]>([]);
+  const [activeCategory, setActiveCategory] = useState<string>('');
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isManageCategoriesOpen, setIsManageCategoriesOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
   const [loading, setLoading] = useState(true);
   const [canManage, setCanManage] = useState(false);
   const [previewDoc, setPreviewDoc] = useState<DocumentModel | null>(null);
@@ -34,7 +33,7 @@ const Documents = () => {
     fileName: '',
     date: new Date().toISOString().split('T')[0],
     description: '',
-    category: CATEGORIES[0]
+    category: ''
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   
@@ -65,8 +64,29 @@ const Documents = () => {
   }, []);
 
   useEffect(() => {
+    fetchCategories();
     fetchDocuments();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await api.get('/documents/categories');
+      setCategories(response.data);
+      if (response.data.length > 0) {
+         setActiveCategory(prev => {
+            if (!prev || !response.data.find((c: any) => c.name === prev)) {
+               setFormData(fd => ({ ...fd, category: response.data[0].name }));
+               return response.data[0].name;
+            }
+            return prev;
+         });
+      } else {
+         setActiveCategory('');
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const fetchDocuments = async () => {
     try {
@@ -164,6 +184,44 @@ const Documents = () => {
     });
   };
 
+  const handleAddCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCategoryName.trim()) return;
+    try {
+      await api.post('/documents/categories', { name: newCategoryName.trim() });
+      setNewCategoryName('');
+      fetchCategories();
+    } catch (error: any) {
+      setAlertDialog({
+        open: true,
+        title: 'Error',
+        description: error.response?.data?.message || 'Failed to add category',
+        type: 'error'
+      });
+    }
+  };
+
+  const handleDeleteCategory = async (id: number, name: string) => {
+    setConfirmDialog({
+      open: true,
+      title: 'Delete Category?',
+      description: `This will delete the category "${name}". Documents in this category will not be deleted but can't be filtered until re-assigned. Are you sure?`,
+      onConfirm: async () => {
+        try {
+          await api.delete(`/documents/categories/${id}`);
+          fetchCategories();
+        } catch (error) {
+          setAlertDialog({
+            open: true,
+            title: 'Error',
+            description: 'Failed to delete category',
+            type: 'error'
+          });
+        }
+      }
+    });
+  };
+
   const currentCategoryDocuments = documents.filter(doc => doc.category === activeCategory);
   
   // Group by year
@@ -190,11 +248,15 @@ const Documents = () => {
             Manage society records, maintenance logs, and financial documents.
           </p>
         </div>
-        {canManage && (
+        {canManage && categories.length > 0 && (
           <Button 
               variant="primary"
               icon={{ left: <Icon type="add" className="text-[20px]" /> }}
               onClick={() => {
+                  if (!activeCategory) {
+                      setAlertDialog({ open: true, title: 'No Category', description: 'Please create a category first.', type: 'error' });
+                      return;
+                  }
                   setFormErrors({});
                   setFormData({ 
                     document: '', 
@@ -212,24 +274,56 @@ const Documents = () => {
         )}
       </div>
 
-      <div className="flex flex-nowrap gap-2 mb-8 border-b border-gray-400 pb-2 overflow-x-auto whitespace-nowrap scrollbar-hide">
-        {CATEGORIES.map(category => (
-          <button
-            key={category}
-            type="button"
-            onClick={() => {
-              setActiveCategory(category);
-              setIsFormOpen(false);
-            }}
-            className={`px-4 py-2 rounded-t-xl transition-colors text-sm ${
-              activeCategory === category 
-                ? 'bg-orange-500 text-white' 
-                : 'text-gray-100 hover:bg-gray-400'
+      <div className="flex flex-nowrap gap-2 mb-8 border-b border-gray-400 pb-2 overflow-x-auto whitespace-nowrap scrollbar-hide items-end">
+        {categories.map(category => (
+          <div
+            key={category.id}
+            className={`flex items-center rounded-t-xl transition-colors text-sm overflow-hidden border border-b-0 ${
+              activeCategory === category.name 
+                ? 'bg-orange-500 text-white border-orange-500' 
+                : 'text-gray-100 bg-gray-50 border-gray-400 hover:bg-gray-500'
             }`}
           >
-            {category}
-          </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveCategory(category.name);
+                setIsFormOpen(false);
+              }}
+              className={`py-2 pl-4 ${canManage ? 'pr-2' : 'pr-4'}`}
+            >
+              {category.name}
+            </button>
+            {canManage && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteCategory(category.id, category.name);
+                }}
+                className={`py-2 pr-3 pl-1 flex items-center justify-center transition-colors ${
+                  activeCategory === category.name ? 'hover:text-red-200' : 'hover:text-red-500'
+                }`}
+                title="Delete Category"
+              >
+                <Icon type="close" />
+              </button>
+            )}
+          </div>
         ))}
+        {canManage && (
+          <button
+            type="button"
+            onClick={() => setIsManageCategoriesOpen(true)}
+            className="px-3 py-2 rounded-t-xl transition-colors text-gray-100 bg-gray-500 hover:bg-gray-400 flex items-center justify-center font-bold"
+            title="Add Category"
+          >
+            <Icon type="add"/>
+          </button>
+        )}
+        {categories.length === 0 && !canManage && (
+           <div className="text-sm text-gray-100 p-2 ">No categories available.</div>
+        )}
       </div>
 
       {isFormOpen && (
@@ -426,6 +520,29 @@ const Documents = () => {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Add Category Modal */}
+      <Modal 
+        open={isManageCategoriesOpen} 
+        onOpenChange={setIsManageCategoriesOpen}
+        title="Add Category"
+        description="Create a new document category to organize your files."
+        content={
+          <form onSubmit={handleAddCategory} id="add-category-form" className="py-2">
+            <Input 
+              id="new-category"
+              label="Category Name"
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              placeholder="e.g. Utility Bills"
+            />
+          </form>
+        }
+        actions={[
+          <Button variant="outline" onClick={() => setIsManageCategoriesOpen(false)}>Cancel</Button>,
+          <Button variant="primary" type="submit" form="add-category-form" disabled={!newCategoryName.trim()}>Add Category</Button>
+        ]}
+      />
     </div>
   );
 };
