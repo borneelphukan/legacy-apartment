@@ -26,11 +26,17 @@ const Documents = () => {
   const [newCategoryName, setNewCategoryName] = useState('');
   const [loading, setLoading] = useState(true);
   const [canManage, setCanManage] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [tabOrderMap, setTabOrderMap] = useState<string[]>([]);
   const [previewDoc, setPreviewDoc] = useState<DocumentModel | null>(null);
   
-  const [formData, setFormData] = useState({
-    document: '',
-    fileName: '',
+  const [formData, setFormData] = useState<{
+    documents: { document: string; fileName: string }[],
+    date: string;
+    description: string;
+    category: string;
+  }>({
+    documents: [],
     date: new Date().toISOString().split('T')[0],
     description: '',
     category: ''
@@ -58,7 +64,13 @@ const Documents = () => {
     if (stored) {
       try {
         const user = JSON.parse(stored);
+        setCurrentUser(user);
         setCanManage(user?.role === 'president' || user?.role === 'treasurer');
+        
+        const savedOrder = localStorage.getItem(`adminDocTabsOrder_${user?.id}`);
+        if (savedOrder) {
+          setTabOrderMap(JSON.parse(savedOrder));
+        }
       } catch {}
     }
   }, []);
@@ -101,16 +113,24 @@ const Documents = () => {
 
   const handleFileChange = (files: File[]) => {
     setUploadFiles(files);
+    
     if (files.length > 0) {
-      const file = files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
-        setFormData(prev => ({ ...prev, document: reader.result as string, fileName: nameWithoutExt }));
-      };
-      reader.readAsDataURL(file);
+      const filePromises = files.map(file => {
+        return new Promise<{document: string, fileName: string}>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+            resolve({ document: reader.result as string, fileName: nameWithoutExt });
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+
+      Promise.all(filePromises).then(results => {
+        setFormData(prev => ({ ...prev, documents: results }));
+      });
     } else {
-      setFormData(prev => ({ ...prev, document: '', fileName: '' }));
+      setFormData(prev => ({ ...prev, documents: [] }));
     }
   };
 
@@ -118,35 +138,32 @@ const Documents = () => {
     e.preventDefault();
     setFormErrors({});
 
-    const result = documentSchema.safeParse(formData);
-    if (!result.success) {
-      const errors: Record<string, string> = {};
-      result.error.issues.forEach((err: any) => {
-        if (err.path[0]) {
-          errors[err.path[0].toString()] = err.message;
-        }
-      });
-      setFormErrors(errors);
-      return;
-    }
-
-    if (!formData.document) {
+    if (formData.documents.length === 0) {
       setAlertDialog({
         open: true,
         title: 'Error',
-        description: 'Please upload a document before submitting.',
+        description: 'Please upload at least one document before submitting.',
         type: 'error'
       });
       return;
     }
 
     try {
-      const payload = { ...formData, category: activeCategory };
-      await api.post('/documents', payload);
+      const promises = formData.documents.map(doc => {
+        const payload = {
+          document: doc.document,
+          fileName: doc.fileName,
+          date: formData.date,
+          description: formData.description,
+          category: activeCategory
+        };
+        return api.post('/documents', payload);
+      });
+      await Promise.all(promises);
+
       setIsFormOpen(false);
       setFormData({ 
-        document: '', 
-        fileName: '',
+        documents: [], 
         date: new Date().toISOString().split('T')[0], 
         description: '', 
         category: activeCategory 
@@ -190,6 +207,7 @@ const Documents = () => {
     try {
       await api.post('/documents/categories', { name: newCategoryName.trim() });
       setNewCategoryName('');
+      setIsManageCategoriesOpen(false);
       fetchCategories();
     } catch (error: any) {
       setAlertDialog({
@@ -205,7 +223,7 @@ const Documents = () => {
     setConfirmDialog({
       open: true,
       title: 'Delete Category?',
-      description: `This will delete the category "${name}". Documents in this category will not be deleted but can't be filtered until re-assigned. Are you sure?`,
+      description: `This will delete the category "${name}". Are you sure?`,
       onConfirm: async () => {
         try {
           await api.delete(`/documents/categories/${id}`);
@@ -224,6 +242,44 @@ const Documents = () => {
 
   const currentCategoryDocuments = documents.filter(doc => doc.category === activeCategory);
   
+  // Tabs sorting and drag handling
+  const sortedCategories = [...categories].sort((a, b) => {
+     const indexA = tabOrderMap.indexOf(a.name);
+     const indexB = tabOrderMap.indexOf(b.name);
+     if (indexA === -1 && indexB === -1) return 0;
+     if (indexA === -1) return 1;
+     if (indexB === -1) return -1;
+     return indexA - indexB;
+  });
+
+  const handleDragStart = (e: React.DragEvent, name: string) => {
+    e.dataTransfer.setData('text/plain', name);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent, targetName: string) => {
+    e.preventDefault();
+    const draggedName = e.dataTransfer.getData('text/plain');
+    if (!draggedName || draggedName === targetName) return;
+
+    const currentOrder = sortedCategories.map(c => c.name);
+    const fromIndex = currentOrder.indexOf(draggedName);
+    const toIndex = currentOrder.indexOf(targetName);
+
+    if (fromIndex > -1 && toIndex > -1) {
+       const newOrder = [...currentOrder];
+       newOrder.splice(fromIndex, 1);
+       newOrder.splice(toIndex, 0, draggedName);
+       setTabOrderMap(newOrder);
+       if (currentUser?.id) {
+          localStorage.setItem(`adminDocTabsOrder_${currentUser.id}`, JSON.stringify(newOrder));
+       }
+    }
+  };
+
   // Group by year
   const groupedByYear: { [year: string]: DocumentModel[] } = {};
   currentCategoryDocuments.forEach(doc => {
@@ -259,8 +315,7 @@ const Documents = () => {
                   }
                   setFormErrors({});
                   setFormData({ 
-                    document: '', 
-                    fileName: '',
+                    documents: [], 
                     date: new Date().toISOString().split('T')[0], 
                     description: '', 
                     category: activeCategory 
@@ -269,16 +324,20 @@ const Documents = () => {
                   setIsFormOpen(true);
               }}
           >
-            Upload Document
+            Upload Document(s)
           </Button>
         )}
       </div>
 
       <div className="flex flex-nowrap gap-2 mb-8 border-b border-gray-400 pb-2 overflow-x-auto whitespace-nowrap scrollbar-hide items-end">
-        {categories.map(category => (
+        {sortedCategories.map(category => (
           <div
             key={category.id}
-            className={`flex items-center rounded-t-xl transition-colors text-sm overflow-hidden border border-b-0 ${
+            draggable
+            onDragStart={(e) => handleDragStart(e, category.name)}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, category.name)}
+            className={`flex items-center rounded-t-xl transition-colors text-sm overflow-hidden border border-b-0 cursor-grab active:cursor-grabbing ${
               activeCategory === category.name 
                 ? 'bg-orange-500 text-white border-orange-500' 
                 : 'text-gray-100 bg-gray-50 border-gray-400 hover:bg-gray-500'
@@ -297,14 +356,17 @@ const Documents = () => {
             {canManage && (
               <button
                 type="button"
+                disabled={documents.some(doc => doc.category === category.name)}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleDeleteCategory(category.id, category.name);
                 }}
                 className={`py-2 pr-3 pl-1 flex items-center justify-center transition-colors ${
-                  activeCategory === category.name ? 'hover:text-red-200' : 'hover:text-red-500'
+                  documents.some(doc => doc.category === category.name)
+                    ? 'opacity-30 cursor-not-allowed'
+                    : activeCategory === category.name ? 'hover:text-red-200 text-white' : 'hover:text-red-500'
                 }`}
-                title="Delete Category"
+                title={documents.some(doc => doc.category === category.name) ? "Cannot delete: Section contains documents" : "Delete Category"}
               >
                 <Icon type="close" />
               </button>
@@ -328,11 +390,11 @@ const Documents = () => {
 
       {isFormOpen && (
         <div className="mb-12 bg-white p-6 md:p-8 rounded-xl border border-gray-500 overflow-hidden relative shadow-sm">
-          <h2 className="text-2xl font-bold mb-6">Upload Receipt for {activeCategory}</h2>
+          <h2 className="text-2xl font-bold mb-6">Upload Files for {activeCategory}</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             
             <Upload
-              label="Upload Document (PDF or Image)"
+              label="Select Document(s) (PDF or Image)"
               required
               accept={{
                 "image/*": [".jpeg", ".png", ".webp"],
@@ -341,6 +403,7 @@ const Documents = () => {
               value={uploadFiles}
               onValueChange={handleFileChange}
               maxSizeInMB={50}
+              multiple
             />
 
             <Input 

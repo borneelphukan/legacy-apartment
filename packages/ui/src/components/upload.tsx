@@ -152,7 +152,7 @@ const Upload = React.forwardRef<HTMLDivElement, UploadProps>(
                     e.stopPropagation();
                     removeFile(index);
                   }}
-                  icon={{ left: <Icon type="delete" className="text-[20px] text-gray-100 hover:text-red-400" /> }}
+                  icon={{ left: <Icon type="delete" className="text-gray-100 hover:text-red-200" /> }}
                 />
               </div>
             ))}
