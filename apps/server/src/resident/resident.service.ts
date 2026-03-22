@@ -1,11 +1,60 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class ResidentService {
-  constructor(private prisma: PrismaService) {}
+  private s3Client: S3Client;
+
+  constructor(private prisma: PrismaService) {
+    this.s3Client = new S3Client({
+      region: 'auto',
+      endpoint: process.env.R2_ENDPOINT || '',
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+      },
+    });
+  }
+
+  private async uploadAvatarToR2(avatarSrc: string): Promise<string> {
+    if (avatarSrc && avatarSrc.startsWith('data:') && avatarSrc.includes(';base64,')) {
+      try {
+        const parts = avatarSrc.split(',');
+        const header = parts[0]; 
+        const base64Data = parts.slice(1).join(','); 
+        
+        let mimeType = header.split(':')[1].split(';')[0];
+        let extension = mimeType.split('/')[1] || 'jpeg';
+        if (extension === 'octet-stream' || !mimeType.startsWith('image/')) {
+           extension = 'png';
+           mimeType = 'image/png';
+        }
+
+        const buffer = Buffer.from(base64Data, 'base64');
+        const filename = `residents/${randomUUID()}.${extension}`;
+        
+        await this.s3Client.send(new PutObjectCommand({
+          Bucket: process.env.R2_BUCKET_NAME || 'legacy-apartment',
+          Key: filename,
+          Body: buffer,
+          ContentType: mimeType,
+        }));
+        
+        return `${process.env.R2_PUBLIC_URL}/${filename}`;
+      } catch (error) {
+        console.error('Error uploading avatar to R2:', error);
+        return avatarSrc;
+      }
+    }
+    return avatarSrc;
+  }
 
   async create(data: { avatar?: string; name: string; residence: string; phone_no: string; monthlyRate?: number }) {
+    if (data.avatar) {
+      data.avatar = await this.uploadAvatarToR2(data.avatar);
+    }
     return this.prisma.resident.create({
       data,
     });
@@ -65,6 +114,23 @@ export class ResidentService {
     if (!exists) {
       throw new NotFoundException(`Resident with ID ${id} not found`);
     }
+    if (data.avatar !== undefined && data.avatar !== exists.avatar) {
+      if (exists.avatar && process.env.R2_PUBLIC_URL && exists.avatar.startsWith(process.env.R2_PUBLIC_URL)) {
+        const key = exists.avatar.substring(process.env.R2_PUBLIC_URL.length + 1);
+        try {
+          await this.s3Client.send(new DeleteObjectCommand({
+            Bucket: process.env.R2_BUCKET_NAME || 'legacy-apartment',
+            Key: key,
+          }));
+        } catch (error) {
+          console.error('Error deleting old resident avatar from R2:', error);
+        }
+      }
+
+      if (data.avatar) {
+        data.avatar = await this.uploadAvatarToR2(data.avatar);
+      }
+    }
     return this.prisma.resident.update({
       where: { id },
       data,
@@ -73,6 +139,22 @@ export class ResidentService {
 
   async remove(id: number) {
     try {
+      const resident = await this.prisma.resident.findUnique({
+        where: { id },
+      });
+
+      if (resident && resident.avatar && process.env.R2_PUBLIC_URL && resident.avatar.startsWith(process.env.R2_PUBLIC_URL)) {
+        const key = resident.avatar.substring(process.env.R2_PUBLIC_URL.length + 1);
+        try {
+          await this.s3Client.send(new DeleteObjectCommand({
+            Bucket: process.env.R2_BUCKET_NAME || 'legacy-apartment',
+            Key: key,
+          }));
+        } catch (error) {
+           console.error('Error deleting resident avatar from R2:', error);
+        }
+      }
+
       return await this.prisma.resident.delete({
         where: { id },
       });
