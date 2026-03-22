@@ -108,9 +108,9 @@ export class GalleryService {
         }));
         
         finalSrc = `${process.env.R2_PUBLIC_URL}/${filename}`;
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error uploading to R2:', error);
-        throw new InternalServerErrorException('Failed to upload image to storage');
+        throw new InternalServerErrorException('Failed to upload image to storage: ' + (error?.message || 'Unknown R2 error'));
       }
     }
 
