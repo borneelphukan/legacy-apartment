@@ -8,7 +8,8 @@ import {
   DropdownMenuContent, 
   DropdownMenuRadioGroup, 
   DropdownMenuRadioItem,
-  Icon
+  Icon,
+  Loader
  } from '@legacy-apartment/ui';
 import * as XLSX from 'xlsx';
 import api from '@/lib/api';
@@ -302,7 +303,7 @@ const Finance = () => {
 
             {loading ? (
                 <div className="bg-white rounded-xl border border-gray-400 p-20 text-center text-gray-100 shadow-sm font-medium">
-                  Gathering financial records...
+                  <Loader/>
                 </div>
             ) : financeData.length === 0 ? (
                 <div className="text-center">
@@ -320,7 +321,7 @@ const Finance = () => {
                             type="numerical"
                             residents={financeData}
                             columns={months}
-                            readOnly={isReadOnly}
+                            readOnly={true}
                             sortColumn={sortColumn}
                             sortOrder={sortOrder}
                             onSortChange={(col) => {
@@ -338,31 +339,11 @@ const Finance = () => {
                             onHeaderClick={(idx) => setSelectedMonth(idx)}
                             selectedColumnIndex={selectedMonth}
                             onRowClick={(row) => router.push(`/finance/${row.id}`)}
-                            onMonthlyRateChange={(res, val) => {
-                                const rate = parseFloat(val.replace(/[^0-9.]/g, '')) || 0;
-                                updateResidentMonthlyRate(res.id, rate);
-                            }}
                             getValue={(resident: ResidentFinance, colIdx) => {
                                 const payment = (resident.monthlyPayments || []).find(
                                     (p: any) => p.month === colIdx && p.year === selectedYear
                                 );
                                 return payment ? payment.amount.toLocaleString() : "0";
-                            }}
-                            onCellClick={(res, colIdx) => {
-                                const payment = (res.monthlyPayments || []).find(
-                                    (p: any) => p.month === colIdx && p.year === selectedYear
-                                );
-                                const currentStatus = payment ? payment.status : 0;
-                                const nextStatus = currentStatus === 0 ? 1 : currentStatus === 1 ? -1 : 0;
-                                const rate = res.monthlyRate || fees.monthlyFee;
-                                const amount = nextStatus === 1 ? rate : (payment?.amount || 0);
-                                updateMonthlyStatus(res.id, colIdx, nextStatus, amount);
-                            }}
-                            onValueChange={(res, colIdx, newValue) => {
-                                const amount = parseFloat(newValue.replace(/,/g, '')) || 0;
-                                const rate = res.monthlyRate || fees.monthlyFee;
-                                const status = amount >= rate ? 1 : amount > 0 ? 0 : -1;
-                                updateMonthlyStatus(res.id, colIdx, status, amount);
                             }}
                             onMonthlyFeeChange={(val) => {
                                 const num = parseFloat(val.replace(/[^0-9.]/g, '')) || 0;
@@ -371,7 +352,7 @@ const Finance = () => {
                             showMonthlyFeeLegend={false}
                             showYearlyFeeLegend={false}
                             minWidthClass="min-w-[1100px]"
-                            getRowClass={(res) => checkIsDefaulter(res) ? "!bg-red-400" : ""}
+                            getRowClass={(res) => checkIsDefaulter(res) ? "!bg-red-300" : ""}
                             getCellClass={(res, colIdx) => {
                                 const p = (res.monthlyPayments || []).find((pay: any) => pay.month === colIdx && pay.year === selectedYear);
                                 return p?.paymentType === 'Cash' ? "!bg-green-300" : "";
@@ -390,7 +371,7 @@ const Finance = () => {
                             residents={financeData}
                             columns={yearlyColumns}
                             showMonthlyRate={false}
-                            readOnly={isReadOnly}
+                            readOnly={true}
                             sortColumn={sortColumn}
                             sortOrder={sortOrder}
                             onSortChange={(col) => {
@@ -412,22 +393,6 @@ const Finance = () => {
                                     (p: any) => p.year === year
                                 );
                                 return payment ? payment.amount.toLocaleString() : "0";
-                            }}
-                            onCellClick={(res, colIdx) => {
-                                const year = parseInt(yearlyColumns[colIdx]);
-                                const payment = (res.securityPayments || []).find(
-                                    (p: any) => p.year === year
-                                );
-                                const currentStatus = payment ? payment.status : 0;
-                                const nextStatus = currentStatus === 0 ? 1 : currentStatus === 1 ? -1 : 0;
-                                const amount = nextStatus === 1 ? fees.yearlyFee : (payment?.amount || 0);
-                                updateSecurityStatus(res.id, year, nextStatus, amount);
-                            }}
-                            onValueChange={(res, colIdx, newValue) => {
-                                const year = parseInt(yearlyColumns[colIdx]);
-                                const amount = parseFloat(newValue.replace(/,/g, '')) || 0;
-                                const status = amount >= fees.yearlyFee ? 1 : amount > 0 ? 0 : -1;
-                                updateSecurityStatus(res.id, year, status, amount);
                             }}
                             onYearlyFeeChange={(val) => {
                                 const num = parseFloat(val.replace(/[^0-9.]/g, '')) || 0;
