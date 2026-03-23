@@ -9,8 +9,8 @@ const bannerImages = [
 ];
 
 const premisesImages = [
-  { src: "/images/apartment/front_view.png", title: "Front view of our Apartment" },
-  { src: "/images/apartment/front_view_2.png", title: "View of our Apartment" },
+  { src: "/images/apartment/front_view.png", title: "Block A - The Legacy Apartments" },
+  { src: "/images/apartment/front_view_2.png", title: "Block B - The Legacy Apartments" },
   { src: "/images/apartment/view_from_top.png", title: "View from Top" },
   { src: "/images/apartment/committee.jpeg", title: "Our Committee Members" },
   { src: "/images/apartment/sign.jpeg", title: "Entrance of our Society"},
@@ -207,10 +207,10 @@ const Home = () => {
           
           <div className="text-center max-w-3xl mx-auto flex flex-col items-center">
             <p className="text-gray-500 text-lg md:text-xl lg:text-2xl mb-3 font-light">
-              We are a <span className="font-medium">Community</span>.
+              We are <span className="font-medium">the Legacy Community</span>.
             </p>
             <p className="text-gray-400 text-base md:text-lg lg:text-xl font-light leading-relaxed text-center">
-              Experience the best of community living with top-notch amenities, a vibrant neighborhood, and a secure environment for you and your family to thrive in.
+              Welcome to The Legacy Housing Society website created only for The Legacy Apartment flat owners to share updates on Maintenance, Society fee, Annual Security Fee and other projects undertaken by the Society
             </p>
           </div>
         </div>
@@ -330,11 +330,11 @@ const Home = () => {
               </li>
               <li className="flex items-center gap-3">
                 <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                Gymnasium
+                Security & CCTV surveillance
               </li>
               <li className="flex items-center gap-3">
                 <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                Club House
+                24 X 7 Electricity & Water supply
               </li>
             </ul>
 
@@ -359,7 +359,7 @@ const Home = () => {
             Explore Our <span className="text-orange-500">Premises</span>
           </h2>
           <p className="text-lg max-w-2xl text-center mb-10 md:mb-12">
-            Take a glimpse into the beautiful environment, lush green spaces, and modern facilities that make our society a wonderful place to live.
+            Take a glimpse into the beautiful environment, spacious walking zones, friendly atmosphere and modern facilities that make our society a wonderful place to live.
           </p>
 
           <div className="relative w-full max-w-7xl mx-auto">
