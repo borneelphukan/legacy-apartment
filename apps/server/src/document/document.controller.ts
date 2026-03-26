@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { DocumentService } from './document.service';
 import { Public } from '../auth/public.decorator';
 import { Roles } from '../auth/roles.decorator';
@@ -11,6 +12,7 @@ export class DocumentController {
 
   @Roles(...PERMISSIONS.CREATE_DOCUMENT)
   @UseGuards(RolesGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post()
   create(@Body() createDocumentDto: { document: string; fileName?: string; date: string; description?: string; category: string }) {
     return this.documentService.create(createDocumentDto);
@@ -24,6 +26,7 @@ export class DocumentController {
 
   @Roles(...PERMISSIONS.CREATE_DOCUMENT)
   @UseGuards(RolesGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('categories')
   createCategory(@Body() body: { name: string }) {
     return this.documentService.createCategory(body.name);

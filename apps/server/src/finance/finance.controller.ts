@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, Query } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { FinanceService } from './finance.service';
 import { Roles } from '../auth/roles.decorator';
 import { PERMISSIONS } from '../auth/roles.config';
@@ -23,6 +24,7 @@ export class FinanceController {
 
   @Roles(...PERMISSIONS.UPDATE_FINANCE)
   @UseGuards(RolesGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('monthly/:id')
   updateMonthly(
     @Param('id', ParseIntPipe) id: number,
@@ -33,6 +35,7 @@ export class FinanceController {
 
   @Roles(...PERMISSIONS.UPDATE_FINANCE)
   @UseGuards(RolesGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('security/:id')
   updateSecurity(
     @Param('id', ParseIntPipe) id: number,

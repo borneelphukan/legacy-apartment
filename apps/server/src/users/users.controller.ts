@@ -1,4 +1,5 @@
 import { Body, Controller, Post, HttpCode, HttpStatus, Get, Delete, Param, ParseIntPipe, UseGuards, Query } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { UsersService } from './users.service';
 import { Public } from '../auth/public.decorator';
 import { RolesGuard } from '../auth/roles.guard';
@@ -11,12 +12,14 @@ export class UsersController {
 
   @Public()
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('login')
   login(@Body() loginDto: Record<string, any>) {
     return this.usersService.login(loginDto.email, loginDto.password);
   }
 
   @Public()
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('register')
   register(@Body() userData: any) {
     return this.usersService.createUser(userData);

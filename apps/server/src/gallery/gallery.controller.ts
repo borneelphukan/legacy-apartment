@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { GalleryService } from './gallery.service';
 import { Public } from '../auth/public.decorator';
 import { Roles } from '../auth/roles.decorator';
@@ -11,6 +12,7 @@ export class GalleryController {
 
   @Roles(...PERMISSIONS.CREATE_GALLERY)
   @UseGuards(RolesGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('events')
   createEvent(@Body() createEventDto: { name: string; date: string; year: number }) {
     return this.galleryService.createEvent(createEventDto);
@@ -38,6 +40,7 @@ export class GalleryController {
 
   @Roles(...PERMISSIONS.CREATE_GALLERY)
   @UseGuards(RolesGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('photos')
   addPhoto(@Body() addPhotoDto: { eventId: number; src: string; alt?: string; className?: string }) {
     return this.galleryService.addPhoto(addPhotoDto);

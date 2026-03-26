@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { RuleService } from './rule.service';
 import { Public } from '../auth/public.decorator';
 import { Roles } from '../auth/roles.decorator';
@@ -10,6 +11,7 @@ import { RolesGuard } from '../auth/roles.guard';
 export class RuleController {
   constructor(private readonly ruleService: RuleService) {}
 
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post()
   @Roles(...PERMISSIONS.CREATE_RULE)
   create(@Body() createRuleDto: { category: string; rule: string; icon?: string }) {

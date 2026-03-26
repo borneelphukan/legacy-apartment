@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { AnnouncementService } from './announcement.service';
 import { Public } from '../auth/public.decorator';
 import { Roles } from '../auth/roles.decorator';
@@ -11,6 +12,7 @@ export class AnnouncementController {
 
   @Roles(...PERMISSIONS.CREATE_ANNOUNCEMENT)
   @UseGuards(RolesGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post()
   create(@Body() createAnnouncementDto: { title: string; description: string; date?: string }) {
     return this.announcementService.create({

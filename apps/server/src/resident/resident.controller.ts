@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, UseGuards, Query } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { ResidentService } from './resident.service';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -9,6 +10,7 @@ import { Public } from '../auth/public.decorator';
 export class ResidentController {
   constructor(private readonly residentService: ResidentService) {}
 
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post()
   @Roles(...PERMISSIONS.CREATE_RESIDENT)
   @UseGuards(RolesGuard)

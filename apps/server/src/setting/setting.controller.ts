@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { SettingService } from './setting.service';
 import { Public } from '../auth/public.decorator';
 import { Roles } from '../auth/roles.decorator';
@@ -17,6 +18,7 @@ export class SettingController {
 
   @Roles(...PERMISSIONS.UPDATE_SETTING)
   @UseGuards(RolesGuard)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post()
   updateSettings(@Body() data: { year?: number; monthlyFee?: number; yearlyFee?: number; frontendPassword?: string }) {
     return this.settingService.updateSettings(data);
