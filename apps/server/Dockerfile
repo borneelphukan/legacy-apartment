@@ -14,12 +14,14 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 # Copy all package.json files to allow pnpm to run workspace installation
 COPY apps/server/package.json ./apps/server/
 COPY apps/server/prisma ./apps/server/prisma/
+COPY packages/shared/package.json ./packages/shared/
 
 # Install all dependencies (required for mono-repo builds)
 RUN pnpm install
 
-# Copy server code
+# Copy source code
 COPY apps/server ./apps/server
+COPY packages/shared ./packages/shared
 
 # Generate prisma client inside server
 WORKDIR /app/apps/server
