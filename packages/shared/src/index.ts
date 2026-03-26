@@ -8,3 +8,4 @@ export * from './documents';
 export * from './gallery';
 export * from './rules';
 export * from './settings';
+export * from './finance';

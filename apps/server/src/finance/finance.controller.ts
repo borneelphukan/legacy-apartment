@@ -24,7 +24,7 @@ export class FinanceController {
 
   @Roles(...PERMISSIONS.UPDATE_FINANCE)
   @UseGuards(RolesGuard)
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Throttle({ default: { limit: 100, ttl: 60000 } })
   @Post('monthly/:id')
   updateMonthly(
     @Param('id', ParseIntPipe) id: number,
@@ -35,7 +35,7 @@ export class FinanceController {
 
   @Roles(...PERMISSIONS.UPDATE_FINANCE)
   @UseGuards(RolesGuard)
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Throttle({ default: { limit: 100, ttl: 60000 } })
   @Post('security/:id')
   updateSecurity(
     @Param('id', ParseIntPipe) id: number,
