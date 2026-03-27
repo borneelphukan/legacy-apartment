@@ -200,10 +200,12 @@ const Rules = () => {
 
 
 
-  const isRuleEmpty = !formData.rule || formData.rule === '<p><br></p>' || formData.rule === '<p></p>';
+  const isFormEmpty = !formData.category.trim() || !formData.rule || formData.rule === '<p><br></p>' || formData.rule === '<p></p>';
   const existingRule = rules.find(r => r.id === editingId);
-  const isRuleUnchanged = editingId && existingRule ? formData.rule === existingRule.rule : false;
-  const isSaveDisabled = isRuleEmpty || isRuleUnchanged;
+  const isFormUnchanged = editingId && existingRule 
+    ? (formData.rule === existingRule.rule && formData.category === existingRule.category) 
+    : false;
+  const isSaveDisabled = isFormEmpty || isFormUnchanged;
 
   const renderForm = (isCreating: boolean) => (
     <form onSubmit={handleSubmit} className="space-y-6">
