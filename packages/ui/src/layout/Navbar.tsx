@@ -4,8 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "../components/icon";
+import Button from "../components/button";
 
 const Navbar = () => {
+  const adminUrl = process.env.NODE_ENV === "production" 
+    ? "https://admin.thelegacyapartment.co.in" 
+    : "http://localhost:3001";
+
   const [selectedLink, setSelectedLink] = useState<string | null>(null);
   const [showMobileMenu, setShowMobileMenu] = useState<boolean>(false);
   
@@ -67,7 +72,7 @@ const Navbar = () => {
       </div>
 
       {/* Navigation Links */}
-      <div className="hidden lg:flex justify-center space-x-8 my-4">
+      <div className="hidden lg:flex justify-center items-center space-x-8 my-4">
         <Link
           href="/"
           className={`text-white hover:text-gray-300 hover:after:content-[''] hover:after:block hover:after:h-[2px] hover:after:bg-orange-500 hover:after:w-full hover:after:mt-[10px] ${
@@ -185,17 +190,24 @@ const Navbar = () => {
         </div>
 
         {/* Contact Us */}
-        <div className="flex justify-center">
-          <Link
-            href="/Contact"
-            className={`text-white hover:text-gray-300 hover:after:content-[''] hover:after:block hover:after:h-[2px] hover:after:bg-orange-500 hover:after:w-full hover:after:mt-[10px] ${
-              selectedLink === "Contact Us" ? "after:content-[''] after:block after:w-full after:h-[2px] after:bg-orange-500 after:mt-[10px]" : ""
-            }`}
-            onClick={() => handleLinkClick("Contact Us")}
-          >
-            Contact Us
-          </Link>
-        </div>
+        <Link
+          href="/Contact"
+          className={`text-white hover:text-gray-300 hover:after:content-[''] hover:after:block hover:after:h-[2px] hover:after:bg-orange-500 hover:after:w-full hover:after:mt-[10px] ${
+            selectedLink === "Contact Us" ? "after:content-[''] after:block after:w-full after:h-[2px] after:bg-orange-500 after:mt-[10px]" : ""
+          }`}
+          onClick={() => handleLinkClick("Contact Us")}
+        >
+          Contact Us
+        </Link>
+        
+        {/* Admin Login */}
+        <Button
+          href={adminUrl}
+          variant="primary"
+          size="md"
+          label="Admin Login"
+          className="-mt-1"
+        />
       </div>
 
       {/* Mobile Menu (Dropdown) */}
@@ -313,7 +325,7 @@ const Navbar = () => {
         </div>
 
         {/* Contact Us (Mobile) */}
-        <div className="w-full">
+        <div className="w-full border-b border-gray-400">
            <Link
              href="/Contact"
              className={`block w-full text-left py-4 px-6 text-gray-800 hover:text-orange-500 hover:bg-gray-50 transition-colors ${
@@ -326,6 +338,21 @@ const Navbar = () => {
            >
              Contact Us
            </Link>
+        </div>
+
+        {/* Admin Login (Mobile) */}
+        <div className="w-full px-6 py-4">
+           <Button
+             href={adminUrl}
+             variant="primary"
+             size="md"
+             label="Admin Login"
+             className="w-full"
+             onClick={() => {
+               handleLinkClick("Admin Login");
+               toggleMobileMenu();
+             }}
+           />
         </div>
       </div>
 
