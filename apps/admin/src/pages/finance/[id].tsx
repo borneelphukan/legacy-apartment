@@ -361,7 +361,20 @@ const FinancePage = () => {
                         value={payment?.amount ?? 0}
                         onChange={(e) => {
                           const val = parseFloat(e.target.value) || 0;
-                          updateMonthlyStatus(row.index, { amount: val, status: val > 0 ? 1 : 0 });
+                          const rate = resident.monthlyRate || 0;
+                          
+                          if (val > rate && rate > 0) {
+                            let remaining = val;
+                            let currentIdx = row.index;
+                            while (remaining > 0 && currentIdx < 12) {
+                              const applyAmount = Math.min(remaining, rate);
+                              updateMonthlyStatus(currentIdx, { amount: applyAmount, status: applyAmount > 0 ? 1 : 0 });
+                              remaining -= applyAmount;
+                              currentIdx++;
+                            }
+                          } else {
+                            updateMonthlyStatus(row.index, { amount: val, status: val > 0 ? 1 : 0 });
+                          }
                         }}
                       />
                     );

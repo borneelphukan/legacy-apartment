@@ -14,6 +14,7 @@ interface User {
 
 const Settings = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [pendingUsers, setPendingUsers] = useState<User[]>([]);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [sortColumn, setSortColumn] = useState('');
@@ -60,6 +61,7 @@ const Settings = () => {
   useEffect(() => {
     if (isPresident) {
       fetchUsers();
+      fetchPendingUsers();
       fetchGlobalPassword();
     }
   }, [isPresident, debouncedSearch, sortColumn, sortOrder]);
@@ -128,6 +130,38 @@ const Settings = () => {
     }
   };
 
+  const fetchPendingUsers = async () => {
+    try {
+      const response = await api.get('/users/pending');
+      setPendingUsers(response.data);
+    } catch (error) {
+      console.error('Error fetching pending users:', error);
+    }
+  };
+
+  const handleApprove = async (id: number) => {
+    try {
+      await api.patch(`/users/${id}/approve`);
+      setAlertDialog({
+        open: true,
+        title: 'Approved!',
+        description: 'The user has been successfully approved.',
+        type: 'success',
+        onClose: () => {
+          fetchUsers();
+          fetchPendingUsers();
+        }
+      });
+    } catch (error) {
+      setAlertDialog({
+        open: true,
+        title: 'Error',
+        description: 'Failed to approve user.',
+        type: 'error'
+      });
+    }
+  };
+
   const handleDelete = async (id: number) => {
     const isSelf = id === currentUserId;
 
@@ -152,6 +186,7 @@ const Settings = () => {
                 window.location.href = '/login';
               } else {
                 fetchUsers();
+                fetchPendingUsers();
               }
             }
           });
@@ -273,7 +308,7 @@ const Settings = () => {
                   return <span>{new Date(user.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>;
                 case 'actions':
                   return (
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-center gap-2">
                       <Button 
                         variant="destructive" 
                         size="sm" 
@@ -290,6 +325,57 @@ const Settings = () => {
           />
         )}
       </div>
+
+      {(!loading && pendingUsers.length > 0) && (
+        <div className="mb-20">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Pending Admin Request</h2>
+          <Table 
+            data={pendingUsers}
+            search={''}
+            onSearchChange={() => {}}
+            type="general"
+            theme="orange"
+            columns={['name', 'email', 'role', 'joined', 'actions']}
+            headers={['Name', 'Email', 'Role', 'Request Date', 'Actions']}
+            minWidthClass="min-w-[800px]"
+            tight={true}
+            showMonthlyFeeLegend={false}
+            showYearlyFeeLegend={false}
+            renderCell={(user, col) => {
+            switch(col) {
+              case 'name':
+                return <span className="font-bold text-gray-900">{user.firstName} {user.lastName}</span>;
+              case 'email':
+                return <span className="text-gray-600 font-medium">{user.email}</span>;
+              case 'role':
+                return <Badge label={user.role} type="default" size="sm" />;
+              case 'joined':
+                return <span>{new Date(user.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>;
+              case 'actions':
+                return (
+                  <div className="flex justify-center gap-2">
+                    <Button 
+                      variant="primary" 
+                      size="sm" 
+                      onClick={() => handleApprove(user.id)} 
+                    >
+                    Approve
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      onClick={() => handleDelete(user.id)} 
+                    >
+                    Reject
+                    </Button>
+                  </div>
+                );
+              default: return null;
+            }
+          }}
+        />
+        </div>
+      )}
 
       {/* Persistence Components */}
       {confirmDialog && (

@@ -3,6 +3,13 @@ export const APP_ROLES = {
   SECRETARY: 'secretary',
   TREASURER: 'treasurer',
   CULTURAL_HEAD: 'cultural_head',
+  JOINT_SECRETARY: 'joint_secretary',
+  ADVISOR: 'advisor',
+  TECHNICAL_ADVISOR: 'technical_advisor',
+  WELFARE_HEAD: 'welfare_head',
+  GYM_HEAD: 'gym_head',
+  GARDENING: 'gardening',
+  CATERING: 'catering',
 } as const;
 
 export type AppRole = typeof APP_ROLES[keyof typeof APP_ROLES];

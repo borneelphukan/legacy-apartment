@@ -113,7 +113,7 @@ export default function Login() {
           setAlertDialog({
             open: true,
             title: 'User Created!',
-            description: 'You can now log in',
+            description: data.message || 'You can now log in',
             type: 'success',
             onClose: () => setIsRegisterMode(false)
           });
@@ -216,18 +216,30 @@ export default function Login() {
                     
                     <div className="space-y-1.5">
                       <DropdownMenu className="w-full">
-                        <DropdownMenuTrigger className="flex w-full items-center justify-between rounded-xl border border-gray-400 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all">
-                          <span className="capitalize">{role}</span>
+                        <DropdownMenuTrigger className="flex w-full items-center justify-between rounded-xl border border-gray-400 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 transition-all uppercase">
+                          <span className="capitalize">{role.replace('_', ' ')}</span>
                           <Icon type="keyboard_arrow_down" className="text-[20px]" />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-full min-w-[300px]">
-                          {['president', 'secretary', 'treasurer', 'advisor', 'technical_advisor', 'cultural_head', 'welfare_head', 'gym_head', 'gardening', 'catering'].map((r) => (
+                          {[
+                            'president', 
+                            'secretary', 
+                            'joint_secretary',
+                            'treasurer', 
+                            'advisor', 
+                            'technical_advisor', 
+                            'cultural_head', 
+                            'welfare_head', 
+                            'gym_head', 
+                            'gardening', 
+                            'catering'
+                          ].map((r) => (
                             <DropdownMenuItem 
                               key={r} 
                               onClick={() => setRole(r)}
                               className="capitalize"
                             >
-                              {r}
+                              {r.replace('_', ' ')}
                             </DropdownMenuItem>
                           ))}
                         </DropdownMenuContent>

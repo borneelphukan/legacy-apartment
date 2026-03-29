@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, UnauthorizedException, NotFoundException, Logger, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -23,6 +23,10 @@ export class UsersService {
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (!user.isApproved) {
+      throw new UnauthorizedException('Your request is pending approval by the President');
     }
 
     const isMatch = await bcrypt.compare(pass, user.password);
@@ -65,17 +69,47 @@ export class UsersService {
     phone_no: string;
     password?: string;
   }) {
+    // Define role limits
+    const ROLE_LIMITS: Record<string, number> = {
+      'president': 1,
+      'secretary': 1,
+      'joint_secretary': 2,
+      'treasurer': 1,
+      'advisor': 5,
+      'technical_advisor': 3,
+      'cultural_head': 2,
+      'welfare_head': 2,
+      'gym_head': 2,
+      'gardening': 2,
+      'catering': 2,
+    };
+
+    const role = data.role.toLowerCase();
+    const limit = ROLE_LIMITS[role];
+
+    if (limit !== undefined) {
+      const currentCount = await this.prisma.user.count({
+        where: { role: role },
+      });
+
+      if (currentCount >= limit) {
+        throw new BadRequestException('Role position cannot exceed committees decision. Cannot add a new memeber to this role');
+      }
+    }
+
     const hashedPassword = await bcrypt.hash(data.password || process.env.DEFAULT_USER_PASSWORD || 'ChangeMe123!', 10);
+    const isApproved = role === 'president';
     
     const user = await this.prisma.user.create({
       data: {
         ...data,
         password: hashedPassword,
+        isApproved,
       },
     });
 
     return {
-      message: 'User created successfully',
+      message: isApproved ? 'User created successfully' : 'Your request has been sent. You will join the admin when the President approves it',
       user: {
         id: user.id,
         email: user.email,
@@ -177,14 +211,15 @@ export class UsersService {
   }
 
   async findAll(search?: string, sortBy?: string, sortOrder?: 'asc' | 'desc') {
-    const where = search ? {
+    const where: any = search ? {
+      isApproved: true,
       OR: [
         { firstName: { contains: search, mode: 'insensitive' as const } },
         { lastName: { contains: search, mode: 'insensitive' as const } },
         { email: { contains: search, mode: 'insensitive' as const } },
         { role: { contains: search, mode: 'insensitive' as const } },
       ],
-    } : {};
+    } : { isApproved: true };
 
     const orderBy: any = sortBy ? { [sortBy]: sortOrder || 'asc' } : { createdAt: 'desc' };
 
@@ -208,5 +243,72 @@ export class UsersService {
     return this.prisma.user.delete({
       where: { id },
     });
+  }
+
+  async findPending() {
+    return this.prisma.user.findMany({
+      where: { isApproved: false },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true,
+        residence: true,
+        phone_no: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async approve(id: number) {
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: { isApproved: true },
+    });
+
+    // Read and parse the MJML template
+    const templatePath = path.join(process.cwd(), 'src', 'templates', 'admin-approved.mjml');
+    let htmlOutput = '<p>Your request for admin membership has been approved. You may login.</p>';
+
+    if (fs.existsSync(templatePath)) {
+      let template = fs.readFileSync(templatePath, 'utf8');
+      template = template.replace('{{userName}}', user.firstName || 'User');
+      const adminUrl = process.env.ADMIN_FRONTEND_URL || 'https://admin.thelegacyapartment.co.in';
+      template = template.replace('{{loginLink}}', `${adminUrl}/login`);
+      
+      const mjmlParseResults = mjml2html(template);
+      htmlOutput = mjmlParseResults.html;
+    }
+
+    // Send approval email
+    try {
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST || 'smtp.ethereal.email',
+        port: parseInt(process.env.SMTP_PORT || '587', 10),
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+
+      if (process.env.SMTP_HOST) {
+        await transporter.sendMail({
+          from: '"Legacy Apartment" <legacy.sixmile@gmail.com>',
+          to: user.email,
+          subject: 'Admin Membership Approved',
+          text: 'Your request for admin membership has been approved. You may login.',
+          html: htmlOutput,
+        });
+        this.logger.log(`Approval email sent to ${user.email}`);
+      } else {
+        this.logger.warn(`No SMTP host configured. Approval email simulated for ${user.email}`);
+      }
+    } catch (error) {
+      this.logger.error('Error sending approval email', error);
+    }
+
+    return user;
   }
 }

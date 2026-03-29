@@ -1,4 +1,4 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, Get, Delete, Param, ParseIntPipe, UseGuards, Query } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus, Get, Delete, Param, ParseIntPipe, UseGuards, Query, Patch } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { UsersService } from './users.service';
 import { Public } from '../auth/public.decorator';
@@ -48,6 +48,20 @@ export class UsersController {
     @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
     return this.usersService.findAll(search, sortBy, sortOrder);
+  }
+
+  @Get('pending')
+  @Roles(...PERMISSIONS.READ_USERS)
+  @UseGuards(RolesGuard)
+  findPending() {
+    return this.usersService.findPending();
+  }
+
+  @Patch(':id/approve')
+  @Roles(...PERMISSIONS.READ_USERS) // President has this permission
+  @UseGuards(RolesGuard)
+  approve(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.approve(id);
   }
 
   @Delete(':id')
