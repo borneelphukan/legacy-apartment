@@ -104,7 +104,8 @@ export class UsersService {
     const resetToken = await this.jwtService.signAsync(payload, { expiresIn: '15m' });
 
     // The reset link points to the admin frontend
-    const resetLink = `${process.env.ADMIN_FRONTEND_URL || 'http://localhost:3001'}/reset-password?token=${resetToken}`;
+    const adminUrl = process.env.ADMIN_FRONTEND_URL || 'https://admin.thelegacyapartment.co.in';
+    const resetLink = `${adminUrl}/reset-password?token=${resetToken}`;
     
     // Read and parse the MJML template
     const templatePath = path.join(process.cwd(), 'src', 'templates', 'forgot-password.mjml');
