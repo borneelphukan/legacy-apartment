@@ -25,7 +25,7 @@ export class UsersService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    if (!user.isApproved) {
+    if (!user.isApproved && user.role !== 'president') {
       throw new UnauthorizedException('Your request is pending approval by the President');
     }
 
