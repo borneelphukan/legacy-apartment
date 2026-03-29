@@ -30,6 +30,7 @@ export default function Login() {
   const [role, setRole] = useState('secretary');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
+  const [isForgotPasswordMode, setIsForgotPasswordMode] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const router = useRouter();
   const [alertDialog, setAlertDialog] = useState<{
@@ -39,6 +40,39 @@ export default function Login() {
     type: 'success' | 'error';
     onClose?: () => void;
   } | null>(null);
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormErrors({});
+    
+    if (!email) {
+      setFormErrors({ email: 'Email is required' });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await api.post('/users/forgot-password', { email });
+      setAlertDialog({
+        open: true,
+        title: 'Check your email',
+        description: response.data.message || 'If an account exists, a reset link will be sent.',
+        type: 'success',
+        onClose: () => setIsForgotPasswordMode(false)
+      });
+    } catch (error: any) {
+      console.error(error);
+      const errorMessage = error.response?.data?.message || 'Failed to send reset email';
+      setAlertDialog({
+        open: true,
+        title: 'Error',
+        description: errorMessage,
+        type: 'error'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,16 +154,20 @@ export default function Login() {
                 Admin Portal
               </span>
               <h1 className="text-2xl md:text-3xl font-black text-gray-900 uppercase tracking-tighter mb-2">
-                {isRegisterMode ? 'Create User' : 'Login'}
+                {isForgotPasswordMode ? 'Reset Password' : isRegisterMode ? 'Create User' : 'Login'}
               </h1>
               <p className="font-light text-gray-100">
-                {isRegisterMode ? 'Register a new administrator' : 'Sign in to manage your community'}
+                {isForgotPasswordMode 
+                  ? 'Enter your email to receive a reset link' 
+                  : isRegisterMode 
+                    ? 'Register a new administrator' 
+                    : 'Sign in to manage your community'}
               </p>
             </div>
             
-            <form className="space-y-6" onSubmit={handleAuth}>
+            <form className="space-y-6" onSubmit={isForgotPasswordMode ? handleForgotPassword : handleAuth}>
               <div className="space-y-4">
-                {isRegisterMode && (
+                {isRegisterMode && !isForgotPasswordMode && (
                   <>
                     <div className="grid grid-cols-2 gap-4">
                       <Input
@@ -208,16 +246,32 @@ export default function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   error={formErrors.email}
                 />
-                <Input
-                  id="password"
-                  label="Password"
-                  name="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  error={formErrors.password}
-                />
+                
+                {!isForgotPasswordMode && (
+                  <>
+                    <Input
+                      id="password"
+                      label="Password"
+                      name="password"
+                      type="password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      error={formErrors.password}
+                    />
+                    {!isRegisterMode && (
+                      <div className="flex justify-end mt-1">
+                        <button
+                          type="button"
+                          onClick={() => setIsForgotPasswordMode(true)}
+                          className="text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors"
+                        >
+                          Forgot Password?
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
 
               <div className="text-center w-full space-y-4">
@@ -225,20 +279,32 @@ export default function Login() {
                   type="submit"
                   disabled={isSubmitting}
                   isLoading={isSubmitting}
-                  label={isRegisterMode ? 'Create Account' : 'Sign In'}
+                  label={isForgotPasswordMode ? 'Send Reset Link' : isRegisterMode ? 'Create Account' : 'Sign In'}
                 />
                 
                 <div className="flex items-center justify-center gap-1 text-sm text-gray-600">
-                  <span>
-                    {isRegisterMode ? 'Already have an account?' : "Don't have an account?"}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setIsRegisterMode(!isRegisterMode)}
-                    className="text-orange-600 hover:text-orange-700 transition-colors font-semibold"
-                  >
-                    {isRegisterMode ? 'Sign in' : 'Create one'}
-                  </button>
+                  {isForgotPasswordMode ? (
+                    <button
+                      type="button"
+                      onClick={() => setIsForgotPasswordMode(false)}
+                      className="text-orange-600 hover:text-orange-700 transition-colors font-semibold"
+                    >
+                      Back to login
+                    </button>
+                  ) : (
+                    <>
+                      <span>
+                        {isRegisterMode ? 'Already have an account?' : "Don't have an account?"}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setIsRegisterMode(!isRegisterMode)}
+                        className="text-orange-600 hover:text-orange-700 transition-colors font-semibold"
+                      >
+                        {isRegisterMode ? 'Sign in' : 'Create one'}
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </form>

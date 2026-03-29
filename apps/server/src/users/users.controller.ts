@@ -25,6 +25,20 @@ export class UsersController {
     return this.usersService.createUser(userData);
   }
 
+  @Public()
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @Post('forgot-password')
+  forgotPassword(@Body() body: { email: string }) {
+    return this.usersService.forgotPassword(body.email);
+  }
+
+  @Public()
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @Post('reset-password')
+  resetPassword(@Body() body: Record<string, string>) {
+    return this.usersService.resetPassword(body.token, body.password);
+  }
+
   @Get()
   @Roles(...PERMISSIONS.READ_USERS)
   @UseGuards(RolesGuard)

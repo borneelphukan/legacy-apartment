@@ -29,7 +29,7 @@ const ContactForm = () => {
     const templateParams = {
       from_name: `${formData.firstName} ${formData.lastName}`,
       from_email: formData.email,
-      to_name: process.env.NEXT_PUBLIC_SOCIETY_EMAIL || "thelegacyapartment@gmail.com",
+      to_name: process.env.NEXT_PUBLIC_SOCIETY_EMAIL || "legacy.sixmile@gmail.com",
       message: formData.message,
       reply_to: formData.email,
     };
