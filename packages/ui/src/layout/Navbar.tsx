@@ -35,7 +35,7 @@ const Navbar = () => {
     
     if (path === "/") setSelectedLink("Home");
     else if (path.startsWith("/committee") || path.startsWith("/rules")) setSelectedLink("Our Society");
-    else if (path.startsWith("/contributions") || path.startsWith("/help-desk") || path.startsWith("/vendors")) setSelectedLink("Services");
+    else if (path.startsWith("/finances") || path.startsWith("/help-desk") || path.startsWith("/vendors")) setSelectedLink("Services");
     else if (path.startsWith("/gallery") || path.startsWith("/upcoming-events")) setSelectedLink("Events");
     else if (path.startsWith("/contact")) setSelectedLink("Contact Us");
     else setSelectedLink("Home");
@@ -75,8 +75,8 @@ const Navbar = () => {
       <div className="hidden lg:flex justify-center items-center space-x-8 my-4">
         <Link
           href="/"
-          className={`text-white hover:text-gray-300 hover:after:content-[''] hover:after:block hover:after:h-[2px] hover:after:bg-orange-500 hover:after:w-full hover:after:mt-[10px] ${
-            selectedLink === "Home" ? "after:content-[''] after:block after:w-full after:h-[2px] after:bg-orange-500 after:mt-[10px]" : ""
+          className={`relative pb-2 text-white hover:text-gray-300 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-[2px] after:bg-orange-500 after:w-full after:transition-all after:duration-300 ${
+            selectedLink === "Home" ? "after:opacity-100 after:scale-x-100" : "after:opacity-0 after:scale-x-0 hover:after:opacity-100 hover:after:scale-x-100"
           }`}
           onClick={() => handleLinkClick("Home")}
         >
@@ -91,8 +91,8 @@ const Navbar = () => {
         >
           <Link
             href="#"
-            className={`text-white hover:text-gray-300 hover:after:content-[''] hover:after:block hover:after:h-[2px] hover:after:bg-orange-500 hover:after:w-full hover:after:mt-[10px] ${
-              selectedLink === "Our Society" ? "after:content-[''] after:block after:w-full after:h-[2px] after:bg-orange-500 after:mt-[10px]" : ""
+            className={`relative pb-2 text-white hover:text-gray-300 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-[2px] after:bg-orange-500 after:w-full after:transition-all after:duration-300 ${
+              selectedLink === "Our Society" ? "after:opacity-100 after:scale-x-100" : "after:opacity-0 after:scale-x-0 hover:after:opacity-100 hover:after:scale-x-100"
             }`}
             onClick={(e: React.MouseEvent) => {
               e.preventDefault();
@@ -103,8 +103,8 @@ const Navbar = () => {
           </Link>
           {showSocietySubNav && (
             <ul
-              className="absolute left-0 mt-1 text-sm px-5 bg-slate-100 border rounded border-white w-52 z-50"
-              style={{ top: "80%" }}
+              className="absolute left-0 mt-3 text-sm px-5 py-2 bg-slate-100 border rounded border-white w-52 z-50 shadow-xl"
+              style={{ top: "100%" }}
             >
               <li className="py-2">
                 <Link className="text-black hover:text-orange-500" href="/committee">
@@ -128,8 +128,8 @@ const Navbar = () => {
         >
           <Link
             href="#"
-            className={`text-white hover:text-gray-300 hover:after:content-[''] hover:after:block hover:after:h-[2px] hover:after:bg-orange-500 hover:after:w-full hover:after:mt-[10px] ${
-              selectedLink === "Services" ? "after:content-[''] after:block after:w-full after:h-[2px] after:bg-orange-500 after:mt-[10px]" : ""
+            className={`relative pb-2 text-white hover:text-gray-300 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-[2px] after:bg-orange-500 after:w-full after:transition-all after:duration-300 ${
+              selectedLink === "Services" ? "after:opacity-100 after:scale-x-100" : "after:opacity-0 after:scale-x-0 hover:after:opacity-100 hover:after:scale-x-100"
             }`}
             onClick={(e: React.MouseEvent) => {
               e.preventDefault();
@@ -140,12 +140,12 @@ const Navbar = () => {
           </Link>
           {showServicesSubNav && (
             <ul
-              className="absolute left-0 mt-1 text-sm px-5 bg-slate-100 border rounded border-white w-52 z-50"
-              style={{ top: "80%" }}
+              className="absolute left-0 mt-3 text-sm px-5 py-2 bg-slate-100 border rounded border-white w-52 z-50 shadow-xl"
+              style={{ top: "100%" }}
             >
               <li className="py-2">
-                <Link className="text-black hover:text-orange-500" href="/contributions">
-                  Contributions
+                <Link className="text-black hover:text-orange-500" href="/finances">
+                  Finances
                 </Link>
               </li>
               <li className="py-2">
@@ -165,8 +165,8 @@ const Navbar = () => {
         >
           <Link
             href="#"
-            className={`text-white hover:text-gray-300 hover:after:content-[''] hover:after:block hover:after:h-[2px] hover:after:bg-orange-500 hover:after:w-full hover:after:mt-[10px] ${
-              selectedLink === "Events" ? "after:content-[''] after:block after:w-full after:h-[2px] after:bg-orange-500 after:mt-[10px]" : ""
+            className={`relative pb-2 text-white hover:text-gray-300 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-[2px] after:bg-orange-500 after:w-full after:transition-all after:duration-300 ${
+              selectedLink === "Events" ? "after:opacity-100 after:scale-x-100" : "after:opacity-0 after:scale-x-0 hover:after:opacity-100 hover:after:scale-x-100"
             }`}
             onClick={(e: React.MouseEvent) => {
               e.preventDefault();
@@ -177,8 +177,8 @@ const Navbar = () => {
           </Link>
           {showEventsSubNav && (
             <ul
-              className="absolute left-0 mt-1 text-sm px-5 bg-slate-100 border rounded border-white w-52 z-50"
-              style={{ top: "80%" }}
+              className="absolute left-0 mt-3 text-sm px-5 py-2 bg-slate-100 border rounded border-white w-52 z-50 shadow-xl"
+              style={{ top: "100%" }}
             >
               <li className="py-2">
                 <Link className="text-black hover:text-orange-500" href="/gallery">
@@ -192,8 +192,8 @@ const Navbar = () => {
         {/* Contact Us */}
         <Link
           href="/Contact"
-          className={`text-white hover:text-gray-300 hover:after:content-[''] hover:after:block hover:after:h-[2px] hover:after:bg-orange-500 hover:after:w-full hover:after:mt-[10px] ${
-            selectedLink === "Contact Us" ? "after:content-[''] after:block after:w-full after:h-[2px] after:bg-orange-500 after:mt-[10px]" : ""
+          className={`relative pb-2 text-white hover:text-gray-300 after:content-[''] after:absolute after:bottom-0 after:left-0 after:h-[2px] after:bg-orange-500 after:w-full after:transition-all after:duration-300 ${
+            selectedLink === "Contact Us" ? "after:opacity-100 after:scale-x-100" : "after:opacity-0 after:scale-x-0 hover:after:opacity-100 hover:after:scale-x-100"
           }`}
           onClick={() => handleLinkClick("Contact Us")}
         >
@@ -280,8 +280,8 @@ const Navbar = () => {
           <div className={`overflow-hidden transition-all duration-300 bg-gray-50 ${showMobileServicesSubNav ? "max-h-[500px]" : "max-h-0"}`}>
             <ul className="w-full flex flex-col">
               <li>
-                <Link href="/contributions" onClick={toggleMobileMenu} className="block w-full text-left py-3 px-10 text-gray-600 hover:text-orange-500 hover:bg-gray-100 transition-colors">
-                  Contributions
+                <Link href="/finances" onClick={toggleMobileMenu} className="block w-full text-left py-3 px-10 text-gray-600 hover:text-orange-500 hover:bg-gray-100 transition-colors">
+                  Finances
                 </Link>
               </li>
               <li>

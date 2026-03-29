@@ -136,7 +136,7 @@ const Table = ({
              <Icon type="lock" className="text-[32px]" />
           </div>
           <h3 className="text-xl md:text-2xl font-bold text-gray-800 mb-2 tracking-tight">Restricted Access</h3>
-          <p className="text-grey-100 mb-8 text-center max-w-sm">Please enter the password to view the contributions data.</p>
+          <p className="text-gray-900 mb-8 text-center max-w-sm">Please enter the password to view the finances data.</p>
           <form onSubmit={handleUnlock} className="flex flex-col items-center w-full max-w-sm gap-4">
             <Input 
               id="unlock-password"

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Image from "next/image";
 import DefaultLayout from "@/layout/DefaultLayout";
 import Head from "next/head";
 import { Breadcrumb, Banner, Button, Table, Icon } from "@legacy-apartment/ui";
@@ -118,7 +119,7 @@ const MaintenancePay = () => {
   return (
     <DefaultLayout>
       <Head>
-        <title>Contributions | Our Society</title>
+        <title>Finances | Our Society</title>
       </Head>
 
       <div className="relative min-h-screen w-full bg-slate-50/50 overflow-hidden">
@@ -129,9 +130,9 @@ const MaintenancePay = () => {
 
         <div className="relative z-10 pb-20">
           {/* Banner component */}
-          <Banner title="Services" subtitle="Contributions" theme="maintenance" />
+          <Banner title="Services" subtitle="Finances" theme="maintenance" />
           
-          <Breadcrumb items={[{ label: "Services", href: "/" }, { label: "Contributions" }]} />
+          <Breadcrumb items={[{ label: "Services", href: "/" }, { label: "Finances" }]} />
 
           <div className="max-w-7xl mx-auto px-4 md:px-8 mt-16">
             {/* Monthly fees section */}
@@ -291,6 +292,27 @@ const MaintenancePay = () => {
               storageKey="contributions_yearly_lock"
               expectedPassword={globalPassword}
             />
+
+            {/* Payment Section */}
+            <div className="mt-20 mb-10 pb-10 max-w-2xl mx-auto text-center">
+               <h3 className="text-2xl font-bold text-gray-900 mb-6 tracking-tight">
+                 Haven't paid your dues yet? <br />
+                 <span className="text-orange-500 font-extrabold text-3xl mt-2 block">Feel free to pay through the QR Code here</span>
+               </h3>
+               
+               <div className="bg-white p-8 rounded-2xl shadow border border-orange-100 inline-block">
+                 <Image 
+                   src="/image.webp" 
+                   alt="Payment QR Code" 
+                   width={350} 
+                   height={350} 
+                   className="mx-auto rounded-xl rounded border border-gray-200"
+                 />
+                 <div className="mt-8 p-4 bg-orange-50 rounded-xl border border-orange-200">
+                   <p className="text-xl font-bold text-gray-900 font-mono tracking-wider">327473603864370@cnrb</p>
+                 </div>
+               </div>
+            </div>
 
           </div>
         </div>

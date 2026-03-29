@@ -244,7 +244,7 @@ const Finance = () => {
                         Finance Management
                     </h1>
                     <p className="mt-2 text-lg text-gray-100/80">
-                        Detailed overview of all resident contributions for the year {selectedYear}.
+                        Detailed overview of all resident finances for the year {selectedYear}.
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
