@@ -1,0 +1,55 @@
+<mjml>
+  <mj-head>
+    <mj-title>New Admin Registration Request</mj-title>
+    <mj-attributes>
+      <mj-all font-family="Helvetica, Arial, sans-serif" />
+      <mj-text font-size="16px" color="#333333" line-height="24px" />
+    </mj-attributes>
+    <mj-style inline="inline">
+      .body-section {
+        -webkit-box-shadow: 1px 4px 11px 0px rgba(0, 0, 0, 0.15);
+        -moz-box-shadow: 1px 4px 11px 0px rgba(0, 0, 0, 0.15);
+        box-shadow: 1px 4px 11px 0px rgba(0, 0, 0, 0.15);
+      }
+      .details-section {
+        background-color: #f9f9f9;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body background-color="#f8f9fa" width="600px">
+    <mj-section background-color="#ffffff" css-class="body-section">
+      <mj-column width="100%">
+        <mj-text align="center" font-size="24px" font-weight="bold" color="#ea580c" padding-bottom="20px" padding-top="20px">
+          Legacy Apartment Admin
+        </mj-text>
+        <mj-divider border-color="#eeeeee" border-width="1px" padding="0 20px" />
+        <mj-text font-size="20px" font-weight="bold" padding-top="30px">
+          New Admin Registration Request
+        </mj-text>
+        <mj-text>
+          Hello President,
+        </mj-text>
+        <mj-text>
+          A new user has registered for an admin account and is waiting for your approval.
+        </mj-text>
+        <mj-text css-class="details-section">
+          <strong>Name:</strong> {{newAdminName}}<br/>
+          <strong>Email:</strong> {{newAdminEmail}}<br/>
+          <strong>Requested Role:</strong> {{newAdminRole}}<br/>
+          <strong>Residence:</strong> {{newAdminResidence}}
+        </mj-text>
+        <mj-button background-color="#ea580c" color="white" font-weight="bold" font-size="16px" border-radius="8px" href="{{adminUrl}}/?tab=settings" padding="25px 0">
+          Review Pending Users
+        </mj-button>
+        <mj-divider border-color="#eeeeee" border-width="1px" padding="20px" />
+        <mj-text align="center" font-size="12px" color="#888888">
+          © Legacy Resident Society. All rights reserved.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

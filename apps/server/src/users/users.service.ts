@@ -108,6 +108,12 @@ export class UsersService {
       },
     });
 
+    if (!isApproved) {
+      this.notifyPresidentsAboutNewAdmin(user).catch(err => {
+        this.logger.error('Failed to notify presidents about new admin', err);
+      });
+    }
+
     return {
       message: isApproved ? 'User created successfully' : 'Your request has been sent. You will join the admin when the President approves it',
       user: {
@@ -310,5 +316,65 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  private async notifyPresidentsAboutNewAdmin(newUser: any) {
+    try {
+      // Find all users with the role 'president'
+      const presidents = await this.prisma.user.findMany({
+        where: { role: 'president', isApproved: true },
+        select: { email: true, firstName: true },
+      });
+
+      if (presidents.length === 0) {
+        this.logger.warn('No approved president found to notify about new admin registration');
+        return;
+      }
+
+      // Read and parse the MJML template
+      const templatePath = path.join(process.cwd(), 'src', 'templates', 'new-admin-registered.mjml');
+      let htmlOutput = `<p>A new user has registered for an admin account and is waiting for your approval.</p>`;
+
+      const adminUrl = process.env.ADMIN_FRONTEND_URL || 'https://admin.thelegacyapartment.co.in';
+
+      if (fs.existsSync(templatePath)) {
+        let template = fs.readFileSync(templatePath, 'utf8');
+        template = template.replace('{{newAdminName}}', `${newUser.firstName} ${newUser.lastName}`);
+        template = template.replace('{{newAdminEmail}}', newUser.email);
+        template = template.replace('{{newAdminRole}}', newUser.role);
+        template = template.replace('{{newAdminResidence}}', newUser.residence);
+        template = template.replace('{{adminUrl}}', adminUrl);
+        
+        const mjmlParseResults = mjml2html(template);
+        htmlOutput = mjmlParseResults.html;
+      }
+
+      const transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST || 'smtp.ethereal.email',
+        port: parseInt(process.env.SMTP_PORT || '587', 10),
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+
+      for (const president of presidents) {
+        if (process.env.SMTP_HOST) {
+          await transporter.sendMail({
+            from: '"Legacy Apartment" <legacy.sixmile@gmail.com>',
+            to: president.email,
+            subject: 'New Admin Registration Pending Approval',
+            text: `A new user (${newUser.firstName} ${newUser.lastName}) has registered as ${newUser.role} and is awaiting your approval. Log in to the admin panel to review: ${adminUrl}/users`,
+            html: htmlOutput,
+          });
+          this.logger.log(`New admin notification email sent to president ${president.email}`);
+        } else {
+          this.logger.warn(`No SMTP host configured. New admin notification simulated for ${president.email}`);
+        }
+      }
+    } catch (error) {
+      this.logger.error('Error sending new admin notification email to presidents', error);
+      throw error;
+    }
   }
 }
