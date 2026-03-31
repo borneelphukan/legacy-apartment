@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button, Input, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon , Spinner } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
 import api from '@/lib/api';
@@ -13,9 +13,11 @@ interface Announcement {
   title: string;
   description: string;
   date: string;
+  fileUrl?: string | null;
+  fileName?: string | null;
 }
 
-const TiptapEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+const TiptapEditor = ({ value, onChange, onUploadPDF }: { value: string, onChange: (val: string) => void, onUploadPDF?: () => void }) => {
   const [activeStates, setActiveStates] = useState(0);
   const [isPreview, setIsPreview] = useState(false);
 
@@ -87,7 +89,7 @@ const TiptapEditor = ({ value, onChange }: { value: string, onChange: (val: stri
           </div>
 
           {/* Lists */}
-          <div className="flex gap-1">
+          <div className="flex gap-1 border-r border-gray-400 pr-2">
             <Button variant={editor.isActive('bulletList') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('bulletList') ? 'bg-white hover:bg-gray-400' : ''}`} title="Bullet List" disabled={isPreview}>
               <Icon type="format_list_bulleted" className='m-2' />
             </Button>
@@ -98,12 +100,28 @@ const TiptapEditor = ({ value, onChange }: { value: string, onChange: (val: stri
         </div>
 
         <div className="flex items-center gap-2">
+          {/* PDF Attachment Tool */}
+          {onUploadPDF && (
+            <Button 
+                variant="outline" 
+                size="sm" 
+                type="button" 
+                onClick={onUploadPDF} 
+                className={`flex items-center gap-2 h-8 px-3 rounded-md bg-white hover:bg-gray-400 border-gray-400`}
+                title="Upload PDF"
+                disabled={isPreview}
+            >
+              <Icon type="picture_as_pdf" className="text-[18px]" />
+              <span className="text-sm font-bold truncate max-w-[100px]">Upload PDF</span>
+            </Button>
+          )}
+
           <Button 
             variant={isPreview ? 'primary' : 'outline'} 
             size="sm" 
             type="button" 
             onClick={() => setIsPreview(!isPreview)} 
-            className={`flex items-center gap-2 h-8 px-3 rounded-md ${!isPreview ? 'bg-white hover:bg-gray-400' : ''}`}
+            className={`flex items-center gap-2 h-8 px-3 rounded-md ${!isPreview ? 'bg-white hover:bg-gray-400 border-gray-400' : ''}`}
             title="Preview"
           >
             <Icon type={isPreview ? "edit" : "visibility"} className="text-[18px]" />
@@ -132,6 +150,8 @@ const Announcements = () => {
     title: '',
     description: '',
     date: new Date().toISOString().split('T')[0],
+    fileUrl: null as string | null,
+    fileName: null as string | null
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -150,6 +170,7 @@ const Announcements = () => {
     type: 'success' | 'error';
   } | null>(null);
   const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('adminUser');
@@ -176,11 +197,41 @@ const Announcements = () => {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        setAlertDialog({
+          open: true,
+          title: 'Invalid File',
+          description: 'Please upload only PDF files.',
+          type: 'error'
+        });
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({
+          ...formData,
+          fileUrl: reader.result as string,
+          fileName: file.name
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormErrors({});
 
-    const result = announcementSchema.safeParse(formData);
+    const result = announcementSchema.safeParse({
+        title: formData.title,
+        description: formData.description,
+        date: formData.date
+    });
+    
     if (!result.success) {
       const errors: Record<string, string> = {};
       result.error.issues.forEach((err: any) => {
@@ -199,7 +250,7 @@ const Announcements = () => {
 
       setIsFormOpen(false);
       setEditingId(null);
-      setFormData({ title: '', description: '', date: new Date().toISOString().split('T')[0] });
+      setFormData({ title: '', description: '', date: new Date().toISOString().split('T')[0], fileUrl: '', fileName: '' });
       fetchAnnouncements();
     } catch (error: any) {
       setAlertDialog({
@@ -218,6 +269,8 @@ const Announcements = () => {
       title: ann.title,
       description: ann.description,
       date: new Date(ann.date).toISOString().split('T')[0],
+      fileUrl: ann.fileUrl || null,
+      fileName: ann.fileName || null
     });
     setIsFormOpen(true);
   };
@@ -225,7 +278,7 @@ const Announcements = () => {
   const isFormEmpty = !formData.title.trim() || !formData.description || formData.description === '<p><br></p>' || formData.description === '<p></p>';
   const existingAnnouncement = announcements.find(a => a.id === editingId);
   const isFormUnchanged = editingId && existingAnnouncement 
-    ? (formData.description === existingAnnouncement.description && formData.title === existingAnnouncement.title && formData.date === new Date(existingAnnouncement.date).toISOString().split('T')[0]) 
+    ? (formData.description === existingAnnouncement.description && formData.title === existingAnnouncement.title && formData.date === new Date(existingAnnouncement.date).toISOString().split('T')[0] && formData.fileUrl === (existingAnnouncement.fileUrl || '')) 
     : false;
   const isSaveDisabled = isFormEmpty || isFormUnchanged;
 
@@ -255,9 +308,46 @@ const Announcements = () => {
         <TiptapEditor 
           value={formData.description}
           onChange={(val) => setFormData({...formData, description: val})}
+          onUploadPDF={() => fileInputRef.current?.click()}
         />
         {formErrors.description && <p className="text-xs text-red-500 mt-1">{formErrors.description}</p>}
       </div>
+
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+        accept=".pdf" 
+        className="hidden" 
+      />
+
+      {formData.fileUrl && (
+        <div className="p-4 bg-orange-50 border border-orange-200 rounded-md flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Icon type="picture_as_pdf" className="text-orange-500 text-[24px]" />
+            <div>
+              <p className="text-sm font-bold text-gray-800 truncate max-w-[300px]">
+                {formData.fileName || 'Attached PDF'}
+              </p>
+              {formData.fileUrl.startsWith('http') && (
+                <a href={formData.fileUrl} target="_blank" rel="noreferrer" className="text-xs text-orange-600 hover:underline">
+                  View current file
+                </a>
+              )}
+            </div>
+          </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            type="button" 
+            onClick={() => setFormData({...formData, fileUrl: null as any, fileName: null as any})}
+            className="text-red-500 hover:text-red-600 hover:bg-red-50"
+          >
+            <Icon type="close" />
+          </Button>
+        </div>
+      )}
+
       <div className="flex gap-4">
         <Button variant="primary" type="submit" disabled={isSaveDisabled}>
           {isCreating ? 'Publish' : 'Update'}
@@ -268,6 +358,7 @@ const Announcements = () => {
           onClick={() => {
             setIsFormOpen(false);
             setEditingId(null);
+            setFormData({ title: '', description: '', date: new Date().toISOString().split('T')[0], fileUrl: null, fileName: null });
           }}
         >
           Cancel
@@ -315,7 +406,7 @@ const Announcements = () => {
               onClick={() => {
                   setFormErrors({});
                   setEditingId(null);
-                  setFormData({ title: '', description: '', date: new Date().toISOString().split('T')[0] });
+                  setFormData({ title: '', description: '', date: new Date().toISOString().split('T')[0], fileUrl: null as any, fileName: null as any });
                   setIsFormOpen(true);
               }}
           >
@@ -364,6 +455,19 @@ const Announcements = () => {
                             <p className="line-clamp-2">{ann.description}</p>
                           )}
                         </div>
+                        {ann.fileUrl && (
+                          <div className="mt-4">
+                            <a 
+                              href={ann.fileUrl} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-2 text-sm font-bold text-orange-600 hover:text-orange-700 bg-orange-50 px-4 py-2 rounded-lg border border-orange-200 transition-colors"
+                            >
+                              <Icon type="picture_as_pdf" />
+                              <span className="truncate max-w-[250px]">{ann.fileName || 'View Document'}</span>
+                            </a>
+                          </div>
+                        )}
                     </div>
                     {canManage && (
                       <div className="flex gap-3 shrink-0 self-end md:self-start">

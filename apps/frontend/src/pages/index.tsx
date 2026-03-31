@@ -288,9 +288,22 @@ const Home = () => {
                     <h3 className="text-sm font-bold text-gray-800 group-hover:text-orange-500 transition-colors mb-1 line-clamp-1">
                       {ann.title}
                     </h3>
-                    <div className="text-xs line-clamp-2 text-gray-100">
+                    <div className="text-xs line-clamp-2 text-gray-100 mb-2">
                       {ann.description.replace(/<[^>]*>?/gm, '')}
                     </div>
+                    {ann.fileUrl && (
+                      <div className="flex" onClick={(e) => e.stopPropagation()}>
+                        <a 
+                          href={ann.fileUrl} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 text-[10px] font-bold text-orange-500 hover:text-orange-600 bg-orange-50/10 px-2 py-1 rounded border border-orange-500/20 transition-colors"
+                        >
+                          <Icon type="picture_as_pdf" className="text-[12px]" />
+                          <span className="truncate max-w-[120px]">{ann.fileName || 'PDF Document'}</span>
+                        </a>
+                      </div>
+                    )}
                   </Link>
                 ))}
                 {announcements.length === 0 && (

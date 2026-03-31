@@ -14,7 +14,7 @@ export class AnnouncementController {
   @UseGuards(RolesGuard)
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post()
-  create(@Body() createAnnouncementDto: { title: string; description: string; date?: string }) {
+  create(@Body() createAnnouncementDto: { title: string; description: string; date?: string; fileUrl?: string; fileName?: string }) {
     return this.announcementService.create({
         ...createAnnouncementDto,
         date: createAnnouncementDto.date ? new Date(createAnnouncementDto.date) : undefined
@@ -36,7 +36,7 @@ export class AnnouncementController {
   @Roles(...PERMISSIONS.CREATE_ANNOUNCEMENT)
   @UseGuards(RolesGuard)
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateAnnouncementDto: { title?: string; description?: string; date?: string }) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateAnnouncementDto: { title?: string; description?: string; date?: string; fileUrl?: string; fileName?: string }) {
     return this.announcementService.update(id, {
         ...updateAnnouncementDto,
         date: updateAnnouncementDto.date ? new Date(updateAnnouncementDto.date) : undefined

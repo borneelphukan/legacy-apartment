@@ -234,6 +234,19 @@ const Committee = () => {
                                   <p>{decision.description}</p>
                                 )}
                               </div>
+                              {decision.fileUrl && (
+                                <div className="mt-4">
+                                  <a 
+                                    href={decision.fileUrl} 
+                                    target="_blank" 
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-2 text-sm font-bold text-orange-600 hover:text-orange-700 bg-orange-50 px-4 py-2 rounded-lg border border-orange-200 transition-colors"
+                                  >
+                                    <Icon type="picture_as_pdf" />
+                                    <span className="truncate max-w-[200px]">{decision.fileName || 'View Document'}</span>
+                                  </a>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
