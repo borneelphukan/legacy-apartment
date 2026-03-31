@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import DefaultLayout from "@/layout/DefaultLayout";
 import Head from "next/head";
 import { Banner, Breadcrumb, Icon , Spinner } from "@legacy-apartment/ui";
@@ -12,6 +13,7 @@ const Committee = () => {
   const [announcements, setAnnouncements] = useState<Record<string, any[]>>({});
   const [committeeMembers, setCommitteeMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,6 +57,36 @@ const Committee = () => {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (!loading && Object.keys(announcements).length > 0) {
+      const { announcement: annId } = router.query;
+      if (annId) {
+        // Find which year this announcement belongs to
+        let foundYear = "";
+        Object.entries(announcements).forEach(([year, list]) => {
+          if (list.some(a => a.id.toString() === annId)) {
+            foundYear = year;
+          }
+        });
+
+        if (foundYear) {
+          setSelectedYear(foundYear);
+          // Wait for render, then scroll
+          setTimeout(() => {
+            const el = document.getElementById(`announcement-${annId}`);
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              el.classList.add('ring-2', 'ring-orange-500', 'ring-offset-8', 'rounded-2xl');
+              setTimeout(() => {
+                el.classList.remove('ring-2', 'ring-orange-500', 'ring-offset-8');
+              }, 3000);
+            }
+          }, 100);
+        }
+      }
+    }
+  }, [loading, router.query, announcements]);
 
   return (
     <DefaultLayout>
@@ -178,7 +210,8 @@ const Committee = () => {
                       return (
                         <div
                           key={idx}
-                          className="mb-12 relative flex items-center w-full justify-start"
+                          id={`announcement-${decision.id}`}
+                          className="mb-12 relative flex items-center w-full justify-start transition-all duration-500"
                         >
                           {/* Timeline Dot */}
                           <div className="absolute w-5 h-5 rounded-full bg-orange-500 border-4 border-white shadow-md z-10"
@@ -194,9 +227,13 @@ const Committee = () => {
                               <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-orange-600 transition-colors">
                                 {decision.title}
                               </h3>
-                              <p className="text-gray-600 text-sm md:text-base leading-relaxed">
-                                {decision.description}
-                              </p>
+                              <div className="text-gray-600 text-sm md:text-base leading-relaxed">
+                                {/<[a-z][\s\S]*>/i.test(decision.description) ? (
+                                  <div dangerouslySetInnerHTML={{ __html: decision.description }} className="[&_p]:my-2 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-6 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-5 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mt-4 [&_strong]:font-bold" />
+                                ) : (
+                                  <p>{decision.description}</p>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>

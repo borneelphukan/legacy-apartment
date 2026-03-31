@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Button, TextArea, Input, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon , Spinner } from '@legacy-apartment/ui';
+import { Button, Input, Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription, Icon , Spinner } from '@legacy-apartment/ui';
 import { useRouter } from 'next/router';
 import api from '@/lib/api';
 import { announcementSchema } from '@legacy-apartment/shared';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import TextAlign from '@tiptap/extension-text-align';
 
 interface Announcement {
   id: number;
@@ -10,6 +14,114 @@ interface Announcement {
   description: string;
   date: string;
 }
+
+const TiptapEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
+  const [activeStates, setActiveStates] = useState(0);
+  const [isPreview, setIsPreview] = useState(false);
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Underline,
+      TextAlign.configure({ types: ['heading', 'paragraph'] })
+    ],
+    content: value,
+    immediatelyRender: false,
+    onUpdate: ({ editor }) => {
+      onChange(editor.getHTML());
+    },
+    onSelectionUpdate: () => {
+      setActiveStates(prev => prev + 1);
+    },
+    onTransaction: () => {
+      setActiveStates(prev => prev + 1);
+    },
+    editorProps: {
+      attributes: {
+        class: '[&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_p]:my-2 m-2 focus:outline-none min-h-[150px] p-2'
+      }
+    }
+  });
+
+  useEffect(() => {
+    if (editor && editor.getHTML() !== value) {
+      editor.commands.setContent(value);
+    }
+  }, [value, editor]);
+
+  if (!editor) {
+    return null;
+  }
+
+  return (
+    <div className="border border-gray-400 rounded-md bg-white">
+      <div className="flex gap-2 p-2 border-b border-gray-400 bg-gray-50 flex-wrap items-center justify-between">
+        <div className="flex gap-2 flex-wrap items-center">
+          {/* Text Alignments */}
+          <div className="flex gap-2 border-r border-gray-400 pr-2">
+            <Button variant={editor.isActive({ textAlign: 'left' }) ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().setTextAlign('left').run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive({ textAlign: 'left' }) ? 'bg-white hover:bg-gray-400 ' : ''}`} title="Align Left" disabled={isPreview}>
+              <Icon type="format_align_left" className='m-2'/>
+            </Button>
+            <Button variant={editor.isActive({ textAlign: 'center' }) ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().setTextAlign('center').run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive({ textAlign: 'center' }) ? 'bg-white hover:bg-gray-400' : ''}`} title="Align Center" disabled={isPreview}>
+              <Icon type="format_align_center" className='m-2'/>
+            </Button>
+            <Button variant={editor.isActive({ textAlign: 'right' }) ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().setTextAlign('right').run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive({ textAlign: 'right' }) ? 'bg-white hover:bg-gray-400' : ''}`} title="Align Right" disabled={isPreview}>
+              <Icon type="format_align_right" className='m-2'/>
+            </Button>
+            <Button variant={editor.isActive({ textAlign: 'justify' }) ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().setTextAlign('justify').run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive({ textAlign: 'justify' }) ? 'bg-white hover:bg-gray-400' : ''}`} title="Align Justify" disabled={isPreview}>
+              <Icon type="format_align_justify" className='m-2'/>
+            </Button>
+          </div>
+
+          {/* Formatting */}
+          <div className="flex gap-1 border-r border-gray-400 pr-2">
+            <Button variant={editor.isActive('bold') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('bold') ? 'bg-white hover:bg-gray-400' : ''}`} title="Bold" disabled={isPreview}>
+              <Icon type="format_bold" className='m-2'/>
+            </Button>
+            <Button variant={editor.isActive('italic') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('italic') ? 'bg-white hover:bg-gray-400' : ''}`} title="Italic" disabled={isPreview}>
+              <Icon type="format_italic" className='m-2'/>
+            </Button>
+            <Button variant={editor.isActive('underline') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleUnderline().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('underline') ? 'bg-white hover:bg-gray-400' : ''}`} title="Underline" disabled={isPreview}>
+              <Icon type="format_underlined" className='m-2'/>
+            </Button>
+          </div>
+
+          {/* Lists */}
+          <div className="flex gap-1">
+            <Button variant={editor.isActive('bulletList') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('bulletList') ? 'bg-white hover:bg-gray-400' : ''}`} title="Bullet List" disabled={isPreview}>
+              <Icon type="format_list_bulleted" className='m-2' />
+            </Button>
+            <Button variant={editor.isActive('orderedList') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('orderedList') ? 'bg-white hover:bg-gray-400' : ''}`} title="Numbered List" disabled={isPreview}>
+              <Icon type="format_list_numbered" className='m-2'/>
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button 
+            variant={isPreview ? 'primary' : 'outline'} 
+            size="sm" 
+            type="button" 
+            onClick={() => setIsPreview(!isPreview)} 
+            className={`flex items-center gap-2 h-8 px-3 rounded-md ${!isPreview ? 'bg-white hover:bg-gray-400' : ''}`}
+            title="Preview"
+          >
+            <Icon type={isPreview ? "edit" : "visibility"} className="text-[18px]" />
+            <span className="text-sm font-bold">{isPreview ? 'Edit' : 'Preview'}</span>
+          </Button>
+        </div>
+      </div>
+      
+      {isPreview ? (
+        <div className="p-4 min-h-[150px] bg-white text-gray-800">
+          <div dangerouslySetInnerHTML={{ __html: value }} className="[&_p]:my-2 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-6 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-5 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mt-4 [&_strong]:font-bold" />
+        </div>
+      ) : (
+        <EditorContent editor={editor} className="min-h-[150px]" />
+      )}
+    </div>
+  );
+};
 
 
 const Announcements = () => {
@@ -110,6 +222,60 @@ const Announcements = () => {
     setIsFormOpen(true);
   };
 
+  const isFormEmpty = !formData.title.trim() || !formData.description || formData.description === '<p><br></p>' || formData.description === '<p></p>';
+  const existingAnnouncement = announcements.find(a => a.id === editingId);
+  const isFormUnchanged = editingId && existingAnnouncement 
+    ? (formData.description === existingAnnouncement.description && formData.title === existingAnnouncement.title && formData.date === new Date(existingAnnouncement.date).toISOString().split('T')[0]) 
+    : false;
+  const isSaveDisabled = isFormEmpty || isFormUnchanged;
+
+  const renderForm = (isCreating: boolean) => (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <Input 
+        id="title"
+        label="Title"
+        required
+        type="text" 
+        value={formData.title}
+        onChange={(e) => setFormData({...formData, title: e.target.value})}
+        placeholder="Enter announcement title"
+        error={formErrors.title}
+      />
+      <Input 
+        id="date"
+        label="Date"
+        required
+        type="date" 
+        value={formData.date}
+        onChange={(e) => setFormData({...formData, date: e.target.value})}
+        error={formErrors.date}
+      />
+      <div className="flex flex-col gap-2">
+        <label className="text-sm font-bold mt-2">Description</label>
+        <TiptapEditor 
+          value={formData.description}
+          onChange={(val) => setFormData({...formData, description: val})}
+        />
+        {formErrors.description && <p className="text-xs text-red-500 mt-1">{formErrors.description}</p>}
+      </div>
+      <div className="flex gap-4">
+        <Button variant="primary" type="submit" disabled={isSaveDisabled}>
+          {isCreating ? 'Publish' : 'Update'}
+        </Button>
+        <Button 
+          variant="outline"
+          type="button" 
+          onClick={() => {
+            setIsFormOpen(false);
+            setEditingId(null);
+          }}
+        >
+          Cancel
+        </Button>
+      </div>
+    </form>
+  );
+
   const handleDelete = async (id: number) => {
     setConfirmDialog({
       open: true,
@@ -147,12 +313,10 @@ const Announcements = () => {
               variant="primary"
               icon={{ left: <Icon type="add" className="text-[20px]" /> }}
               onClick={() => {
-                
                   setFormErrors({});
                   setEditingId(null);
                   setFormData({ title: '', description: '', date: new Date().toISOString().split('T')[0] });
                   setIsFormOpen(true);
-                  
               }}
           >
             Create
@@ -160,52 +324,10 @@ const Announcements = () => {
         )}
       </div>
 
-      {isFormOpen && (
+      {isFormOpen && !editingId && (
         <div className="mb-12 bg-white p-8 rounded-md border border-gray-500 overflow-hidden relative">
-          <h2 className="text-2xl font-bold mb-6">{editingId ? 'Edit' : 'Create'} Announcement</h2>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <Input 
-              id="title"
-              label="Title"
-              required
-              type="text" 
-              value={formData.title}
-              onChange={(e) => setFormData({...formData, title: e.target.value})}
-              placeholder="Enter announcement title"
-              error={formErrors.title}
-            />
-            <Input 
-              id="date"
-              label="Date"
-              required
-              type="date" 
-              value={formData.date}
-              onChange={(e) => setFormData({...formData, date: e.target.value})}
-              error={formErrors.date}
-            />
-            <TextArea 
-              id="description"
-              label="Description"
-              required
-              rows={4}
-              value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
-              placeholder="Provide details about the announcement..."
-              error={formErrors.description}
-            />
-            <div className="flex gap-4">
-              <Button variant="primary" type="submit">
-                {editingId ? 'Update' : 'Publish'}
-              </Button>
-              <Button 
-                variant="outline"
-                type="button" 
-                onClick={() => setIsFormOpen(false)}
-              >
-                Cancel
-              </Button>
-            </div>
-          </form>
+          <h2 className="text-2xl font-bold mb-6">Create Announcement</h2>
+          {renderForm(true)}
         </div>
       )}
 
@@ -217,35 +339,52 @@ const Announcements = () => {
                 No announcements. Create one to get started.
             </p>
         ) : (
-            (editingId && isFormOpen ? announcements.filter(a => a.id !== editingId) : announcements).map((ann) => (
+            announcements.map((ann) => {
+              if (editingId === ann.id && isFormOpen) {
+                return (
+                  <div key={ann.id} className="bg-white p-6 md:p-8 rounded-md border border-gray-500 flex flex-col gap-6 relative">
+                    <h2 className="text-xl font-bold mb-2">Edit Announcement</h2>
+                    {renderForm(false)}
+                  </div>
+                );
+              }
+              return (
                 <div key={ann.id} className="bg-white p-6 md:p-8 rounded-md border border-gray-500 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                    <div className="flex-1">
+                    <div className="flex-1 overflow-hidden">
                         <div className="flex items-center gap-3 mb-2">
                             <span className="text-xs font-bold text-orange-500 bg-orange-50 px-3 py-1 rounded-full uppercase tracking-tighter">
                                 {new Date(ann.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                             </span>
                         </div>
                         <h3 className="text-xl font-bold mb-2">{ann.title}</h3>
-                        <p className="text-sm line-clamp-2">{ann.description}</p>
+                        <div className="text-sm">
+                          {/<[a-z][\s\S]*>/i.test(ann.description) ? (
+                            <div dangerouslySetInnerHTML={{ __html: ann.description }} className="[&_p]:my-2 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-6 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-5 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mt-4 [&_strong]:font-bold" />
+                          ) : (
+                            <p className="line-clamp-2">{ann.description}</p>
+                          )}
+                        </div>
                     </div>
                     {canManage && (
-                      <div className="flex gap-3 shrink-0">
+                      <div className="flex gap-3 shrink-0 self-end md:self-start">
                           <Button 
                               variant="outline"
-                              size="icon"
+                              size="sm"
                               onClick={() => handleEdit(ann)}
-                              icon={{ left: <Icon type="edit" className="text-[20px]" /> }}
-                          />
+                          >
+                            Edit
+                          </Button>
                           <Button 
                               variant="destructive"
-                              size="icon"
+                              size="sm"
                               onClick={() => handleDelete(ann.id)}
-                              icon={{ left: <Icon type="delete" className="text-[20px]" /> }}
-                          />
+                          >
+                            Delete
+                          </Button>
                       </div>
                     )}
                 </div>
-            ))
+            )})
         )}
       </div>
 

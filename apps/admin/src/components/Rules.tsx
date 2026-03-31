@@ -21,6 +21,7 @@ interface Rule {
 
 const TiptapEditor = ({ value, onChange }: { value: string, onChange: (val: string) => void }) => {
   const [activeStates, setActiveStates] = useState(0);
+  const [isPreview, setIsPreview] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -58,47 +59,70 @@ const TiptapEditor = ({ value, onChange }: { value: string, onChange: (val: stri
 
   return (
     <div className="border border-gray-400 rounded-md bg-white">
-      <div className="flex gap-2 p-2 border-b border-gray-400 bg-gray-50 flex-wrap items-center">
-        {/* Text Alignments */}
-        <div className="flex gap-2 border-r border-gray-400 pr-2">
-          <Button variant={editor.isActive({ textAlign: 'left' }) ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().setTextAlign('left').run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive({ textAlign: 'left' }) ? 'bg-white hover:bg-gray-400 ' : ''}`} title="Align Left">
-            <Icon type="format_align_left" className='m-2'/>
-          </Button>
-          <Button variant={editor.isActive({ textAlign: 'center' }) ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().setTextAlign('center').run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive({ textAlign: 'center' }) ? 'bg-white hover:bg-gray-400' : ''}`} title="Align Center">
-            <Icon type="format_align_center" className='m-2'/>
-          </Button>
-          <Button variant={editor.isActive({ textAlign: 'right' }) ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().setTextAlign('right').run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive({ textAlign: 'right' }) ? 'bg-white hover:bg-gray-400' : ''}`} title="Align Right">
-            <Icon type="format_align_right" className='m-2'/>
-          </Button>
-          <Button variant={editor.isActive({ textAlign: 'justify' }) ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().setTextAlign('justify').run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive({ textAlign: 'justify' }) ? 'bg-white hover:bg-gray-400' : ''}`} title="Align Justify">
-            <Icon type="format_align_justify" className='m-2'/>
-          </Button>
+      <div className="flex gap-2 p-2 border-b border-gray-400 bg-gray-50 flex-wrap items-center justify-between">
+        <div className="flex gap-2 flex-wrap items-center">
+          {/* Text Alignments */}
+          <div className="flex gap-2 border-r border-gray-400 pr-2">
+            <Button variant={editor.isActive({ textAlign: 'left' }) ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().setTextAlign('left').run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive({ textAlign: 'left' }) ? 'bg-white hover:bg-gray-400 ' : ''}`} title="Align Left" disabled={isPreview}>
+              <Icon type="format_align_left" className='m-2'/>
+            </Button>
+            <Button variant={editor.isActive({ textAlign: 'center' }) ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().setTextAlign('center').run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive({ textAlign: 'center' }) ? 'bg-white hover:bg-gray-400' : ''}`} title="Align Center" disabled={isPreview}>
+              <Icon type="format_align_center" className='m-2'/>
+            </Button>
+            <Button variant={editor.isActive({ textAlign: 'right' }) ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().setTextAlign('right').run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive({ textAlign: 'right' }) ? 'bg-white hover:bg-gray-400' : ''}`} title="Align Right" disabled={isPreview}>
+              <Icon type="format_align_right" className='m-2'/>
+            </Button>
+            <Button variant={editor.isActive({ textAlign: 'justify' }) ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().setTextAlign('justify').run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive({ textAlign: 'justify' }) ? 'bg-white hover:bg-gray-400' : ''}`} title="Align Justify" disabled={isPreview}>
+              <Icon type="format_align_justify" className='m-2'/>
+            </Button>
+          </div>
+
+          {/* Formatting */}
+          <div className="flex gap-1 border-r border-gray-400 pr-2">
+            <Button variant={editor.isActive('bold') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('bold') ? 'bg-white hover:bg-gray-400' : ''}`} title="Bold" disabled={isPreview}>
+              <Icon type="format_bold" className='m-2'/>
+            </Button>
+            <Button variant={editor.isActive('italic') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('italic') ? 'bg-white hover:bg-gray-400' : ''}`} title="Italic" disabled={isPreview}>
+              <Icon type="format_italic" className='m-2'/>
+            </Button>
+            <Button variant={editor.isActive('underline') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleUnderline().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('underline') ? 'bg-white hover:bg-gray-400' : ''}`} title="Underline" disabled={isPreview}>
+              <Icon type="format_underlined" className='m-2'/>
+            </Button>
+          </div>
+
+          {/* Lists */}
+          <div className="flex gap-1">
+            <Button variant={editor.isActive('bulletList') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('bulletList') ? 'bg-white hover:bg-gray-400' : ''}`} title="Bullet List" disabled={isPreview}>
+              <Icon type="format_list_bulleted" className='m-2' />
+            </Button>
+            <Button variant={editor.isActive('orderedList') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('orderedList') ? 'bg-white hover:bg-gray-400' : ''}`} title="Numbered List" disabled={isPreview}>
+              <Icon type="format_list_numbered" className='m-2'/>
+            </Button>
+          </div>
         </div>
 
-        {/* Formatting */}
-        <div className="flex gap-1 border-r border-gray-400 pr-2">
-          <Button variant={editor.isActive('bold') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('bold') ? 'bg-white hover:bg-gray-400' : ''}`} title="Bold">
-            <Icon type="format_bold" className='m-2'/>
-          </Button>
-          <Button variant={editor.isActive('italic') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('italic') ? 'bg-white hover:bg-gray-400' : ''}`} title="Italic">
-            <Icon type="format_italic" className='m-2'/>
-          </Button>
-          <Button variant={editor.isActive('underline') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleUnderline().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('underline') ? 'bg-white hover:bg-gray-400' : ''}`} title="Underline">
-            <Icon type="format_underlined" className='m-2'/>
-          </Button>
-        </div>
-
-        {/* Lists */}
-        <div className="flex gap-1">
-          <Button variant={editor.isActive('bulletList') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('bulletList') ? 'bg-white hover:bg-gray-400' : ''}`} title="Bullet List">
-            <Icon type="format_list_bulleted" className='m-2' />
-          </Button>
-          <Button variant={editor.isActive('orderedList') ? 'primary' : 'outline'} size="sm" type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`h-8 w-8 !p-0 flex items-center justify-center rounded-md ${!editor.isActive('orderedList') ? 'bg-white hover:bg-gray-400' : ''}`} title="Numbered List">
-            <Icon type="format_list_numbered" className='m-2'/>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant={isPreview ? 'primary' : 'outline'} 
+            size="sm" 
+            type="button" 
+            onClick={() => setIsPreview(!isPreview)} 
+            className={`flex items-center gap-2 h-8 px-3 rounded-md ${!isPreview ? 'bg-white hover:bg-gray-400' : ''}`}
+            title="Preview"
+          >
+            <Icon type={isPreview ? "edit" : "visibility"} className="text-[18px]" />
+            <span className="text-sm font-bold">{isPreview ? 'Edit' : 'Preview'}</span>
           </Button>
         </div>
       </div>
-      <EditorContent editor={editor} className="min-h-[150px]" />
+      
+      {isPreview ? (
+        <div className="p-4 min-h-[150px] bg-white text-gray-800">
+          <div dangerouslySetInnerHTML={{ __html: value }} className="[&_p]:my-2 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-6 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-5 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mt-4 [&_strong]:font-bold" />
+        </div>
+      ) : (
+        <EditorContent editor={editor} className="min-h-[150px]" />
+      )}
     </div>
   );
 };
@@ -332,7 +356,7 @@ const Rules = () => {
                         <div className="flex-1 w-full overflow-hidden">
                           <div className="space-y-4">
                               {/<[a-z][\s\S]*>/i.test(rule.rule) ? (
-                                <div dangerouslySetInnerHTML={{ __html: rule.rule }} className="[&>p]:my-2 [&>ul]:list-disc [&>ul]:ml-6 [&>ol]:list-decimal [&>ol]:ml-6 [&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mt-6 [&>h2]:text-xl [&>h2]:font-bold [&>h2]:mt-5 [&>h3]:text-lg [&>h3]:font-bold [&>h3]:mt-4 [&>strong]:font-bold" />
+                                <div dangerouslySetInnerHTML={{ __html: rule.rule }} className="[&_p]:my-2 [&_ul]:list-disc [&_ul]:ml-6 [&_ol]:list-decimal [&_ol]:ml-6 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-6 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-5 [&_h3]:text-lg [&_h3]:font-bold [&_h3]:mt-4 [&_strong]:font-bold" />
                               ) : (
                                 rule.rule.split('\n').filter(line => line.trim()).map((line, idx) => {
                                     let content = line.trim();
