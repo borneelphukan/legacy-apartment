@@ -96,8 +96,8 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onClose }: SidebarProps) => {
         />
       )}
       
-      <aside className={`w-64 bg-white border-r border-gray-500 flex flex-col fixed h-screen z-30 transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
-        <div className="p-8 flex items-center justify-between">
+      <aside className={`w-64 bg-white border-r border-gray-500 flex flex-col fixed h-screen z-30 transition-transform duration-300 overflow-y-auto custom-scrollbar ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
+        <div className="p-8 flex items-center justify-between flex-shrink-0">
           <div>
             <h2 className="text-xl font-black uppercase tracking-tighter text-gray-100">
               Legacy <span className="text-orange-500">Admin</span>
@@ -112,7 +112,7 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onClose }: SidebarProps) => {
           </button>
         </div>
 
-        <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
+        <nav className="flex-1 px-4 space-y-2">
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -129,7 +129,7 @@ const Sidebar = ({ activeTab, onTabChange, isOpen, onClose }: SidebarProps) => {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-gray-50 flex flex-col gap-2">
+        <div className="p-4 border-t border-gray-50 flex flex-col gap-2 mt-auto flex-shrink-0">
           {isPresident && (
             <button 
               onClick={() => handleNavClick('settings')}

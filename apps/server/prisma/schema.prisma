@@ -42,7 +42,7 @@ model Resident {
   phone_no         String
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
-  monthlyRate      Float             @default(1000)
+  monthlyRate      Float             @default(0)
   monthlyPayments  MonthlyPayment[]
   securityPayments SecurityPayment[]
 
@@ -87,8 +87,8 @@ model SecurityPayment {
 
 model Setting {
   id               Int      @id @default(autoincrement())
-  monthlyFee       Float    @default(1000)
-  yearlyFee        Float    @default(5000)
+  monthlyFee       Float    @default(0)
+  yearlyFee        Float    @default(0)
   frontendPassword String   @default("")
   updatedAt        DateTime @updatedAt
   year             Int      @unique

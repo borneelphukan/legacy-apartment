@@ -13,8 +13,8 @@ export class SettingService implements OnModuleInit {
       await this.prisma.setting.create({
         data: {
           year: currentYear,
-          monthlyFee: 1000,
-          yearlyFee: 5000,
+          monthlyFee: 0,
+          yearlyFee: 0,
           frontendPassword: "",
         },
       });
@@ -30,8 +30,8 @@ export class SettingService implements OnModuleInit {
     if (!setting) {
       return {
         year: targetYear,
-        monthlyFee: 1000,
-        yearlyFee: 5000,
+        monthlyFee: 0,
+        yearlyFee: 0,
         frontendPassword: "",
       };
     }
@@ -49,8 +49,8 @@ export class SettingService implements OnModuleInit {
       return this.prisma.setting.create({
         data: {
           year: targetYear,
-          monthlyFee: data.monthlyFee || 1000,
-          yearlyFee: data.yearlyFee || 5000,
+          monthlyFee: data.monthlyFee || 0,
+          yearlyFee: data.yearlyFee || 0,
           frontendPassword: data.frontendPassword || "",
         },
       });

@@ -37,6 +37,7 @@ export interface Props {
   showMonthlyFeeLegend?: boolean;
   showYearlyFeeLegend?: boolean;
   showMonthlyRate?: boolean;
+  showYearlyRate?: boolean;
   storageKey?: string;
   expectedPassword?: string;
   readOnly?: boolean;
@@ -52,6 +53,9 @@ export interface Props {
   search?: string;
   onSearchChange?: (value: string) => void;
   searchPlaceholder?: string;
+  overflowVisible?: boolean;
+  getCellTitle?: (row: any, columnIndex: number) => string;
+  readOnlyCells?: boolean;
 }
 
 const Table = ({
@@ -77,6 +81,7 @@ const Table = ({
   showMonthlyFeeLegend = true,
   showYearlyFeeLegend = true,
   showMonthlyRate = true,
+  showYearlyRate = false,
   storageKey,
   expectedPassword = "",
   readOnly = false,
@@ -92,6 +97,9 @@ const Table = ({
   search,
   onSearchChange,
   searchPlaceholder = "Search...",
+  overflowVisible = false,
+  getCellTitle,
+  readOnlyCells = false,
 }: Props) => {
   const [isUnlocked, setIsUnlocked] = useState(!enableLock);
   const [password, setPassword] = useState("");
@@ -129,7 +137,7 @@ const Table = ({
   const rowData = residents || data || [];
 
   return (
-    <div className={`bg-white rounded-xl ${shadowColor} border border-gray-400 overflow-hidden relative ${className}`}>
+    <div className={`bg-white rounded-xl ${shadowColor} border border-gray-400 ${overflowVisible ? '' : 'overflow-hidden'} relative ${className}`}>
       {!isUnlocked ? (
         <div className="flex flex-col items-center justify-center p-12 md:p-24 bg-slate-50/50 min-h-[400px]">
           <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center mb-6 text-grey-100 border border-gray-400">
@@ -173,7 +181,7 @@ const Table = ({
               </div>
             </div>
           )}
-          <div className="overflow-x-auto max-h-[800px] custom-scrollbar">
+          <div className={`${overflowVisible ? '' : 'overflow-x-auto'} max-h-[800px] custom-scrollbar`}>
             <table className={`w-full text-left border-collapse ${minWidthClass}`}>
               <thead className="top-0 z-10 bg-slate-50 border-b border-gray-400">
                 <tr>
@@ -183,10 +191,11 @@ const Table = ({
                         { label: 'Resident', key: 'name' },
                         { label: 'Apartment', key: 'residence' },
                         { label: 'Phone', key: 'phone_no' },
-                        ...(showMonthlyRate ? [{ label: 'Monthly Rate', key: 'monthlyRate' }] : [])
+                        ...(showMonthlyRate ? [{ label: 'Monthly Rate', key: 'monthlyRate' }] : []),
+                        ...(showYearlyRate ? [{ label: 'Current Yearly Fee', key: 'yearlyRate' }] : [])
                       ].map((col) => {
                         const isSorted = sortColumn === col.key;
-                        const isSortable = !!onSortChange;
+                        const isSortable = !!onSortChange && col.key !== 'yearlyRate';
                         return (
                           <th 
                             key={col.key}
@@ -297,6 +306,11 @@ const Table = ({
                             )}
                           </td>
                         )}
+                        {showYearlyRate && (
+                          <td className={`${tight ? 'py-1 px-2' : 'py-2 px-4'} text-sm font-bold ${theme === 'orange' ? 'text-orange-600' : 'text-blue-600'} whitespace-nowrap`}>
+                             {yearlyFee || "₹ 0"}
+                          </td>
+                        )}
                       </>
                     )}
                     {columns.map((col: string, colIdx: number) => {
@@ -305,6 +319,7 @@ const Table = ({
                           <td 
                             key={colIdx} 
                             className={`${tight ? 'py-2 px-2' : 'py-4 px-4'} text-left`}
+                            title={getCellTitle ? getCellTitle(row, colIdx) : undefined}
                           >
                             {renderCell ? renderCell(row, col, colIdx) : (row[col] || "-")}
                           </td>
@@ -335,9 +350,10 @@ const Table = ({
                         return (
                           <td 
                             key={colIdx} 
-                            className={`py-1 px-2 text-center transition-colors ${cellHighlight} ${readOnly ? "" : "cursor-pointer"} ${getCellClass ? getCellClass(row, colIdx) : ""}`}
+                            className={`py-1 px-2 text-center transition-colors ${cellHighlight} ${readOnly || readOnlyCells ? "" : "cursor-pointer"} ${getCellClass ? getCellClass(row, colIdx) : ""}`}
+                            title={getCellTitle ? getCellTitle(row, colIdx) : undefined}
                             onClick={() => {
-                              if (!readOnly && !isEditing) {
+                              if (!readOnly && !readOnlyCells && !isEditing) {
                                 setEditingCell({ resIdx: idx, colIdx: colIdx });
                                 setTempValue(String(value));
                                 onCellClick?.(row, colIdx);
@@ -372,7 +388,6 @@ const Table = ({
               </tbody>
             </table>
           </div>
-          <div className="absolute top-0 right-0 w-8 h-full bg-gradient-to-l from-white to-transparent pointer-events-none z-10 hidden md:block"></div>
           
           {(type === "status" || showMonthlyFeeLegend || showYearlyFeeLegend) && (
             <div className="w-full border-t border-gray-400 p-4 flex flex-wrap gap-6 justify-center text-sm text-grey-100 relative z-20">

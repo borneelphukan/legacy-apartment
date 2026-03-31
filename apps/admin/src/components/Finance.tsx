@@ -36,6 +36,8 @@ interface SecurityPayment {
     year: number;
     amount: number;
     status: number;
+    paymentType?: string;
+    lateFee?: number;
 }
 
 interface ResidentFinance {
@@ -56,11 +58,10 @@ const Finance = () => {
     const currentMonthIdx = new Date().getMonth();
     const [selectedYear, setSelectedYear] = useState(currentYear);
     const [selectedMonth, setSelectedMonth] = useState(currentMonthIdx);
-    const [fees, setFees] = useState({ monthlyFee: 1000, yearlyFee: 5000 });
+    const [fees, setFees] = useState({ monthlyFee: 0, yearlyFee: 0 });
     const [canEditFinance, setCanEditFinance] = useState(false);
     const [sortColumn, setSortColumn] = useState('');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | ''>('');
-    const yearlyColumns = ['2023', '2024', '2025', '2026', '2027'];
 
     useEffect(() => {
         const stored = localStorage.getItem('adminUser');
@@ -73,9 +74,11 @@ const Finance = () => {
     }, []);
 
     const availableYears = Array.from(
-        { length: currentYear - 2023 + 1 }, 
+        { length: currentYear - 2023 + 2 }, 
         (_, i) => 2023 + i
     );
+
+    const yearlyColumns = availableYears.map(String);
 
     useEffect(() => {
         fetchFinanceData();
@@ -88,8 +91,8 @@ const Finance = () => {
             const data = response.data;
             if (data) {
                 setFees({
-                    monthlyFee: data.monthlyFee || 1000,
-                    yearlyFee: data.yearlyFee || 5000,
+                    monthlyFee: data.monthlyFee ?? 0,
+                    yearlyFee: data.yearlyFee ?? 0,
                 });
             }
         } catch (error) {
@@ -181,12 +184,71 @@ const Finance = () => {
     };
 
     const updateGlobalFees = async (data: { monthlyFee?: number; yearlyFee?: number }) => {
+        const oldYearlyFee = fees.yearlyFee;
         try {
             await api.post('/setting', {
                 ...data,
                 year: selectedYear
             });
             fetchSettings();
+            
+            // If yearly fee decreased, adjust overpayments automatically
+            if (data.yearlyFee !== undefined && data.yearlyFee < oldYearlyFee) {
+                const newFee = data.yearlyFee;
+                for (const res of financeData) {
+                    const payment = (res.securityPayments || []).find(p => p.year === selectedYear);
+                    if (payment && payment.amount > newFee) {
+                        const overpayment = payment.amount - newFee;
+                        
+                        // 1. Cap current year to the new lower fee
+                        await api.post(`/finance/security/${res.id}`, {
+                            year: selectedYear,
+                            amount: newFee,
+                            status: 1
+                        });
+
+                        // 2. Add overpayment to next year
+                        const nextYearPayment = (res.securityPayments || []).find(p => (p as any).year === selectedYear + 1);
+                        const nextYearAmount = (nextYearPayment?.amount || 0) + overpayment;
+                        
+                        await api.post(`/finance/security/${res.id}`, {
+                            year: selectedYear + 1,
+                            amount: nextYearAmount,
+                            status: nextYearAmount > 0 ? 1 : 0
+                        });
+                    }
+                }
+                fetchFinanceData();
+            } else if (data.yearlyFee !== undefined && data.yearlyFee > oldYearlyFee) {
+                // If yearly fee increased, pull credits back from next year to complete payment
+                const newFee = data.yearlyFee;
+                for (const res of financeData) {
+                    const payment = (res.securityPayments || []).find(p => p.year === selectedYear);
+                    if (payment && payment.amount < newFee) {
+                        const needed = newFee - payment.amount;
+                        const nextYearPayment = (res.securityPayments || []).find(p => (p as any).year === selectedYear + 1);
+                        
+                        if (nextYearPayment && nextYearPayment.amount > 0) {
+                            const takeAmount = Math.min(nextYearPayment.amount, needed);
+                            
+                            // 1. Pull credit from next year
+                            await api.post(`/finance/security/${res.id}`, {
+                                year: selectedYear + 1,
+                                amount: nextYearPayment.amount - takeAmount,
+                                status: (nextYearPayment.amount - takeAmount) > 0 ? 1 : 0
+                            });
+
+                            // 2. Add to current year
+                            await api.post(`/finance/security/${res.id}`, {
+                                year: selectedYear,
+                                amount: payment.amount + takeAmount,
+                                status: (payment.amount + takeAmount) >= newFee ? 1 : 0
+                            });
+                        }
+                    }
+                }
+                fetchFinanceData();
+            }
         } catch (error) {
             console.error('Error updating global fees:', error);
         }
@@ -355,7 +417,15 @@ const Finance = () => {
                             getRowClass={(res) => checkIsDefaulter(res) ? "!bg-red-300" : ""}
                             getCellClass={(res, colIdx) => {
                                 const p = (res.monthlyPayments || []).find((pay: any) => pay.month === colIdx && pay.year === selectedYear);
-                                return p?.paymentType === 'Cash' ? "!bg-green-300" : "";
+                                if (p?.paymentType === 'Cash') return "!bg-green-300";
+                                if (p?.paymentType === 'Online') return "!bg-blue-300";
+                                return "";
+                            }}
+                            getCellTitle={(res, colIdx) => {
+                                const p = (res.monthlyPayments || []).find((pay: any) => pay.month === colIdx && pay.year === selectedYear);
+                                if (p?.paymentType === 'Cash') return "mode of payment: offline";
+                                if (p?.paymentType === 'Online') return "mode of payment: online";
+                                return "";
                             }}
                         />
                     </div>
@@ -371,7 +441,7 @@ const Finance = () => {
                             residents={financeData}
                             columns={yearlyColumns}
                             showMonthlyRate={false}
-                            readOnly={true}
+                            showYearlyRate={true}
                             sortColumn={sortColumn}
                             sortOrder={sortOrder}
                             onSortChange={(col) => {
@@ -400,8 +470,28 @@ const Finance = () => {
                             }}
                             yearlyFee={`₹ ${fees.yearlyFee.toLocaleString()}`}
                             showMonthlyFeeLegend={false}
-                            showYearlyFeeLegend={false}
+                            showYearlyFeeLegend={true}
+                            readOnly={!canEditFinance}
+                            readOnlyCells={true}
                             minWidthClass="min-w-full"
+                            getRowClass={(res) => {
+                                const payment = (res.securityPayments || []).find((p: any) => p.year === selectedYear);
+                                return !payment || Number(payment.amount) < fees.yearlyFee ? "!bg-red-300" : "";
+                            }}
+                            getCellClass={(res, colIdx) => {
+                                const year = parseInt(yearlyColumns[colIdx]);
+                                const p = (res.securityPayments || []).find((pay: any) => pay.year === year);
+                                if (p?.paymentType === 'Cash') return "!bg-green-300";
+                                if (p?.paymentType === 'Online') return "!bg-blue-300";
+                                return "";
+                            }}
+                            getCellTitle={(res, colIdx) => {
+                                const year = parseInt(yearlyColumns[colIdx]);
+                                const p = (res.securityPayments || []).find((pay: any) => pay.year === year);
+                                if (p?.paymentType === 'Cash') return "paid with cash";
+                                if (p?.paymentType === 'Online') return "paid online";
+                                return "";
+                            }}
                         />
                     </div>
                 </div>

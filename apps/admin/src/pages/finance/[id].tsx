@@ -197,6 +197,18 @@ const FinancePage = () => {
     }
   };
 
+  const updateGlobalFees = async (data: { monthlyFee?: number; yearlyFee?: number }) => {
+    try {
+      await api.post('/setting', {
+        ...data,
+        year: selectedYear
+      });
+      fetchSettings();
+    } catch (error) {
+      console.error('Error updating global fees:', error);
+    }
+  };
+
   if (loading) return <div className="p-12 text-center"><div className="flex justify-center items-center w-full"><Spinner className="size-8 text-orange-500" /></div></div>;
   if (!resident) return <div className="p-12 text-center">Resident not found</div>;
 
@@ -336,6 +348,7 @@ const FinancePage = () => {
                 className="!shadow-none !border-gray-400"
                 readOnly={!isPresident}
                 tight={true}
+                overflowVisible={true}
                 showMonthlyFeeLegend={false}
                 showYearlyFeeLegend={false}
                 renderCell={(row, col) => {
@@ -457,39 +470,27 @@ const FinancePage = () => {
                <h3 className="text-sm font-bold text-gray-100 mb-6 uppercase tracking-wider">Yearly Maintenance Fees</h3>
                <Table 
                 data={[{ year: selectedYear }]}
-                columns={['year', 'yearlyRate', 'amount', 'type', 'date', 'lateFee']}
-                headers={['Year', 'Yearly Rate', 'Payment Made', 'Payment Mode', 'Payment Received On', 'Late Payment']}
+                columns={['year', 'amount', 'type', 'date', 'lateFee', 'actions']}
+                headers={['Year', 'Payment Made', 'Payment Mode', 'Payment Received On', 'Late Payment', '']}
                 type="general"
                 theme="blue"
                 className="!shadow-none !border-gray-400"
                 readOnly={!isPresident}
                 tight={true}
+                overflowVisible={true}
                 showMonthlyFeeLegend={false}
                 showYearlyFeeLegend={false}
+                yearlyFee={`₹ ${fees.yearlyFee.toLocaleString()}`}
+                onYearlyFeeChange={(val) => {
+                  const num = parseFloat(val.replace(/[^0-9.]/g, '')) || 0;
+                  updateGlobalFees({ yearlyFee: num });
+                }}
                 renderCell={(row, col) => {
                   const payment = resident.securityPayments.find(
                     (p: any) => p.year === row.year
                   );
 
                   if (col === 'year') return <span className="font-bold">{row.year}</span>;
-
-                  if (col === 'yearlyRate') {
-                    if (!isPresident) return `₹ ${(payment?.yearlyRate || 0).toLocaleString()}`;
-                    return (
-                      <Input 
-                        id={`yearly-rate-${row.year}`}
-                        label="Yearly Rate"
-                        hideLabel
-                        type="number"
-                        className="w-24"
-                        value={payment?.yearlyRate ?? 0}
-                        onChange={(e) => {
-                          const val = parseFloat(e.target.value) || 0;
-                          updateSecurityStatus(row.year, { yearlyRate: val, status: val > 0 ? 1 : 0 });
-                        }}
-                      />
-                    );
-                  }
 
                   if (col === 'amount') {
                     if (!isPresident) return `₹ ${(payment?.amount || 0).toLocaleString()}`;
@@ -557,6 +558,23 @@ const FinancePage = () => {
                           updateSecurityStatus(row.year, { lateFee: val });
                         }}
                       />
+                    );
+                  }
+
+                  if (col === 'actions') {
+                    if (!isPresident) return null;
+                    return (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => updateSecurityStatus(row.year, { 
+                          amount: 0, 
+                          status: 0, 
+                          paymentType: '', 
+                          paymentDate: '', 
+                          lateFee: 0 
+                        })}
+                      >Clear</Button>
                     );
                   }
 
