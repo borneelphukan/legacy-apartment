@@ -210,6 +210,7 @@ const MaintenancePay = () => {
               enableLock
               storageKey="contributions_monthly_lock"
               expectedPassword={globalPassword}
+              readOnly={true}
             />
 
             {/* Annual security fee section */}
@@ -291,6 +292,8 @@ const MaintenancePay = () => {
               enableLock
               storageKey="contributions_yearly_lock"
               expectedPassword={globalPassword}
+              showMonthlyRate={false}
+              readOnly={true}
             />
 
             {/* Payment Section */}

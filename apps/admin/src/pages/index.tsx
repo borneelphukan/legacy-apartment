@@ -126,13 +126,17 @@ const AdminDashboard = () => {
               {/* Quick Stats Grid Placeholder */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
                 {[
-                  { label: 'Total Residents', value: stats.residents.toString() },
-                  { label: 'Active Announcements', value: stats.announcements.toString() },
-                  { label: 'Pending Complaints', value: stats.complaints.toString() },
+                  { label: 'Total Residents', value: stats.residents.toString(), tab: 'residents' as const },
+                  { label: 'Active Announcements', value: stats.announcements.toString(), tab: 'announcements' as const },
+                  { label: 'Pending Complaints', value: stats.complaints.toString(), tab: 'complaints' as const },
                 ].map((stat, i) => (
-                  <div key={i} className="bg-white p-8 rounded-xl border border-gray-500">
-                    <p className="text-xs font-bold text-gray-100 uppercase tracking-widest mb-2">{stat.label}</p>
-                    <p className={`text-4xl font-black text-gray-100`}>{stat.value}</p>
+                  <div 
+                    key={i} 
+                    onClick={() => handleTabChange(stat.tab)}
+                    className="bg-white p-8 rounded-xl border border-gray-500 cursor-pointer hover:border-orange-500 transition-all group"
+                  >
+                    <p className="text-xs font-bold text-gray-100 uppercase tracking-widest mb-2 group-hover:text-orange-500 transition-colors">{stat.label}</p>
+                    <p className="text-4xl font-black text-gray-100">{stat.value}</p>
                   </div>
                 ))}
               </div>

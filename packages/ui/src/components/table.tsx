@@ -227,8 +227,8 @@ const Table = ({
                            else onHeaderClick?.(idx);
                         }}
                       >
-                        <div className="flex items-center justify-between w-full">
-                          {col}
+                        <div className={`flex items-center w-full ${type === 'general' ? 'justify-between' : 'justify-center gap-1'}`}>
+                          <span>{col}</span>
                           {isSorted && sortOrder !== "" && (
                             <span className="flex items-center transition-colors text-orange-500">
                               {sortOrder === 'desc' ? <Icon type="keyboard_arrow_down" className="text-[20px]" /> : <Icon type="keyboard_arrow_up" className="text-[20px]" />}

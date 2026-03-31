@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,6 +24,49 @@ const Navbar = () => {
   const [showMobileEventsSubNav, setMobileEventsSubNav] = useState<boolean>(false);
 
   const pathname = usePathname();
+
+  const societyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const servicesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const eventsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnterSociety = () => {
+    if (societyTimeoutRef.current) clearTimeout(societyTimeoutRef.current);
+    setShowSocietySubNav(true);
+    setShowServicesSubNav(false);
+    setShowEventsSubNav(false);
+  };
+
+  const handleMouseLeaveSociety = () => {
+    societyTimeoutRef.current = setTimeout(() => {
+      setShowSocietySubNav(false);
+    }, 300);
+  };
+
+  const handleMouseEnterServices = () => {
+    if (servicesTimeoutRef.current) clearTimeout(servicesTimeoutRef.current);
+    setShowServicesSubNav(true);
+    setShowSocietySubNav(false);
+    setShowEventsSubNav(false);
+  };
+
+  const handleMouseLeaveServices = () => {
+    servicesTimeoutRef.current = setTimeout(() => {
+      setShowServicesSubNav(false);
+    }, 300);
+  };
+
+  const handleMouseEnterEvents = () => {
+    if (eventsTimeoutRef.current) clearTimeout(eventsTimeoutRef.current);
+    setShowEventsSubNav(true);
+    setShowSocietySubNav(false);
+    setShowServicesSubNav(false);
+  };
+
+  const handleMouseLeaveEvents = () => {
+    eventsTimeoutRef.current = setTimeout(() => {
+      setShowEventsSubNav(false);
+    }, 300);
+  };
 
   const handleLinkClick = (linkText: string) => {
     setSelectedLink(linkText);
@@ -86,8 +129,8 @@ const Navbar = () => {
         {/* Our Society */}
         <div
           className="relative"
-          onMouseEnter={() => setShowSocietySubNav(true)}
-          onMouseLeave={() => setShowSocietySubNav(false)}
+          onMouseEnter={handleMouseEnterSociety}
+          onMouseLeave={handleMouseLeaveSociety}
         >
           <Link
             href="#"
@@ -123,8 +166,8 @@ const Navbar = () => {
         {/* Services */}
         <div
           className="relative"
-          onMouseEnter={() => setShowServicesSubNav(true)}
-          onMouseLeave={() => setShowServicesSubNav(false)}
+          onMouseEnter={handleMouseEnterServices}
+          onMouseLeave={handleMouseLeaveServices}
         >
           <Link
             href="#"
@@ -160,8 +203,8 @@ const Navbar = () => {
         {/* Events */}
         <div
           className="relative"
-          onMouseEnter={() => setShowEventsSubNav(true)}
-          onMouseLeave={() => setShowEventsSubNav(false)}
+          onMouseEnter={handleMouseEnterEvents}
+          onMouseLeave={handleMouseLeaveEvents}
         >
           <Link
             href="#"
