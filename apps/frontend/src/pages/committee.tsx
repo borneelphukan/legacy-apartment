@@ -70,7 +70,7 @@ const Committee = () => {
 
         <div className="relative z-10 pb-20">
           <Banner title="Our Committee" subtitle="Meet The Heads" bgClass="committee-cover" />
-          <Breadcrumb items={[{ label: "Our Society" }, { label: "Committee" }]} linkClasses="inline-flex items-center text-sm font-normal text-gray-700 hover:text-orange-500" />
+          <Breadcrumb items={[{ label: "Our Society" }, { label: "Committee" }]} />
 
           <div className="max-w-6xl mx-auto px-6 md:px-12 mt-16">
             <div className="text-center mb-16">
@@ -113,9 +113,6 @@ const Committee = () => {
                     <div className="text-orange-500 font-semibold mb-4 tracking-wide uppercase text-sm">{member.role}</div>
                     
                     <div className="flex space-x-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <button className="text-gray-100 hover:text-orange-500 transition-colors">
-                        <Icon type="call" className="text-[20px]" />
-                      </button>
                     </div>
                   </div>
                 ))
@@ -190,7 +187,7 @@ const Committee = () => {
 
                           {/* Content Card */}
                           <div className="w-full ml-8 md:ml-12">
-                            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 hover:border-orange-200 group">
+                            <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-400">
                               <span className="text-sm font-bold text-orange-500 mb-2 block tracking-wider uppercase">
                                 {decision.date}
                               </span>

@@ -19,10 +19,10 @@ interface BreadcrumbProps {
 const Breadcrumb: React.FC<BreadcrumbProps> = ({ 
   items, 
   containerClasses = "flex", 
-  olClasses = "container inline-flex items-center space-x-1 md:space-x-3 m-4 md:pl-20 pl-4",
-  linkClasses = "inline-flex items-center text-sm font-normal text-gray-700 hover:text-orange-500",
-  activeClasses = "ml-1 text-sm font-normal text-gray-700 md:ml-2",
-  svgClasses = "w-3 h-3 text-gray-400 mx-1"
+  olClasses = "container flex items-center space-x-1 md:space-x-2 m-4 md:pl-20 pl-4",
+  linkClasses = "flex items-center text-sm font-normal text-gray-700 hover:text-orange-500 transition-colors uppercase tracking-[0.05em]",
+  activeClasses = "text-sm font-bold text-gray-900 uppercase tracking-[0.05em]",
+  svgClasses = "text-gray-400 mx-2"
 }) => {
   return (
     <nav className={containerClasses} aria-label="Breadcrumb">
@@ -30,26 +30,18 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
         {items.map((item, index) => {
           const isFirst = index === 0;
           return (
-            <li key={index} className={isFirst ? "inline-flex items-center" : ""}>
-              {isFirst ? (
-                item.href ? (
-                  <Link href={item.href} className={linkClasses}>
-                    {item.label}
-                  </Link>
-                ) : (
-                  <span className={linkClasses}>{item.label}</span>
-                )
+            <li key={index} className="flex items-center">
+              {!isFirst && (
+                <Icon type="keyboard_arrow_right" className={svgClasses} size="xs" />
+              )}
+              {item.href ? (
+                <Link href={item.href} className={isFirst ? linkClasses : activeClasses}>
+                  {item.label}
+                </Link>
               ) : (
-                <div className="flex items-center">
-                  <Icon type="keyboard_arrow_right" className={svgClasses} />
-                  {item.href ? (
-                    <Link href={item.href} className={activeClasses}>
-                      {item.label}
-                    </Link>
-                  ) : (
-                    <p className={activeClasses}>{item.label}</p>
-                  )}
-                </div>
+                <span className={isFirst ? linkClasses : activeClasses}>
+                  {item.label}
+                </span>
               )}
             </li>
           );

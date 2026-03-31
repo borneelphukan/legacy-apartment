@@ -198,7 +198,6 @@ const HelpDesk = () => {
                         required
                         value={formData.name}
                         onChange={(e) => setFormData({...formData, name: e.target.value})}
-                        placeholder="John Doe"
                         error={formErrors.name}
                       />
                       
