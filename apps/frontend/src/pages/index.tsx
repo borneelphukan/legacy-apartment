@@ -276,7 +276,7 @@ const Home = () => {
                 <span>Latest Announcements</span>
               </h2>
               <div className="space-y-5 overflow-y-auto flex-grow pr-2">
-                {announcements.map((ann, idx) => (
+                {announcements.slice(0, 3).map((ann, idx) => (
                   <Link 
                     key={idx} 
                     href={`/committee?announcement=${ann.id}`}
