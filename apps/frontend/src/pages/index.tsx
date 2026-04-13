@@ -13,7 +13,7 @@ const premisesImages = [
   { src: "/images/apartment/front_view_2.png", title: "Block B - The Legacy Apartments" },
   { src: "/images/apartment/view_from_top.png", title: "View from Top" },
   { src: "/images/apartment/committee.jpeg", title: "Our Committee Members" },
-  { src: "/images/apartment/sign.jpeg", title: "Entrance of our Society"},
+  { src: "/images/apartment/entrance.jpeg", title: "Entrance of our Society"},
   { src: "/images/apartment/main.png", title: "Main Building"},
 ];
 
