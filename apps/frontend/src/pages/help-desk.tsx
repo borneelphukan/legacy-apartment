@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import DefaultLayout from "@/layout/DefaultLayout";
 import Head from "next/head";
-import { Banner, Breadcrumb, Button, Input, TextArea, Icon, Spinner } from "@legacy-apartment/ui";
+import { Banner, Breadcrumb, Button, Input, TextArea, Icon, Spinner, Tabs } from "@legacy-apartment/ui";
 import api from "@/lib/api";
 import { helpDeskSchema, unlockSchema } from '@legacy-apartment/shared';
 
@@ -21,6 +21,21 @@ const HelpDesk = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [globalPassword, setGlobalPassword] = useState("");
+  const [activeTab, setActiveTab] = useState<'submit' | 'responses'>('submit');
+  const [complaints, setComplaints] = useState<any[]>([]);
+  const [loadingComplaints, setLoadingComplaints] = useState(false);
+
+  const fetchComplaints = async () => {
+    setLoadingComplaints(true);
+    try {
+      const response = await api.get('/complaints');
+      setComplaints(response.data);
+    } catch (e) {
+      console.error('Error fetching complaints:', e);
+    } finally {
+      setLoadingComplaints(false);
+    }
+  };
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -38,6 +53,12 @@ const HelpDesk = () => {
       setIsUnlocked(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (isUnlocked) {
+      fetchComplaints();
+    }
+  }, [isUnlocked, submitted]);
 
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
@@ -179,67 +200,123 @@ const HelpDesk = () => {
                 </div>
 
                 {/* Form Section */}
-                <div className="md:col-span-3 p-8 md:p-12">
-                  {submitted ? (
-                    <div className="h-full flex flex-col items-center justify-center text-center py-12">
-                      <div className="w-20 h-20 bg-green-300 rounded-full flex items-center justify-center mb-6 text-green-200">
-                        <Icon type="check_circle" className="text-[48px]" />
-                      </div>
-                      <h3 className="text-2xl font-bold mb-2">Complaint Received</h3>
-                      <p className="mb-8">
-                        Thank you for bringing this to our attention. We have registered your complaint and will get back to you soon.
-                      </p>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <Input 
-                        id="name"
-                        label="Full Name"
-                        required
-                        value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
-                        error={formErrors.name}
-                      />
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Input 
-                          id="apartment"
-                          label="Apartment / Flat No."
-                          required
-                          value={formData.apartment}
-                          onChange={(e) => setFormData({...formData, apartment: e.target.value})}
-                          error={formErrors.apartment}
-                        />
-                        <Input 
-                          id="phone_no"
-                          label="Phone Number"
-                          required
-                          type="tel"
-                          value={formData.phone_no}
-                          onChange={(e) => setFormData({...formData, phone_no: e.target.value})}
-                          error={formErrors.phone_no}
-                        />
-                      </div>
+                <div className="md:col-span-3 p-8 md:p-12 flex flex-col h-full min-h-[500px]">
+                  <Tabs 
+                    activeTab={activeTab}
+                    onTabChange={(tab) => setActiveTab(tab as 'submit' | 'responses')}
+                    tabs={[
+                      {
+                        value: 'submit',
+                        label: 'New Complaint',
+                        content: submitted ? (
+                          <div className="h-full flex flex-col items-center justify-center text-center py-12">
+                            <div className="w-20 h-20 bg-green-300 rounded-full flex items-center justify-center mb-6 text-green-600">
+                              <Icon type="check_circle" className="text-[48px]" />
+                            </div>
+                            <h3 className="text-2xl font-bold mb-2">Complaint Received</h3>
+                            <p className="mb-8 text-gray-600">
+                              Thank you for bringing this to our attention. We have registered your complaint and will get back to you soon.
+                            </p>
+                            <Button label="Submit Another Complaint" variant="outline" onClick={() => setSubmitted(false)}/>
+                          </div>
+                        ) : (
+                          <form onSubmit={handleSubmit} className="space-y-6 mt-4">
+                            <Input 
+                              id="name"
+                              label="Full Name"
+                              required
+                              value={formData.name}
+                              onChange={(e) => setFormData({...formData, name: e.target.value})}
+                              error={formErrors.name}
+                            />
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                              <Input 
+                                id="apartment"
+                                label="Apartment / Flat No."
+                                required
+                                value={formData.apartment}
+                                onChange={(e) => setFormData({...formData, apartment: e.target.value})}
+                                error={formErrors.apartment}
+                              />
+                              <Input 
+                                id="phone_no"
+                                label="Phone Number"
+                                required
+                                type="tel"
+                                value={formData.phone_no}
+                                onChange={(e) => setFormData({...formData, phone_no: e.target.value})}
+                                error={formErrors.phone_no}
+                              />
+                            </div>
 
-                      <TextArea 
-                        id="complaint"
-                        label="Your Complaint"
-                        required
-                        rows={5}
-                        className="border border-gray-400 text-gray-100"
-                        value={formData.complaint}
-                        onChange={(e) => setFormData({...formData, complaint: e.target.value})}
-                        error={formErrors.complaint}
-                      />
+                            <TextArea 
+                              id="complaint"
+                              label="Your Complaint"
+                              required
+                              rows={5}
+                              className="border border-gray-400 text-gray-100"
+                              value={formData.complaint}
+                              onChange={(e) => setFormData({...formData, complaint: e.target.value})}
+                              error={formErrors.complaint}
+                            />
 
-                      <Button 
-                        type="submit" 
-                        variant="primary" 
-                      >
-                         Submit
-                      </Button>
-                    </form>
-                  )}
+                            <Button 
+                              type="submit" 
+                              variant="primary" 
+                            >
+                               Submit
+                            </Button>
+                          </form>
+                        )
+                      },
+                      {
+                        value: 'responses',
+                        label: `Responses (${complaints.filter(c => c.reply).length})`,
+                        content: (
+                          <div className="space-y-6 overflow-y-auto max-h-[500px] pr-2 mt-4">
+                            {loadingComplaints ? (
+                              <div className="flex justify-center items-center py-12">
+                                <Spinner className="size-8 text-orange-500" />
+                              </div>
+                            ) : complaints.length === 0 ? (
+                              <p className="text-center text-gray-400 py-12">No complaints submitted yet.</p>
+                            ) : (
+                              complaints.map((item) => (
+                                <div key={item.id} className="bg-slate-50 border border-gray-400 rounded-2xl p-5 space-y-3 transition-all text-dark animate-in fade-in duration-200">
+                                  <div className="flex justify-between items-start gap-4">
+                                    <div>
+                                      <span className="font-bold text-gray-800 text-sm">{item.name}</span>
+                                      <span className="text-dark text-xs block mt-0.5">Apartment No. {item.apartment}</span>
+                                    </div>
+                                    <span className="text-dark text-xs font-sm">
+                                      {new Date(item.createdAt).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                  <p className="text-dark text-sm">
+                                    {item.complaint}
+                                  </p>
+                                  {item.reply ? (
+                                    <div className="bg-orange-50 border border-orange-100 rounded-xl p-3.5 space-y-1.5">
+                                      <span className="text-xs font-black text-orange-600 uppercase tracking-widest flex items-center gap-1">
+                                        <Icon type="support_agent" className="text-[16px]" />
+                                        Reply from President
+                                      </span>
+                                      <p className="text-gray-700 text-sm leading-relaxed italic">
+                                        {item.reply}
+                                      </p>
+                                    </div>
+                                  ) : (
+                                    <div></div>
+                                  )}
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        )
+                      }
+                    ]}
+                  />
                 </div>
               </div>
               )}

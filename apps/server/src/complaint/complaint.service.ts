@@ -22,4 +22,11 @@ export class ComplaintService {
       where: { id },
     });
   }
+
+  async reply(id: number, reply: string) {
+    return this.prisma.complaint.update({
+      where: { id },
+      data: { reply },
+    });
+  }
 }

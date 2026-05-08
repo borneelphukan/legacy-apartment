@@ -17,8 +17,7 @@ export class ComplaintController {
     return this.complaintService.create(createComplaintDto);
   }
 
-  @Roles(...PERMISSIONS.READ_COMPLAINT)
-  @UseGuards(RolesGuard)
+  @Public()
   @Get()
   findAll() {
     return this.complaintService.findAll();
@@ -29,6 +28,13 @@ export class ComplaintController {
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.complaintService.remove(id);
+  }
+
+  @Roles(...PERMISSIONS.REPLY_COMPLAINT)
+  @UseGuards(RolesGuard)
+  @Post(':id/reply')
+  reply(@Param('id', ParseIntPipe) id: number, @Body() replyDto: { reply: string }) {
+    return this.complaintService.reply(id, replyDto.reply);
   }
 }
 

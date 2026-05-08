@@ -115,6 +115,7 @@ model Complaint {
   apartment String
   phone_no  String
   complaint String
+  reply     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

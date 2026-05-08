@@ -21,3 +21,4 @@ export { StatusLight } from "./components/statusLight";
 export * from "./components/avatar";
 export { Icon } from "./components/icon";
 export * from "./components/spinner";
+export * from "./components/tabs";
