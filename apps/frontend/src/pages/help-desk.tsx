@@ -279,24 +279,25 @@ const HelpDesk = () => {
                               <div className="flex justify-center items-center py-12">
                                 <Spinner className="size-8 text-orange-500" />
                               </div>
-                            ) : complaints.length === 0 ? (
-                              <p className="text-center text-gray-400 py-12">No complaints submitted yet.</p>
+                            ) : complaints.filter((c) => c.reply).length === 0 ? (
+                              <p className="text-center text-gray-400 py-12">No responses yet.</p>
                             ) : (
-                              complaints.map((item) => (
-                                <div key={item.id} className="bg-slate-50 border border-gray-400 rounded-2xl p-5 space-y-3 transition-all text-dark animate-in fade-in duration-200">
-                                  <div className="flex justify-between items-start gap-4">
-                                    <div>
-                                      <span className="font-bold text-gray-800 text-sm">{item.name}</span>
-                                      <span className="text-dark text-xs block mt-0.5">Apartment No. {item.apartment}</span>
+                              complaints
+                                .filter((item) => item.reply)
+                                .map((item) => (
+                                  <div key={item.id} className="bg-slate-50 border border-gray-400 rounded-2xl p-5 space-y-3 transition-all text-dark animate-in fade-in duration-200">
+                                    <div className="flex justify-between items-start gap-4">
+                                      <div>
+                                        <span className="font-bold text-gray-800 text-sm">{item.name}</span>
+                                        <span className="text-dark text-xs block mt-0.5">Apartment No. {item.apartment}</span>
+                                      </div>
+                                      <span className="text-dark text-xs font-sm">
+                                        {new Date(item.createdAt).toLocaleDateString()}
+                                      </span>
                                     </div>
-                                    <span className="text-dark text-xs font-sm">
-                                      {new Date(item.createdAt).toLocaleDateString()}
-                                    </span>
-                                  </div>
-                                  <p className="text-dark text-sm">
-                                    {item.complaint}
-                                  </p>
-                                  {item.reply ? (
+                                    <p className="text-dark text-sm">
+                                      {item.complaint}
+                                    </p>
                                     <div className="bg-orange-50 border border-orange-100 rounded-xl p-3.5 space-y-1.5">
                                       <span className="text-xs font-black text-orange-600 uppercase tracking-widest flex items-center gap-1">
                                         <Icon type="support_agent" className="text-[16px]" />
@@ -306,11 +307,8 @@ const HelpDesk = () => {
                                         {item.reply}
                                       </p>
                                     </div>
-                                  ) : (
-                                    <div></div>
-                                  )}
-                                </div>
-                              ))
+                                  </div>
+                                ))
                             )}
                           </div>
                         )
